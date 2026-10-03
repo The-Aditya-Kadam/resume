@@ -1,0 +1,54 @@
+services:
+  - type: web
+    runtime: static
+    name: aditya-kadam-resume
+    buildCommand: |
+      cat > .render-scroll-enhance.html <<'EOF'
+      <style>
+      #experience .timeline{perspective:1800px;transform-style:preserve-3d}
+      #experience .job{transform-style:preserve-3d;backface-visibility:hidden;will-change:transform,opacity,filter}
+      #experience .timeline-line{transform-origin:50% 0%;will-change:transform}
+      #experience .job::after{content:"";position:absolute;inset:0;border-radius:24px;pointer-events:none;background:linear-gradient(115deg,rgba(36,107,254,.08),transparent 38%,rgba(128,103,255,.06));opacity:.8;transform:translateZ(1px)}
+      @media (prefers-reduced-motion:reduce){#experience .job{transform:none!important}}
+      </style>
+      <script src="https://cdn.jsdelivr.net/npm/animejs@4.5.0/dist/bundles/anime.umd.min.js"></script>
+      <script>
+      (function(){
+        function initExperienceScroll(){
+          if(!window.anime || !window.anime.onScroll || !window.anime.animate) return;
+          if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+          var section=document.querySelector('#experience');
+          var cards=Array.from(document.querySelectorAll('#experience .job'));
+          var line=document.querySelector('#experience .timeline-line');
+          if(!section || !cards.length) return;
+          if(window.ScrollTrigger){
+            window.ScrollTrigger.getAll().forEach(function(st){
+              if(st.trigger && section.contains(st.trigger)) st.kill();
+            });
+          }
+          var animate=window.anime.animate, onScroll=window.anime.onScroll;
+          cards.forEach(function(card,index){
+            card.style.transformStyle='preserve-3d';
+            animate(card,{
+              opacity:{from:.42,to:1},
+              translateY:{from:90,to:0},
+              translateZ:{from:-220,to:0},
+              rotateX:{from:index%2 ? 8 : -8,to:0},
+              rotateY:{from:index%2 ? -5 : 5,to:0},
+              scale:{from:.91,to:1},
+              filter:{from:'blur(3px)',to:'blur(0px)'},
+              ease:'outCubic',
+              autoplay:onScroll({target:card,sync:true})
+            });
+          });
+          if(line){
+            animate(line,{scaleY:{from:0,to:1},ease:'linear',autoplay:onScroll({target:section,sync:true})});
+          }
+        }
+        if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',initExperienceScroll); else initExperienceScroll();
+      })();
+      </script>
+      EOF
+      awk 'BEGIN{while((getline line < ".render-scroll-enhance.html")>0) extra=extra line "\n"} /<\/body>/{printf "%s",extra} {print}' index.html > index.render.html && mv index.render.html index.html && rm -f .render-scroll-enhance.html
+    staticPublishPath: .
+    autoDeploy: true

@@ -317,6 +317,8 @@ footer{flex-direction:column}
 }
 /* Desktop: keep experience cards crisp (neutralises the render.yaml scroll animation above 1100px) */
 @media (min-width:1101px){#experience .job{opacity:1!important;filter:none!important;transform:none!important}#experience .timeline-line{transform:none!important}}
+/* Tablet & phone: keep experience cards crisp and full width (the render.yaml tilt/blur/shift left a big gap and blurry, narrow cards) */
+@media (max-width:1100px){#experience .job{opacity:1!important;filter:none!important;transform:none!important}}
 /* Tablet & phone 3D (desktop untouched) */
 @media (max-width:1100px){
 .stack-view{display:block;position:relative;top:auto;scroll-margin-top:90px;height:420px;perspective:1400px;margin:0;overflow:hidden;border-radius:24px}

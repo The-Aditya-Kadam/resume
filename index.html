@@ -317,8 +317,14 @@ footer{flex-direction:column}
 }
 /* Desktop: keep experience cards crisp (neutralises the render.yaml scroll animation above 1100px) */
 @media (min-width:1101px){#experience .job{opacity:1!important;filter:none!important;transform:none!important}#experience .timeline-line{transform:none!important}}
-/* Tablet & phone: keep experience cards crisp and full width (the render.yaml tilt/blur/shift left a big gap and blurry, narrow cards) */
-@media (max-width:1100px){#experience .job{opacity:1!important;filter:none!important;transform:none!important}}
+/* Tablet & phone: one card per layer: tap a layer in the stack to show only that company's card (desktop keeps the full timeline) */
+@media (max-width:1100px){
+#experience .job{opacity:1!important;filter:none!important;transform:none!important}
+#experience .timeline{padding-left:0}
+#experience .timeline-line,#experience .job-dot{display:none}
+#experience .job:not(.is-active){display:none}
+#experience .job-head{cursor:default}
+}
 /* Tablet & phone 3D (desktop untouched) */
 @media (max-width:1100px){
 .stack-view{display:block;position:relative;top:auto;scroll-margin-top:90px;height:420px;perspective:1400px;margin:0;overflow:hidden;border-radius:24px}
@@ -638,7 +644,7 @@ body{background:#fff!important;color:#111827!important}
   var still0=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   jobs.forEach(function(j,k){
     j.querySelector('.job-head').addEventListener('click',function(){pick(k)});
-    j.addEventListener('mouseenter',function(){pick(k)});
+    j.addEventListener('mouseenter',function(){if(!window.matchMedia('(max-width:1100px)').matches)pick(k)});
   });
   /* Click a layer: jump to its card */
   slabs.forEach(function(sl,k){
@@ -663,17 +669,10 @@ body{background:#fff!important;color:#111827!important}
   window.addEventListener('scroll',topCheck,{passive:true});topCheck();
   pick(0);
 
-  /* Tablet & phone: 3D stack auto-cycles while visible, cards tilt in on scroll */
+  /* Tablet & phone: one card per layer (the stack no longer auto-cycles, so the lifted layer always matches the card shown), panels tilt in on scroll */
   var small=window.matchMedia('(max-width:1100px)'),still=window.matchMedia('(prefers-reduced-motion: reduce)');
   if(small.matches&&!still.matches&&'IntersectionObserver' in window){
-    var cur=0,timer=null,stackView=document.querySelector('.stack-view');
-    var cycle=function(){if(userPicked)return;cur=(cur+1)%slabs.length;pick(cur)};
-    jobs.forEach(function(j,k){j.querySelector('.job-head').addEventListener('click',function(){cur=k})});
-    new IntersectionObserver(function(es){es.forEach(function(e){
-      if(e.isIntersecting&&!timer){timer=setInterval(cycle,2400)}
-      if(!e.isIntersecting&&timer){clearInterval(timer);timer=null}
-    })},{threshold:.4}).observe(stackView);
-    var revealEls=[].slice.call(document.querySelectorAll('.hero-copy,.orbit,.block-head,.trio-col>div:first-child,.stack-view,.panel,.summary-text,.contact-card'));
+    var revealEls=[].slice.call(document.querySelectorAll('.hero-copy,.orbit,.block-head,.trio-col>div:first-child,.stack-view,.panel,.summary-text,.contact-card')).filter(function(c){return !c.closest('#experience')});
     revealEls.forEach(function(c){c.classList.add('reveal3d')});
     var ticking=false;
     var reveal=function(){

@@ -53,7 +53,16 @@ async function ensureDatabase() {
     );
     console.log("Current CV data uploaded to PostgreSQL.");
   } else {
-    console.log("CV data already exists; no seed overwrite performed.");
+    const history = await pool.query("SELECT 1 FROM cv_versions WHERE document_id = 1 LIMIT 1");
+    if (history.rowCount === 0) {
+      await pool.query(
+        "INSERT INTO cv_versions (document_id, version, data) VALUES (1, $1, $2::jsonb)",
+        [result.rows[0].version || 1, JSON.stringify(result.rows[0].data)]
+      );
+      console.log("Initial CV version added to rollback history.");
+    } else {
+      console.log("CV data already exists; no seed overwrite performed.");
+    }
   }
 }
 

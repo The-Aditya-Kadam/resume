@@ -47,7 +47,7 @@
   <section class="panel"><div class="item-head"><h2>Custom Sections / Cards</h2><button class="btn secondary" onclick="addCustomSection()">+ Add Section</button></div><div id="customSections"></div></section>
 
   <div class="actions">
-    <button class="btn primary" onclick="saveDraft()">SAVE CV DRAFT</button>
+    <button class="btn primary" onclick="saveDraft()">SAVE & OPEN MAIN PAGE</button>
     <button class="btn secondary" onclick="previewCV()">PREVIEW CV</button>
     <button class="btn muted" onclick="resetDraft()">RESET DRAFT</button>
     <span id="status">Loading published CV data…</span>
@@ -125,7 +125,7 @@ function addCustomSection(){sync();cv.customSections.push({label:"",title:"New S
 function removeItem(group,i){sync();cv[group].splice(i,1);render()}\nfunction moveItem(group,i,dir){sync();const j=i+dir;if(j<0||j>=cv[group].length)return;[cv[group][i],cv[group][j]]=[cv[group][j],cv[group][i]];render()}
 function addBullet(i){sync();cv.experience[i].bullets.push("");render()}
 function removeBullet(i,j){sync();cv.experience[i].bullets.splice(j,1);render()}
-function saveDraft(){sync();localStorage.setItem(KEY,JSON.stringify(cv));document.getElementById("status").textContent="Draft saved in this browser at "+new Date().toLocaleTimeString()}
+function saveDraft(){sync();localStorage.setItem(KEY,JSON.stringify(cv));document.getElementById("status").textContent="Saved. Opening main page…";setTimeout(()=>window.location.href="/",300)}
 function resetDraft(){localStorage.removeItem(KEY);cv=clone(base);render();document.getElementById("status").textContent="Draft reset to the starter CV data."}
 async function loadPublished(){
   try{const r=await fetch("../data.json?v="+Date.now());if(!r.ok)throw new Error("Could not load published data");const d=await r.json();cv=Object.assign(clone(base),d);render();document.getElementById("status").textContent="Loaded published data."}catch(e){document.getElementById("status").textContent=e.message}

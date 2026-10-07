@@ -24,6 +24,11 @@
     </div>
   </div>
 
+  <section class="panel"><h2>Site & SEO Settings</h2><div class="grid">
+    <div class="full"><label>Page Title</label><input id="siteTitle"></div>
+    <div class="full"><label>Meta Description</label><textarea id="metaDescription"></textarea></div>
+  </div></section>
+
   <section class="panel"><h2>Personal Information</h2><div class="grid">
     <div><label>Name</label><input id="name"></div>
     <div><label>Professional Title</label><input id="role"></div>
@@ -73,6 +78,7 @@ const MAX_HISTORY=5;
 let cv=null;
 
 const base={
+  site:{title:"Aditya Kadam | Assistant Technical Project Manager",description:"Aditya Shashikant Kadam — Assistant Technical Project Manager with 10+ years of web engineering, technical project management, SEO, digital marketing and data science experience."},
   name:"ADITYA SHASHIKANT KADAM",
   role:"ASSISTANT TECHNICAL PROJECT MANAGER",
   location:"Mumbai, India",
@@ -116,6 +122,10 @@ function val(id){return document.getElementById(id).value}
 function set(id,v){document.getElementById(id).value=v||""}
 
 function render(){
+  cv.site=cv.site||{};
+  const st=document.getElementById("siteTitle"),md=document.getElementById("metaDescription");
+  if(st)st.value=cv.site.title||"";
+  if(md)md.value=cv.site.description||"";
   set("name",cv.name);set("role",cv.role);set("location",cv.location);set("phone",cv.phone);set("email",cv.email);set("linkedin",cv.linkedin);set("github",cv.github);set("portfolio",cv.portfolio);set("targetLocations",cv.targetLocations);set("summary",cv.summary);
   document.getElementById("competencies").innerHTML=cv.competencies.map((x,i)=>`<div class="item"><div class="item-head"><strong>Competency ${i+1}</strong><div class="row-actions"><button class="btn muted" onclick="moveItem('competencies',${i},-1)">↑</button><button class="btn muted" onclick="moveItem('competencies',${i},1)">↓</button><button class="btn danger" onclick="removeItem('competencies',${i})">Remove</button></div></div><div class="grid"><div><label>Title</label><input data-group="competencies" data-i="${i}" data-k="title" value="${esc(x.title)}"></div><div><label>Skills / Tools</label><input data-group="competencies" data-i="${i}" data-k="text" value="${esc(x.text)}"></div></div></div>`).join("");
   document.getElementById("experience").innerHTML=cv.experience.map((x,i)=>`<div class="item"><div class="item-head"><strong>Experience ${i+1}</strong><div class="row-actions"><button class="btn muted" onclick="moveItem('experience',${i},-1)">↑</button><button class="btn muted" onclick="moveItem('experience',${i},1)">↓</button><button class="btn danger" onclick="removeItem('experience',${i})">Remove</button></div></div><div class="grid"><div><label>Role</label><input data-group="experience" data-i="${i}" data-k="role" value="${esc(x.role)}"></div><div><label>Company</label><input data-group="experience" data-i="${i}" data-k="company" value="${esc(x.company)}"></div><div><label>Dates</label><input data-group="experience" data-i="${i}" data-k="dates" value="${esc(x.dates)}"></div><div class="full"><label>Achievement</label><input data-group="experience" data-i="${i}" data-k="achievement" value="${esc(x.achievement)}"></div><div class="full"><label>Responsibilities / Bullets</label><div id="bullets-${i}">${(x.bullets||[]).map((b,j)=>`<div class="bullet"><input data-bullet-group="${i}" data-bullet-index="${j}" value="${esc(b)}"><button class="btn danger" onclick="removeBullet(${i},${j})">Remove</button></div>`).join("")}</div><button class="btn secondary" onclick="addBullet(${i})">+ Add Bullet</button></div></div></div>`).join("");
@@ -126,6 +136,9 @@ function render(){
 }
 
 function sync(){
+  cv.site=cv.site||{};
+  if(val("siteTitle").trim()!=="") cv.site.title=val("siteTitle");
+  if(val("metaDescription").trim()!=="") cv.site.description=val("metaDescription");
   // Blank inputs never overwrite an existing value. This lets you leave a field empty
   // without accidentally deleting the published/current value.
   ["name","role","location","phone","email","linkedin","github","portfolio","targetLocations","summary"].forEach(id=>{
@@ -204,16 +217,17 @@ function rollbackDraft(){
 }
 async function loadPublished(){
   try{
-    const r=await fetch("../cv-page/data.json?v="+Date.now());
+    const r=await fetch("https://aditya-cv-api.onrender.com/api/cv?v="+Date.now(),{cache:"no-store"});
     if(!r.ok)throw new Error("Could not load published data");
-    const d=await r.json();
+    const result=await r.json();
+    const d=result.data||{};
     cv=Object.assign(clone(base),d);
     render();
     updateHistoryStatus();
     if(!historyCount()) document.getElementById("status").textContent="✓ CV ready.";
   }catch(e){document.getElementById("status").textContent=e.message}
 }
-function previewCV(){sync();localStorage.setItem(KEY,JSON.stringify(cv));window.open("../cv-page/?preview="+Date.now(),"_blank")}
+function previewCV(){sync();localStorage.setItem(KEY,JSON.stringify(cv));window.open("/","_blank")}
 function exportJSON(){sync();const blob=new Blob([JSON.stringify(cv,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="aditya-kadam-cv.json";a.click();URL.revokeObjectURL(a.href)}
 function importJSON(e){const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{cv=Object.assign(clone(base),JSON.parse(reader.result));render();document.getElementById("status").textContent="Imported CV data. Save Draft when ready."}catch{document.getElementById("status").textContent="Invalid JSON file."}};reader.readAsText(file);e.target.value=""}
 
@@ -290,7 +304,7 @@ function importJSON(e){const file=e.target.files[0];if(!file)return;const reader
       document.getElementById("status").textContent="✓ Rolled back to database version "+result.version+".";
     }catch(e){document.getElementById("status").textContent="Rollback failed: "+e.message;}
   };
-  window.previewCV=function(){sync();localStorage.setItem(KEY,JSON.stringify(cv));window.open("../cv-page/?preview="+Date.now(),"_blank")};
+  window.previewCV=function(){sync();localStorage.setItem(KEY,JSON.stringify(cv));window.open("/","_blank")};
   loadPublished();
 })();
 </script>

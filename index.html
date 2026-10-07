@@ -644,17 +644,20 @@ body{background:#fff!important;color:#111827!important}
   }
   window.renderOrbitFromExperience=function(ex){
     var items=Array.isArray(ex)?ex:[];
+    function orbitEsc(v){
+      return String(v==null?"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+    }
     ring.innerHTML=items.map(function(x,i){
       var company=String(x.company||'Experience '+(i+1));
       var logo=orbitLogo(company);
-      var image=logo?'<img src="'+attr(company)+'" style="display:none">':"";
+      var image="";
       if(logo){
-        image='<img src="'+attr(logo)+'" alt="'+attr(company)+' logo" loading="lazy">';
+        image='<img src="'+orbitEsc(logo)+'" alt="'+orbitEsc(company)+' logo" loading="lazy">';
       }else{
-        image='<span>'+text(company)+'</span>';
+        image='<span>'+orbitEsc(company)+'</span>';
       }
-      var proof=x.proof?'<a class="plink" href="'+attr(x.proof)+'" target="_blank" rel="noreferrer">VIEW PROOF ↗</a>':"";
-      return '<article class="pcard"><div class="shot logo" style="background:#ffffff">'+image+'</div><div class="pmeta"><span>'+String(i+1).padStart(2,'0')+'</span><span>'+text(x.dates||"")+'</span></div><div><h3>'+text(company)+'</h3><span class="prole">'+text(x.role||"")+'</span></div><div class="ptags">'+text(orbitTags(x))+'</div>'+proof+'</article>';
+      var proof=x.proof?'<a class="plink" href="'+orbitEsc(x.proof)+'" target="_blank" rel="noreferrer">VIEW PROOF ↗</a>':"";
+      return '<article class="pcard"><div class="shot logo" style="background:#ffffff">'+image+'</div><div class="pmeta"><span>'+String(i+1).padStart(2,'0')+'</span><span>'+orbitEsc(x.dates||"")+'</span></div><div><h3>'+orbitEsc(company)+'</h3><span class="prole">'+orbitEsc(x.role||"")+'</span></div><div class="ptags">'+orbitEsc(orbitTags(x))+'</div>'+proof+'</article>';
     }).join("");
     setupOrbit();
   };

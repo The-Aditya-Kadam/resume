@@ -56,6 +56,8 @@
 
 <script>
 const KEY="aditya-kadam-cv-draft";
+const HISTORY_KEY="aditya-kadam-cv-history";
+const MAX_HISTORY=5;
 let cv=null;
 
 const base={
@@ -112,9 +114,35 @@ function render(){
 }
 
 function sync(){
-  ["name","role","location","phone","email","linkedin","github","portfolio","targetLocations","summary"].forEach(id=>cv[id]=val(id));
-  document.querySelectorAll("[data-group]").forEach(el=>{cv[el.dataset.group][+el.dataset.i][el.dataset.k]=el.value});
-  document.querySelectorAll("[data-bullet-group]").forEach(el=>{const i=+el.dataset.bulletGroup,j=+el.dataset.bulletIndex;cv.experience[i].bullets[j]=el.value});
+  // Blank inputs never overwrite an existing value. This lets you leave a field empty
+  // without accidentally deleting the published/current value.
+  ["name","role","location","phone","email","linkedin","github","portfolio","targetLocations","summary"].forEach(id=>{
+    const next=val(id).trim();
+    if(next!=="") cv[id]=val(id);
+  });
+  document.querySelectorAll("[data-group]").forEach(el=>{
+    const next=el.value.trim();
+    if(next!==""){
+      cv[el.dataset.group][+el.dataset.i][el.dataset.k]=el.value;
+    }
+  });
+  document.querySelectorAll("[data-bullet-group]").forEach(el=>{
+    const i=+el.dataset.bulletGroup,j=+el.dataset.bulletIndex,next=el.value.trim();
+    if(next!=="") cv.experience[i].bullets[j]=el.value;
+  });
+}
+function historyList(){
+  try{return JSON.parse(localStorage.getItem(HISTORY_KEY)||"[]")}catch{return []}
+}
+function pushHistory(snapshot){
+  const h=historyList();
+  h.unshift(clone(snapshot));
+  localStorage.setItem(HISTORY_KEY,JSON.stringify(h.slice(0,MAX_HISTORY)));
+}
+function historyCount(){return historyList().length}
+function updateHistoryStatus(){
+  const n=historyCount();
+  document.getElementById("status").textContent=(n?("Rollback history: "+n+"/5 saved change"+(n===1?"":"s")):"No rollback history yet.");
 }
 function addCompetency(){sync();cv.competencies.push({title:"New Competency",text:""});render()}
 function addExperience(){sync();cv.experience.push({role:"New Role",company:"Company",dates:"",bullets:[""],achievement:""});render()}
@@ -125,16 +153,58 @@ function addCustomSection(){sync();cv.customSections.push({label:"",title:"New S
 function removeItem(group,i){sync();cv[group].splice(i,1);render()}\nfunction moveItem(group,i,dir){sync();const j=i+dir;if(j<0||j>=cv[group].length)return;[cv[group][i],cv[group][j]]=[cv[group][j],cv[group][i]];render()}
 function addBullet(i){sync();cv.experience[i].bullets.push("");render()}
 function removeBullet(i,j){sync();cv.experience[i].bullets.splice(j,1);render()}
-function saveDraft(){sync();localStorage.setItem(KEY,JSON.stringify(cv));document.getElementById("status").textContent="Saved. Opening main page…";setTimeout(()=>window.location.href="/",300)}
-function resetDraft(){localStorage.removeItem(KEY);cv=clone(base);render();document.getElementById("status").textContent="Draft reset to the starter CV data."}\nfunction rollbackDraft(){if(!confirm("Rollback the current browser draft to the last loaded/published CV data?"))return;localStorage.removeItem(KEY);loadPublished()}
+function saveDraft(){
+  sync();
+  const previousRaw=localStorage.getItem(KEY);
+  if(previousRaw){
+    try{pushHistory(JSON.parse(previousRaw))}catch{}
+  }
+  localStorage.setItem(KEY,JSON.stringify(cv));
+  document.getElementById("status").textContent="Saved. Opening main page…";
+  setTimeout(()=>window.location.href="/",300)
+}
+function resetDraft(){localStorage.removeItem(KEY);localStorage.removeItem(HISTORY_KEY);cv=clone(base);render();document.getElementById("status").textContent="Draft reset to the starter CV data. Rollback history cleared."}\nfunction rollbackDraft(){
+  const h=historyList();
+  if(!h.length){
+    document.getElementById("status").textContent="No saved changes available to roll back.";
+    return;
+  }
+  if(!confirm("Rollback the current draft by one saved change? You can roll back up to the last 5 saved changes."))return;
+  const previous=h.shift();
+  localStorage.setItem(KEY,JSON.stringify(previous));
+  localStorage.setItem(HISTORY_KEY,JSON.stringify(h));
+  cv=clone(previous);
+  render();
+  document.getElementById("status").textContent="Rolled back 1 change. "+h.length+"/5 rollback changes remain.";
+}
 async function loadPublished(){
-  try{const r=await fetch("../data.json?v="+Date.now());if(!r.ok)throw new Error("Could not load published data");const d=await r.json();cv=Object.assign(clone(base),d);render();document.getElementById("status").textContent="Loaded published data."}catch(e){document.getElementById("status").textContent=e.message}
+  try{
+    const r=await fetch("../data.json?v="+Date.now());
+    if(!r.ok)throw new Error("Could not load published data");
+    const d=await r.json();
+    cv=Object.assign(clone(base),d);
+    render();
+    updateHistoryStatus();
+    if(!historyCount()) document.getElementById("status").textContent="Loaded published data.";
+  }catch(e){document.getElementById("status").textContent=e.message}
 }
 function previewCV(){sync();localStorage.setItem(KEY,JSON.stringify(cv));window.open("../cv-page/?preview="+Date.now(),"_blank")}
 function exportJSON(){sync();const blob=new Blob([JSON.stringify(cv,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="aditya-kadam-cv.json";a.click();URL.revokeObjectURL(a.href)}
 function importJSON(e){const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{cv=Object.assign(clone(base),JSON.parse(reader.result));render();document.getElementById("status").textContent="Imported CV data. Save Draft when ready."}catch{document.getElementById("status").textContent="Invalid JSON file."}};reader.readAsText(file);e.target.value=""}
 
-(async()=>{try{const saved=localStorage.getItem(KEY);if(saved){cv=Object.assign(clone(base),JSON.parse(saved));render();document.getElementById("status").textContent="Loaded your browser draft."}else{await loadPublished()}}catch{cv=clone(base);render()}})();
+(async()=>{
+  try{
+    const saved=localStorage.getItem(KEY);
+    if(saved){
+      cv=Object.assign(clone(base),JSON.parse(saved));
+      render();
+      updateHistoryStatus();
+      document.getElementById("status").textContent="Loaded your browser draft. "+historyCount()+"/5 rollback changes available.";
+    }else{
+      await loadPublished();
+    }
+  }catch{cv=clone(base);render()}
+})();
 </script>
 </body>
 </html>

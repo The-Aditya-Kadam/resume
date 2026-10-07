@@ -367,6 +367,27 @@ body{background:#fff!important;color:#111827!important}
 <script>
 (function(){try{if(localStorage.getItem('ak-theme')==='dark'){document.body.classList.add('dark-theme')}}catch(e){}})();
 </script>
+<script>
+(function(){
+  function applyCVDraft(){
+    try{
+      var raw=localStorage.getItem("aditya-kadam-cv-draft");
+      if(!raw)return;
+      var d=JSON.parse(raw);
+      var summary=document.querySelector("#summary .summary-text");
+      if(summary && d.summary){
+        summary.innerHTML="<p>"+String(d.summary).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")+"</p>";
+      }
+      var heroLead=document.querySelector(".hero .lead");
+      if(heroLead && d.summary) heroLead.textContent=d.summary;
+      var role=document.querySelector(".hero .now b");
+      if(role && d.role) role.textContent=d.role;
+    }catch(e){}
+  }
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",applyCVDraft); else applyCVDraft();
+})();
+</script>
+
 <header class="nav" aria-label="Primary navigation">
 <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch to dark theme" aria-pressed="false">
 <span class="knob"></span>

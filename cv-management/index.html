@@ -11,9 +11,9 @@
 <body>
 <div class="wrap">
   <div class="top">
-    <div><h1>CV Management</h1><p>Edit the CV structure and content. Changes are saved as a browser draft until publishing is connected.</p></div>
+    <div><h1>CV Management</h1><p>Edit the CV structure and content. All fields are optional. Changes are saved as a browser draft until publishing is connected.</p></div>
     <div class="row-actions">
-      <button class="btn secondary" onclick="loadPublished()">Load Published</button>
+      <button class="btn secondary" onclick="loadPublished()">Load Published</button><button class="btn muted" onclick="rollbackDraft()">ROLLBACK</button>
       <button class="btn muted" onclick="exportJSON()">Export JSON</button>
       <button class="btn muted" onclick="document.getElementById('importFile').click()">Import JSON</button>
       <input id="importFile" type="file" accept=".json,application/json" hidden onchange="importJSON(event)">
@@ -126,7 +126,7 @@ function removeItem(group,i){sync();cv[group].splice(i,1);render()}\nfunction mo
 function addBullet(i){sync();cv.experience[i].bullets.push("");render()}
 function removeBullet(i,j){sync();cv.experience[i].bullets.splice(j,1);render()}
 function saveDraft(){sync();localStorage.setItem(KEY,JSON.stringify(cv));document.getElementById("status").textContent="Saved. Opening main page…";setTimeout(()=>window.location.href="/",300)}
-function resetDraft(){localStorage.removeItem(KEY);cv=clone(base);render();document.getElementById("status").textContent="Draft reset to the starter CV data."}
+function resetDraft(){localStorage.removeItem(KEY);cv=clone(base);render();document.getElementById("status").textContent="Draft reset to the starter CV data."}\nfunction rollbackDraft(){if(!confirm("Rollback the current browser draft to the last loaded/published CV data?"))return;localStorage.removeItem(KEY);loadPublished()}
 async function loadPublished(){
   try{const r=await fetch("../data.json?v="+Date.now());if(!r.ok)throw new Error("Could not load published data");const d=await r.json();cv=Object.assign(clone(base),d);render();document.getElementById("status").textContent="Loaded published data."}catch(e){document.getElementById("status").textContent=e.message}
 }

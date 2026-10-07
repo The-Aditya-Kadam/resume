@@ -151,6 +151,14 @@ function normalizeData(input) {
 
   out.customSections = Array.isArray(d.customSections) ? d.customSections : [];
   out.cards = Array.isArray(d.cards) ? d.cards : [];
+  const repositoryDefaults = [
+    {label:"REPO 01",source:"Simplilearn",path:"The-Aditya-Kadam / Natural-Language-Processing",title:"Natural Language Processing",description:"NLP coursework and projects.",tags:["NLP","Text analytics"],url:"https://github.com/The-Aditya-Kadam/Natural-Language-Processing"},
+    {label:"REPO 02",source:"Simplilearn",path:"The-Aditya-Kadam / Data-Science-with-R",title:"Data Science with R",description:"Analysis and modeling in R.",tags:["R","Modeling"],url:"https://github.com/The-Aditya-Kadam/Data-Science-with-R"},
+    {label:"REPO 03",source:"Simplilearn",path:"The-Aditya-Kadam / Data-Science-Capstone",title:"Data Science Capstone",description:"End-to-end data analysis and visualization.",tags:["Capstone","Visualization"],url:"https://github.com/The-Aditya-Kadam/Data-Science-Capstone"},
+    {label:"REPO 04",source:"Simplilearn",path:"The-Aditya-Kadam / Machine-Learning",title:"Machine Learning",description:"Machine-learning coursework and models.",tags:["ML","Models"],url:"https://github.com/The-Aditya-Kadam/Machine-Learning"},
+    {label:"REPO 05",source:"Simplilearn",path:"The-Aditya-Kadam / Tableau-Training",title:"Tableau Training",description:"Dashboards and visual analytics in Tableau.",tags:["Tableau","Dashboards"],url:"https://github.com/The-Aditya-Kadam/Tableau-Training"},
+    {label:"REPO 06",source:"Simplilearn",path:"The-Aditya-Kadam / Applied-Data-Science-with-Python",title:"Applied Data Science with Python",description:"Python for data analysis and machine learning.",tags:["Python","ML"],url:"https://github.com/The-Aditya-Kadam/Applied-Data-Science-with-Python"}
+  ];
   out.repositories = Array.isArray(d.repositories) ? d.repositories.map(x => ({
     label: x.label || "",
     source: x.source || "",
@@ -159,7 +167,7 @@ function normalizeData(input) {
     description: x.description || "",
     tags: Array.isArray(x.tags) ? x.tags.filter(Boolean) : [],
     url: x.url || ""
-  })) : [];
+  })) : repositoryDefaults;
 
   return out;
 }

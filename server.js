@@ -204,17 +204,19 @@ function readBody(req) {
 }
 
 const server = http.createServer(async (req, res) => {
+  const pathname = new URL(req.url, "http://localhost").pathname;
+
   if (req.method === "OPTIONS") {
     send(res, 204, {});
     return;
   }
 
-  if (req.url === "/health") {
+  if (pathname === "/health") {
     send(res, 200, { ok: true });
     return;
   }
 
-  if (req.method === "GET" && req.url === "/api/cv") {
+  if (req.method === "GET" && pathname === "/api/cv") {
     try {
       const result = await pool.query(
         "SELECT data, version, updated_at FROM cv_documents WHERE id = 1 LIMIT 1"
@@ -237,7 +239,7 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  if (req.method === "POST" && req.url === "/api/cv") {
+  if (req.method === "POST" && pathname === "/api/cv") {
     try {
       const body = await readBody(req);
       const rawData = body && body.data;
@@ -299,7 +301,7 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  if (req.method === "POST" && req.url === "/api/cv/rollback") {
+  if (req.method === "POST" && pathname === "/api/cv/rollback") {
     try {
       const client = await pool.connect();
       try {

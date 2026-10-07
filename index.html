@@ -410,17 +410,13 @@ body{background:#fff!important;color:#111827!important}
 <div class="eyebrow">SENIOR WORDPRESS DEVELOPER · TEAM LEADER · DIGITAL MARKETING MANAGER</div>
 <h1><span>ADITYA</span><span class="accent-text">KADAM.</span></h1>
 <p class="lead">10 years building custom WordPress, PHP and JavaScript platforms, 7 years in SEO/SEM and digital marketing, and a recent expansion into data science with Python and machine learning.</p>
-<div class="now"><i class="pulse"></i><span>Now: <b>Assistant Technical Project Manager</b> at Rath Infotech</span></div>
+<div class="now"><i class="pulse"></i><span>Now: <b></b></span></div>
 <div class="hero-actions">
 <!-- Download Resume: put the CV PDF path in href, e.g. href="Aditya-Kadam-Resume.pdf" -->
 <a class="btn" id="resumeLink" href="/assets/logos/Aditya-Kadam-Resume.pdf" download>Download Resume</a>
 <a class="btn primary" href="/assets/logos/Aditya-Kadam-Cover-Letter.pdf" download="Aditya-Kadam-Cover-Letter.pdf"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Download cover letter</a>
 </div>
-<div class="metrics">
-<div class="metric"><b>10</b><small>years web development</small></div>
-<div class="metric"><b>7</b><small>years digital marketing</small></div>
-<div class="metric"><b>2024</b><small>Purdue PG, Data Science</small></div>
-</div>
+<div class="metrics" id="heroMetrics"></div>
 </div>
 
 <div class="orbit">
@@ -431,14 +427,7 @@ body{background:#fff!important;color:#111827!important}
 <div class="orbit-ring r2"></div>
 <div class="orbit-ring r3"></div>
 <div class="planet"></div>
-<div class="chips">
-<span class="chip c1">WORDPRESS</span>
-<span class="chip c2">PYTHON / DATA</span>
-<span class="chip c3">SEO / ANALYTICS</span>
-<span class="chip c4">TEAM LEADERSHIP</span>
-<span class="chip c5">CORE WEB VITALS</span>
-<span class="chip c6">POWER BI</span>
-</div>
+<div class="chips" id="orbitChips"></div>
 </div>
 <div class="ring" id="ring"></div>
 </div>
@@ -538,16 +527,9 @@ body{background:#fff!important;color:#111827!important}
 <div class="wrap">
 <div class="block-head">
 <div><div class="kicker">07 / Additional knowledge</div><h2 class="h2">DATA SCIENCE <span>LAB.</span></h2></div>
-<div class="repo-intro"><p>Coursework and projects from the Simplilearn institution, published on GitHub.</p><a class="gh-chip" href="https://github.com/The-Aditya-Kadam" target="_blank" rel="noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5a11.5 11.5 0 0 0-3.6 22.4c.6.1.8-.3.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11 11 0 0 1 5.8 0c2.2-1.5 3.2-1.2 3.2-1.2.6 1.6.2 2.8.1 3.1.8.8 1.2 1.9 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A11.5 11.5 0 0 0 12 .5z"/></svg>github.com/The-Aditya-Kadam <span aria-hidden="true">↗</span></a></div>
+<div class="repo-intro"><p id="knowledgeIntro"></p><a class="gh-chip" id="knowledgeGithub" href="#" target="_blank" rel="noreferrer"></a></div>
 </div>
-<div class="repo-grid">
-<article class="panel repo"><div class="panel-head"><span class="panel-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M8.5 11h7M8.5 14h4"/></svg></span><span class="panel-label">REPO 01</span><span class="panel-meta">Simplilearn</span></div><div class="repo-body"><span class="repo-path">The-Aditya-Kadam / Natural-Language-Processing</span><h3>Natural Language Processing</h3><p>NLP coursework and projects.</p><div class="repo-tags"><span>NLP</span><span>Text analytics</span></div></div><a class="repo-link" href="https://github.com/The-Aditya-Kadam/Natural-Language-Processing" target="_blank" rel="noreferrer"><span>View repository</span><span aria-hidden="true">↗</span></a></article>
-<article class="panel repo"><div class="panel-head"><span class="panel-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 20h18M6 20v-7M11 20V6M16 20v-10M21 20v-4"/></svg></span><span class="panel-label">REPO 02</span><span class="panel-meta">Simplilearn</span></div><div class="repo-body"><span class="repo-path">The-Aditya-Kadam / Data-Science-with-R</span><h3>Data Science with R</h3><p>Analysis and modeling in R.</p><div class="repo-tags"><span>R</span><span>Modeling</span></div></div><a class="repo-link" href="https://github.com/The-Aditya-Kadam/Data-Science-with-R" target="_blank" rel="noreferrer"><span>View repository</span><span aria-hidden="true">↗</span></a></article>
-<article class="panel repo"><div class="panel-head"><span class="panel-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg></span><span class="panel-label">REPO 03</span><span class="panel-meta">Simplilearn</span></div><div class="repo-body"><span class="repo-path">The-Aditya-Kadam / Data-Science-Capstone</span><h3>Data Science Capstone</h3><p>End-to-end data analysis and visualization.</p><div class="repo-tags"><span>Capstone</span><span>Visualization</span></div></div><a class="repo-link" href="https://github.com/The-Aditya-Kadam/Data-Science-Capstone" target="_blank" rel="noreferrer"><span>View repository</span><span aria-hidden="true">↗</span></a></article>
-<article class="panel repo"><div class="panel-head"><span class="panel-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="2"/><path d="M10 2v5M14 2v5M10 17v5M14 17v5M2 10h5M2 14h5M17 10h5M17 14h5"/></svg></span><span class="panel-label">REPO 04</span><span class="panel-meta">Simplilearn</span></div><div class="repo-body"><span class="repo-path">The-Aditya-Kadam / Machine-Learning</span><h3>Machine Learning</h3><p>Machine-learning coursework and models.</p><div class="repo-tags"><span>ML</span><span>Models</span></div></div><a class="repo-link" href="https://github.com/The-Aditya-Kadam/Machine-Learning" target="_blank" rel="noreferrer"><span>View repository</span><span aria-hidden="true">↗</span></a></article>
-<article class="panel repo"><div class="panel-head"><span class="panel-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg></span><span class="panel-label">REPO 05</span><span class="panel-meta">Simplilearn</span></div><div class="repo-body"><span class="repo-path">The-Aditya-Kadam / Tableau-Training</span><h3>Tableau Training</h3><p>Dashboards and visual analytics in Tableau.</p><div class="repo-tags"><span>Tableau</span><span>Dashboards</span></div></div><a class="repo-link" href="https://github.com/The-Aditya-Kadam/Tableau-Training" target="_blank" rel="noreferrer"><span>View repository</span><span aria-hidden="true">↗</span></a></article>
-<article class="panel repo"><div class="panel-head"><span class="panel-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6l-6 6 6 6M16 6l6 6-6 6"/></svg></span><span class="panel-label">REPO 06</span><span class="panel-meta">Simplilearn</span></div><div class="repo-body"><span class="repo-path">The-Aditya-Kadam / Applied-Data-Science-with-Python</span><h3>Applied Data Science with Python</h3><p>Python for data analysis and machine learning.</p><div class="repo-tags"><span>Python</span><span>ML</span></div></div><a class="repo-link" href="https://github.com/The-Aditya-Kadam/Applied-Data-Science-with-Python" target="_blank" rel="noreferrer"><span>View repository</span><span aria-hidden="true">↗</span></a></article>
-</div>
+<div class="repo-grid" id="repoGrid"></div>
 </div>
 </section>
 
@@ -863,6 +845,47 @@ body{background:#fff!important;color:#111827!important}
     root.insertAdjacentHTML("beforeend",ul);
     var meta=root.querySelector(".panel-meta"); if(meta)meta.textContent=items.length+" awards";
   }
+  function renderHero(d){
+    var u=d.ui||{};
+    var metrics=Array.isArray(u.heroMetrics)?u.heroMetrics:[];
+    var root=document.getElementById("heroMetrics");
+    if(root){
+      root.innerHTML=metrics.map(function(x){return '<div class="metric"><b>'+text(x.value)+'</b><small>'+text(x.label)+'</small></div>';}).join("");
+    }
+    var now=document.querySelector(".hero .now span");
+    if(now){
+      var first=Array.isArray(d.experience)&&d.experience.length?d.experience[0]:null;
+      now.innerHTML='Now: <b>'+text(d.role||"")+'</b>'+(first&&first.company?' at '+text(first.company):"");
+    }
+    var chips=document.getElementById("orbitChips");
+    if(chips){
+      chips.innerHTML=(Array.isArray(u.orbitChips)?u.orbitChips:[]).map(function(x,i){
+        return '<span class="chip c'+((i%6)+1)+'">'+text(x)+'</span>';
+      }).join("");
+    }
+  }
+  function renderKnowledge(d){
+    var u=d.ui||{};
+    var intro=document.getElementById("knowledgeIntro");
+    if(intro)intro.textContent=u.knowledgeIntro||"";
+    var gh=document.getElementById("knowledgeGithub");
+    var ghValue=d.github||"";
+    if(gh){
+      var ghUser=String(ghValue).replace(/^.*github\.com\//,"").replace(/\/$/,"");
+      gh.href=ghUser?"https://github.com/"+ghUser:"#";
+      gh.textContent=u.knowledgeGithubLabel||ghValue||"";
+    }
+    var grid=document.getElementById("repoGrid");
+    if(!grid)return;
+    var repos=Array.isArray(d.repositories)?d.repositories:[];
+    grid.innerHTML=repos.map(function(x,i){
+      var tags=Array.isArray(x.tags)?x.tags.filter(Boolean):[];
+      return '<article class="panel repo"><div class="panel-head"><span class="panel-icon">•</span><span class="panel-label">'+text(x.label||("REPO "+String(i+1).padStart(2,"0")))+
+        '</span><span class="panel-meta">'+text(x.source||"")+'</span></div><div class="repo-body"><span class="repo-path">'+text(x.path||"")+
+        '</span><h3>'+text(x.title||"")+'</h3><p>'+text(x.description||"")+'</p><div class="repo-tags">'+tags.map(function(t){return '<span>'+text(t)+'</span>';}).join("")+
+        '</div></div><a class="repo-link" href="'+attr(x.url||"#")+'" target="_blank" rel="noreferrer"><span>View repository</span><span aria-hidden="true">↗</span></a></article>';
+    }).join("");
+  }
   function renderContact(d){
     var card=document.querySelector("#summary .contact-card");
     if(card){
@@ -917,8 +940,8 @@ body{background:#fff!important;color:#111827!important}
     var lead=document.querySelector(".hero .lead");if(lead&&d.summary)lead.textContent=d.summary;
     var role=document.querySelector(".hero .now b");if(role)role.textContent=d.role||"";
     var summary=document.querySelector("#summary .summary-text");if(summary&&d.summary)summary.innerHTML="<p>"+text(d.summary)+"</p>";
-    var kicker=document.querySelector(".hero .eyebrow");if(kicker&&d.role)kicker.textContent=d.role;
-    renderExperience(d);renderSkills(d);renderEducation(d);renderCertification(d);renderAwards(d);renderContact(d);
+    
+    var themeId=u.themeId||"orbit"; document.documentElement.setAttribute("data-theme",themeId); renderHero(d);renderExperience(d);renderSkills(d);renderEducation(d);renderCertification(d);renderAwards(d);renderKnowledge(d);renderContact(d);
   }
   api().then(render).catch(function(){});
 })();

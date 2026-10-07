@@ -39,7 +39,7 @@ async function ensureDatabase() {
     )
   `);
 
-  const result = await pool.query("SELECT id FROM cv_documents WHERE id = 1 LIMIT 1");
+  const result = await pool.query("SELECT id, data, version FROM cv_documents WHERE id = 1 LIMIT 1");
 
   if (result.rowCount === 0) {
     const data = JSON.parse(fs.readFileSync(dataPath, "utf8"));

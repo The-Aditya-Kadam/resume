@@ -723,22 +723,144 @@ body{background:#fff!important;color:#111827!important}
 </script>
 
 <script>
-/* Database-backed CV sync for the existing portfolio. */
+/* PostgreSQL-backed portfolio renderer. PostgreSQL is the single source of truth. */
 (function(){
-  fetch("https://aditya-cv-api.onrender.com/api/cv?v="+Date.now(),{cache:"no-store"})
-    .then(function(r){if(!r.ok)throw new Error("CV API unavailable");return r.json()})
-    .then(function(result){
-      var d=result.data||{};
-      var summary=document.querySelector("#summary .summary-text");
-      if(summary&&d.summary){
-        summary.innerHTML="<p>"+String(d.summary).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")+"</p>";
-      }
-      var heroLead=document.querySelector(".hero .lead");
-      if(heroLead&&d.summary) heroLead.textContent=d.summary;
-      var role=document.querySelector(".hero .now b");
-      if(role&&d.role) role.textContent=d.role;
-    })
-    .catch(function(){});
+  var API="https://aditya-cv-api.onrender.com/api/cv";
+  function esc(v){
+    return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  }
+  function text(v){return esc(v);}
+  function attr(v){return esc(v);}
+  function api(){
+    return fetch(API+"?v="+Date.now(),{cache:"no-store"}).then(function(r){
+      if(!r.ok) throw new Error("CV API unavailable");
+      return r.json();
+    }).then(function(r){return r.data||{};});
+  }
+  function renderExperience(d){
+    var root=document.querySelector("#experience .career");
+    if(!root) return;
+    var ex=Array.isArray(d.experience)?d.experience:[];
+    var stack='<div class="stack-view" role="group" aria-label="Career layers: choose a company to jump to its card"><div class="slabs" id="slabs">';
+    ex.forEach(function(x,i){
+      var parts=String(x.dates||"").split(/[–—-]/);
+      var year=(parts[0]||"").trim().slice(-4);
+      stack+='<button class="slab" type="button" aria-label="Go to '+attr(x.company||("Experience "+(i+1)))+'"><span>'+text(year)+'</span><b>'+text(String(x.company||"").toUpperCase().split(" ")[0])+'</b></button>';
+    });
+    stack+='</div></div><div class="timeline"><div class="timeline-line"></div>';
+    ex.forEach(function(x){
+      var proof=x.proof?'<a class="proof-btn" href="'+attr(x.proof)+'" target="_blank" rel="noreferrer"><span>View project proof</span><span class="proof-arrow" aria-hidden="true">↗</span></a>':"";
+      var bullets=(Array.isArray(x.bullets)?x.bullets:[]).filter(Boolean).map(function(b){return '<li>'+text(b)+'</li>';}).join("");
+      var achievement=x.achievement?'<li><strong>Achievement:</strong> '+text(x.achievement)+'</li>':"";
+      stack+='<article class="job"><i class="job-dot"></i><button class="job-head" type="button" aria-pressed="false"><span class="job-date">'+text(x.dates||"")+'</span><span><h3>'+text(x.company||"")+'</h3><span class="role">'+text(x.role||"")+'</span></span></button><div class="job-body"><ul>'+bullets+achievement+'</ul>'+proof+'<button class="back-btn" type="button">Back to cards</button></div></article>';
+    });
+    stack+='</div>';
+    root.innerHTML=stack;
+
+    var slabs=[].slice.call(document.querySelectorAll("#slabs .slab"));
+    var jobs=[].slice.call(document.querySelectorAll("#experience .job"));
+    function pick(sel){
+      slabs.forEach(function(s,k){
+        var top=slabs.length*46+14;
+        s.style.transform=k===sel?"translate3d(110px,70px,"+top+"px)":"translate3d(0,0,"+((slabs.length-1-k)*46)+"px)";
+        s.style.zIndex=k===sel?10:1;
+        s.classList.toggle("is-active",k===sel);
+      });
+      jobs.forEach(function(j,k){
+        j.classList.toggle("is-active",k===sel);
+        var h=j.querySelector(".job-head");
+        if(h)h.setAttribute("aria-pressed",String(k===sel));
+      });
+    }
+    jobs.forEach(function(j,k){
+      var h=j.querySelector(".job-head");
+      if(h)h.addEventListener("click",function(){pick(k);});
+      j.addEventListener("mouseenter",function(){if(!window.matchMedia("(max-width:1100px)").matches)pick(k);});
+    });
+    slabs.forEach(function(sl,k){
+      sl.addEventListener("click",function(){
+        pick(k);
+        if(window.matchMedia("(max-width:1100px)").matches && jobs[k]) jobs[k].scrollIntoView({behavior:"smooth",block:"start"});
+      });
+    });
+    document.querySelectorAll("#experience .back-btn").forEach(function(b){
+      b.addEventListener("click",function(){
+        var target=window.matchMedia("(max-width:1100px)").matches?document.querySelector("#experience .stack-view"):document.getElementById("experience");
+        if(target)target.scrollIntoView({behavior:"smooth",block:"start"});
+      });
+    });
+    if(jobs.length)pick(0);
+    document.dispatchEvent(new CustomEvent("cv:data-rendered"));
+  }
+  function renderSkills(d){
+    var grid=document.querySelector("#skills .skill-grid");
+    if(!grid)return;
+    var list=Array.isArray(d.competencies)?d.competencies:[];
+    grid.style.gridTemplateAreas="none";
+    grid.style.gridTemplateColumns="repeat(3,minmax(0,1fr))";
+    grid.innerHTML=list.map(function(x,i){
+      var skills=String(x.text||"").split(",").map(function(v){return v.trim();}).filter(Boolean);
+      return '<div class="panel skill-db skill-'+(i+1)+'"><div class="panel-head"><span class="panel-icon">•</span><span class="panel-label">'+text(x.title||("SKILL DOMAIN "+(i+1)))+'</span><span class="panel-meta">'+String(skills.length).padStart(2,"0")+'</span></div><ul class="skill-chips">'+skills.map(function(s){return '<li class="chip-skill">'+text(s)+'</li>';}).join("")+'</ul></div>';
+    }).join("");
+    if(!list.length) grid.innerHTML="";
+  }
+  function renderEducation(d){
+    var root=document.querySelector("#education .trio-col:first-child .panel");
+    if(!root)return;
+    var items=Array.isArray(d.education)?d.education:[];
+    var ul='<ul class="entries">'+items.map(function(x){return '<li class="entry"><span class="entry-node" aria-hidden="true"></span><span class="year-chip">'+text(x.dates)+'</span><b>'+text(x.qualification)+'</b><span class="entry-sub">'+text(x.institution)+'</span>'+(x.details?'<span class="entry-sub">'+text(x.details)+'</span>':"")+'</li>';}).join("")+'</ul>';
+    var meta=root.querySelector(".panel-meta"); if(meta)meta.textContent=items.length+" records";
+    root.querySelector(".entries")?.remove();
+    root.insertAdjacentHTML("beforeend",ul);
+  }
+  function renderCertification(d){
+    var root=document.querySelector("#certification .panel");
+    if(!root)return;
+    var items=Array.isArray(d.certifications)?d.certifications:[];
+    var body=items.map(function(x){return '<div class="cert"><span class="year-chip">'+text(x.date)+'</span><b class="cert-title">'+text(x.title)+'</b><span class="entry-sub">'+text(x.issuer)+'</span>'+(x.details?'<span class="entry-sub">'+text(x.details)+'</span>':"")+'</div>';}).join("");
+    var old=root.querySelector(".cert"); if(old)old.parentElement.innerHTML=body;
+    else root.insertAdjacentHTML("beforeend",body);
+    var meta=root.querySelector(".panel-meta"); if(meta)meta.innerHTML=items.length+" record"+(items.length===1?"":"s");
+  }
+  function renderAwards(d){
+    var root=document.querySelector("#achievements .panel");
+    if(!root)return;
+    var items=Array.isArray(d.awards)?d.awards:[];
+    var ul='<ul class="entries">'+items.map(function(x){return '<li class="entry"><span class="entry-node" aria-hidden="true"></span><span class="year-chip">'+text(x.date)+'</span><b>'+text(x.title)+'</b><span class="entry-sub">Awarded by '+text(x.issuer)+'</span></li>';}).join("")+'</ul>';
+    root.querySelector(".entries")?.remove();
+    root.insertAdjacentHTML("beforeend",ul);
+    var meta=root.querySelector(".panel-meta"); if(meta)meta.textContent=items.length+" awards";
+  }
+  function renderContact(d){
+    var card=document.querySelector("#summary .contact-card");
+    if(card){
+      var rows=[
+        ["ADDRESS",d.location,""],
+        ["PHONE",d.phone,"tel:"+String(d.phone||"").replace(/\s+/g,"")],
+        ["EMAIL",d.email,"mailto:"+String(d.email||"")],
+        ["LINKEDIN",d.linkedin,"https://www.linkedin.com/in/"+String(d.linkedin||"").replace(/^.*linkedin\.com\/in\//,"").replace(/\/$/,"")+"/"],
+        ["GITHUB",d.github,"https://github.com/"+String(d.github||"").replace(/^.*github\.com\//,"").replace(/\/$/,"")]
+      ];
+      card.innerHTML='<h3>'+text(d.name)+'</h3>'+rows.map(function(r){return '<div class="crow"><span>'+r[0]+'</span>'+(r[2]?'<a href="'+attr(r[2])+'" target="_blank" rel="noreferrer">'+text(r[1])+'</a>':'<b style="font-weight:600">'+text(r[1])+'</b>')+'</div>';}).join("");
+    }
+    var tiles=document.querySelectorAll("#contact .ctile");
+    var vals=[["EMAIL",d.email,"mailto:"+d.email],["PHONE",d.phone,"tel:"+String(d.phone||"").replace(/\s+/g,"")],["LINKEDIN",d.linkedin,"https://www.linkedin.com/in/"+String(d.linkedin||"").replace(/^.*linkedin\.com\/in\//,"").replace(/\/$/,"")+"/"],["GITHUB",d.github,"https://github.com/"+String(d.github||"").replace(/^.*github\.com\//,"").replace(/\/$/,"")]];
+    tiles.forEach(function(t,i){if(!vals[i])return; t.href=vals[i][2]; var v=t.querySelector(".ctile-value");if(v)v.textContent=vals[i][1]||"";});
+    var loc=document.querySelector("#contact .loc");if(loc)loc.lastChild.textContent=" "+(d.location||"");
+  }
+  function render(d){
+    if(d.site&&d.site.title){
+      document.title=d.site.title;
+      var meta=document.querySelector('meta[name="description"]');if(meta)meta.setAttribute("content",d.site.description||"");
+    }
+    var h1=document.querySelector(".hero h1");if(h1&&d.name)h1.innerHTML=String(d.name).trim().split(/\s+/).map(function(w){return "<span>"+text(w)+"</span>";}).join("");
+    var lead=document.querySelector(".hero .lead");if(lead&&d.summary)lead.textContent=d.summary;
+    var role=document.querySelector(".hero .now b");if(role)role.textContent=d.role||"";
+    var summary=document.querySelector("#summary .summary-text");if(summary&&d.summary)summary.innerHTML="<p>"+text(d.summary)+"</p>";
+    var kicker=document.querySelector(".hero .eyebrow");if(kicker&&d.role)kicker.textContent=d.role;
+    renderExperience(d);renderSkills(d);renderEducation(d);renderCertification(d);renderAwards(d);renderContact(d);
+  }
+  api().then(render).catch(function(){});
 })();
 </script>
 </body>

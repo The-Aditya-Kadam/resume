@@ -1,6 +1,6 @@
 services:
   - type: web
-    runtime: node
+    runtime: static
     name: aditya-kadam-resume
     buildCommand: |
       cat > .render-scroll-enhance.html <<'EOF'
@@ -34,5 +34,5 @@ services:
       EOF
       awk 'BEGIN{while((getline line < ".render-scroll-enhance.html")>0) extra=extra line "
 "} /</body>/{printf "%s",extra} {print}' index.html > index.render.html && mv index.render.html index.html && rm -f .render-scroll-enhance.html
-    startCommand: node server.js
+    staticPublishPath: .
     autoDeploy: true

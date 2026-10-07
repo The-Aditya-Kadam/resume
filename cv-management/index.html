@@ -187,7 +187,8 @@ function saveDraft(){
     setTimeout(()=>window.location.href="/",1200);
   },1800);
 }
-function resetDraft(){localStorage.removeItem(KEY);localStorage.removeItem(HISTORY_KEY);cv=clone(base);render();document.getElementById("status").textContent="Draft reset to the starter CV data. Rollback history cleared."}\nfunction rollbackDraft(){
+function resetDraft(){localStorage.removeItem(KEY);localStorage.removeItem(HISTORY_KEY);cv=clone(base);render();document.getElementById("status").textContent="Draft reset to the starter CV data. Rollback history cleared."}
+function rollbackDraft(){
   const h=historyList();
   if(!h.length){
     document.getElementById("status").textContent="No saved changes available to roll back.";

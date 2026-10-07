@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CV Management</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f4f6f8;color:#111827}.wrap{max-width:1100px;margin:auto;padding:32px 20px 80px}.top{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:22px}.top h1{margin:0}.top p{margin:6px 0 0;color:#64748b}.panel{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:22px;margin:16px 0}.panel h2{margin:0 0 18px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.full{grid-column:1/-1}label{display:block;font-size:13px;font-weight:700;margin:0 0 6px}input,textarea,select{width:100%;font:inherit;padding:10px 11px;border:1px solid #cbd5e1;border-radius:8px;background:#fff}textarea{min-height:100px;resize:vertical}.item{border:1px solid #dbe3ec;border-radius:10px;padding:16px;margin:12px 0}.item-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}.item-head strong{font-size:14px}.row-actions{display:flex;gap:8px;flex-wrap:wrap}.btn{border:0;border-radius:8px;padding:10px 13px;font-weight:700;cursor:pointer}.primary{background:#1e3a8a;color:#fff}.secondary{background:#e8eefc;color:#1e3a8a}.danger{background:#fee2e2;color:#991b1b}.muted{background:#eef2f7;color:#334155}.actions{position:sticky;bottom:12px;background:rgba(255,255,255,.96);border:1px solid #dbe3ec;border-radius:12px;padding:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;box-shadow:0 8px 24px rgba(15,23,42,.12)}#status{font-size:13px;color:#475569}.bullet{display:grid;grid-template-columns:1fr auto;gap:8px;margin:8px 0}.small{font-size:12px;color:#64748b}@media(max-width:700px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.top{display:block}.actions{position:static}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div><h1>CV Management</h1><p>Edit the CV structure and content. Changes are saved as a browser draft until publishing is connected.</p></div>
+    <div class="row-actions">
+      <button class="btn secondary" onclick="loadPublished()">Load Published</button>
+      <button class="btn muted" onclick="exportJSON()">Export JSON</button>
+      <button class="btn muted" onclick="document.getElementById('importFile').click()">Import JSON</button>
+      <input id="importFile" type="file" accept=".json,application/json" hidden onchange="importJSON(event)">
+    </div>
+  </div>
+
+  <section class="panel"><h2>Personal Information</h2><div class="grid">
+    <div><label>Name</label><input id="name"></div>
+    <div><label>Professional Title</label><input id="role"></div>
+    <div><label>Location</label><input id="location"></div>
+    <div><label>Phone</label><input id="phone"></div>
+    <div><label>Email</label><input id="email"></div>
+    <div><label>LinkedIn</label><input id="linkedin"></div>
+    <div><label>GitHub</label><input id="github"></div>
+    <div><label>Portfolio</label><input id="portfolio"></div>
+    <div class="full"><label>Target Locations</label><input id="targetLocations"></div>
+  </div></section>
+
+  <section class="panel"><h2>Professional Summary</h2><textarea id="summary"></textarea></section>
+
+  <section class="panel"><div class="item-head"><h2>Core Competencies & Technical Toolkit</h2><button class="btn secondary" onclick="addCompetency()">+ Add Competency</button></div><div id="competencies"></div></section>
+
+  <section class="panel"><div class="item-head"><h2>Professional Experience</h2><button class="btn secondary" onclick="addExperience()">+ Add Experience</button></div><div id="experience"></div></section>
+
+  <section class="panel"><div class="item-head"><h2>Education</h2><button class="btn secondary" onclick="addEducation()">+ Add Education</button></div><div id="education"></div></section>
+
+  <section class="panel"><div class="item-head"><h2>Certifications</h2><button class="btn secondary" onclick="addCertification()">+ Add Certification</button></div><div id="certifications"></div></section>
+
+  <section class="panel"><div class="item-head"><h2>Leadership & Awards</h2><button class="btn secondary" onclick="addAward()">+ Add Award</button></div><div id="awards"></div></section>
+
+  <section class="panel"><div class="item-head"><h2>Custom Sections / Cards</h2><button class="btn secondary" onclick="addCustomSection()">+ Add Section</button></div><div id="customSections"></div></section>
+
+  <div class="actions">
+    <button class="btn primary" onclick="saveDraft()">SAVE CV DRAFT</button>
+    <button class="btn secondary" onclick="previewCV()">PREVIEW CV</button>
+    <button class="btn muted" onclick="resetDraft()">RESET DRAFT</button>
+    <span id="status">Loading published CV data…</span>
+  </div>
+</div>
+
+<script>
+const KEY="aditya-kadam-cv-draft";
+let cv=null;
+
+const base={
+  name:"ADITYA SHASHIKANT KADAM",
+  role:"ASSISTANT TECHNICAL PROJECT MANAGER",
+  location:"Mumbai, India",
+  phone:"+91 9769601519",
+  email:"adityakadamjd@gmail.com",
+  linkedin:"linkedin.com/in/aditya-k-142874111",
+  github:"github.com/The-Aditya-Kadam",
+  portfolio:"aditya-kadam-resume.onrender.com",
+  targetLocations:"Pune, Bangalore, Mumbai, Dubai, Australia, New Zealand",
+  summary:"Results-driven Assistant Technical Project Manager with 10+ years of full-lifecycle web engineering and 7+ years directing technical SEO, analytics, and agile cross-functional delivery. Proven expertise in project scope definition, sprint planning, Jira workflow administration, resource allocation, and stakeholder alignment. Skilled in bridging technical teams and business goals, resolving architectural roadblocks, improving Core Web Vitals, and managing multi-tenant CMS delivery. Certified in Data Science (Purdue University) with hands-on experience in analytics and data-driven project governance.",
+  competencies:[
+    {title:"Technical Project Management",text:"Agile, Scrum, Kanban, Sprint Planning, Backlog Grooming, Jira, Zoho Sprints, Risk Assessment, Scope & Milestone Management, QA Governance, Client Communications."},
+    {title:"Web Engineering & CMS",text:"WordPress, WooCommerce, Shopify, Drupal, Prestashop, PHP, MySQL, JavaScript, HTML5, CSS3, WP Engine, cPanel, Server Migrations."},
+    {title:"Search & Discovery (SEO/GEO)",text:"Technical SEO Audits, Core Web Vitals, Crawlability, Schema Markup, Structured Data, Generative Engine Optimization (GEO), Google AI Overviews."},
+    {title:"Data & Analytics",text:"GA4, Google Tag Manager, Google Search Console, SEMrush, Ahrefs, Power BI, Python Basics, Machine Learning Basics."}
+  ],
+  experience:[
+    {role:"Assistant Technical Project Manager",company:"Rath Infotech",dates:"Jan 2026 – Present",bullets:["Promoted from Web Team Leader to Assistant Technical Project Manager (Aug 2026 – Present).","Direct technical sprint lifecycles, milestone deliverables, and engineering backlogs for multi-tenant web platforms.","Manage cross-functional teams of frontend/backend developers, digital marketers, and QA testers through daily standups and sprint retrospectives.","Align client business objectives with technical execution, driving clear stakeholder communication and milestone reviews.","Enforce web engineering standards, security benchmarks, accessibility guidelines, and Core Web Vitals optimization."],achievement:"Received \"Extraordinary\" recognition for agile sprint leadership and milestone delivery."},
+    {role:"Sr. WordPress Developer & Team Lead",company:"Velocity Media Lab",dates:"May 2025 – Oct 2025",bullets:["Spearheaded web delivery roadmaps and technical SEO strategies across concurrent client projects using HubSpot.","Resolved critical Core Web Vitals, crawlability, and accessibility issues, substantially elevating technical health and load speed.","Coordinated sprint tasks across content, design, and development teams to ensure on-time milestone delivery."],achievement:""},
+    {role:"Sr. WordPress Developer & Team Lead",company:"Epicenter Technologies",dates:"May 2023 – Mar 2025",bullets:["Led technical CMS delivery, release roadmaps, and sprint delegation using Zoho CRM and Zoho Sprints.","Developed custom Power BI dashboards integrating GA4 and Search Console metrics to provide stakeholder visibility on project performance.","Partnered with overseas clients and partner agencies to streamline web health and resolve architecture bottlenecks."],achievement:""},
+    {role:"Sr. WordPress Developer & Team Lead",company:"Futran Tech Solutions (Pune)",dates:"Jan 2020 – Mar 2023",bullets:["Directed multi-channel digital campaigns, landing page architectures, and team sprint tasks tracked in Jira.","Conducted sprint reviews, QA audits, and weekly performance reporting for internal and external stakeholders."],achievement:""},
+    {role:"Sr. WordPress Developer & Team Lead",company:"ACOnnect (Australian Firm)",dates:"Feb 2018 – Jan 2020",bullets:["Managed delivery of high-conversion e-commerce portals and custom tracking implementations (GTM, payment gateways).","Coordinated technical SEO roadmap execution and performance tuning for Australian enterprise clients."],achievement:""},
+    {role:"WordPress & PHP Developer",company:"Moblixs Technology",dates:"Feb 2014 – Dec 2017",bullets:["Developed custom PHP/WordPress platforms, digital assets, and interactive web assessment applications from technical specifications."],achievement:""}
+  ],
+  education:[
+    {qualification:"Postgraduate Certification in Data Science",institution:"Purdue University – Simplilearn",dates:"2024",details:"Cert ID: 82222995"},
+    {qualification:"Bachelor's Degree in Banking & Finance",institution:"Mumbai University",dates:"2025",details:""}
+  ],
+  certifications:[],
+  awards:[
+    {title:"Best Team Leader & Manager",issuer:"Adam Parks",date:"July 2024"},
+    {title:"Best Performance & Team Lead",issuer:"Futran Tech Solutions",date:"Nov 2022"},
+    {title:"Best Performance & Team Lead",issuer:"ACOnnect",date:"Dec 2020"}
+  ],
+  customSections:[]
+};
+
+function clone(x){return JSON.parse(JSON.stringify(x))}
+function esc(v){return String(v??"").replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+function val(id){return document.getElementById(id).value}
+function set(id,v){document.getElementById(id).value=v||""}
+
+function render(){
+  set("name",cv.name);set("role",cv.role);set("location",cv.location);set("phone",cv.phone);set("email",cv.email);set("linkedin",cv.linkedin);set("github",cv.github);set("portfolio",cv.portfolio);set("targetLocations",cv.targetLocations);set("summary",cv.summary);
+  document.getElementById("competencies").innerHTML=cv.competencies.map((x,i)=>`<div class="item"><div class="item-head"><strong>Competency ${i+1}</strong><button class="btn danger" onclick="removeItem('competencies',${i})">Remove</button></div><div class="grid"><div><label>Title</label><input data-group="competencies" data-i="${i}" data-k="title" value="${esc(x.title)}"></div><div><label>Skills / Tools</label><input data-group="competencies" data-i="${i}" data-k="text" value="${esc(x.text)}"></div></div></div>`).join("");
+  document.getElementById("experience").innerHTML=cv.experience.map((x,i)=>`<div class="item"><div class="item-head"><strong>Experience ${i+1}</strong><button class="btn danger" onclick="removeItem('experience',${i})">Remove</button></div><div class="grid"><div><label>Role</label><input data-group="experience" data-i="${i}" data-k="role" value="${esc(x.role)}"></div><div><label>Company</label><input data-group="experience" data-i="${i}" data-k="company" value="${esc(x.company)}"></div><div><label>Dates</label><input data-group="experience" data-i="${i}" data-k="dates" value="${esc(x.dates)}"></div><div class="full"><label>Achievement</label><input data-group="experience" data-i="${i}" data-k="achievement" value="${esc(x.achievement)}"></div><div class="full"><label>Responsibilities / Bullets</label><div id="bullets-${i}">${(x.bullets||[]).map((b,j)=>`<div class="bullet"><input data-bullet-group="${i}" data-bullet-index="${j}" value="${esc(b)}"><button class="btn danger" onclick="removeBullet(${i},${j})">Remove</button></div>`).join("")}</div><button class="btn secondary" onclick="addBullet(${i})">+ Add Bullet</button></div></div></div>`).join("");
+  document.getElementById("education").innerHTML=cv.education.map((x,i)=>`<div class="item"><div class="item-head"><strong>Education ${i+1}</strong><button class="btn danger" onclick="removeItem('education',${i})">Remove</button></div><div class="grid"><div><label>Qualification</label><input data-group="education" data-i="${i}" data-k="qualification" value="${esc(x.qualification)}"></div><div><label>Institution</label><input data-group="education" data-i="${i}" data-k="institution" value="${esc(x.institution)}"></div><div><label>Date</label><input data-group="education" data-i="${i}" data-k="dates" value="${esc(x.dates)}"></div><div><label>Details</label><input data-group="education" data-i="${i}" data-k="details" value="${esc(x.details)}"></div></div></div>`).join("");
+  document.getElementById("certifications").innerHTML=cv.certifications.map((x,i)=>`<div class="item"><div class="item-head"><strong>Certification ${i+1}</strong><button class="btn danger" onclick="removeItem('certifications',${i})">Remove</button></div><div class="grid"><div><label>Certification</label><input data-group="certifications" data-i="${i}" data-k="title" value="${esc(x.title)}"></div><div><label>Issuer</label><input data-group="certifications" data-i="${i}" data-k="issuer" value="${esc(x.issuer)}"></div><div><label>Date</label><input data-group="certifications" data-i="${i}" data-k="date" value="${esc(x.date)}"></div><div><label>Credential / Details</label><input data-group="certifications" data-i="${i}" data-k="details" value="${esc(x.details)}"></div></div></div>`).join("");
+  document.getElementById("awards").innerHTML=cv.awards.map((x,i)=>`<div class="item"><div class="item-head"><strong>Award ${i+1}</strong><button class="btn danger" onclick="removeItem('awards',${i})">Remove</button></div><div class="grid"><div><label>Award</label><input data-group="awards" data-i="${i}" data-k="title" value="${esc(x.title)}"></div><div><label>Issuer</label><input data-group="awards" data-i="${i}" data-k="issuer" value="${esc(x.issuer)}"></div><div><label>Date</label><input data-group="awards" data-i="${i}" data-k="date" value="${esc(x.date)}"></div></div></div>`).join("");
+  document.getElementById("customSections").innerHTML=cv.customSections.map((x,i)=>`<div class="item"><div class="item-head"><strong>Custom Section ${i+1}</strong><button class="btn danger" onclick="removeItem('customSections',${i})">Remove</button></div><div class="grid"><div><label>Label</label><input data-group="customSections" data-i="${i}" data-k="label" value="${esc(x.label)}"></div><div><label>Title</label><input data-group="customSections" data-i="${i}" data-k="title" value="${esc(x.title)}"></div><div class="full"><label>Paragraph</label><textarea data-group="customSections" data-i="${i}" data-k="text">${esc(x.text)}</textarea></div></div></div>`).join("");
+}
+
+function sync(){
+  ["name","role","location","phone","email","linkedin","github","portfolio","targetLocations","summary"].forEach(id=>cv[id]=val(id));
+  document.querySelectorAll("[data-group]").forEach(el=>{cv[el.dataset.group][+el.dataset.i][el.dataset.k]=el.value});
+  document.querySelectorAll("[data-bullet-group]").forEach(el=>{const i=+el.dataset.bulletGroup,j=+el.dataset.bulletIndex;cv.experience[i].bullets[j]=el.value});
+}
+function addCompetency(){sync();cv.competencies.push({title:"New Competency",text:""});render()}
+function addExperience(){sync();cv.experience.push({role:"New Role",company:"Company",dates:"",bullets:[""],achievement:""});render()}
+function addEducation(){sync();cv.education.push({qualification:"",institution:"",dates:"",details:""});render()}
+function addCertification(){sync();cv.certifications.push({title:"",issuer:"",date:"",details:""});render()}
+function addAward(){sync();cv.awards.push({title:"",issuer:"",date:""});render()}
+function addCustomSection(){sync();cv.customSections.push({label:"",title:"New Section",text:""});render()}
+function removeItem(group,i){sync();cv[group].splice(i,1);render()}
+function addBullet(i){sync();cv.experience[i].bullets.push("");render()}
+function removeBullet(i,j){sync();cv.experience[i].bullets.splice(j,1);render()}
+function saveDraft(){sync();localStorage.setItem(KEY,JSON.stringify(cv));document.getElementById("status").textContent="Draft saved in this browser at "+new Date().toLocaleTimeString()}
+function resetDraft(){localStorage.removeItem(KEY);cv=clone(base);render();document.getElementById("status").textContent="Draft reset to the starter CV data."}
+async function loadPublished(){
+  try{const r=await fetch("../data.json?v="+Date.now());if(!r.ok)throw new Error("Could not load published data");const d=await r.json();cv=Object.assign(clone(base),d);render();document.getElementById("status").textContent="Loaded published data."}catch(e){document.getElementById("status").textContent=e.message}
+}
+function previewCV(){sync();localStorage.setItem(KEY,JSON.stringify(cv));window.open("../cv-page/?preview="+Date.now(),"_blank")}
+function exportJSON(){sync();const blob=new Blob([JSON.stringify(cv,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="aditya-kadam-cv.json";a.click();URL.revokeObjectURL(a.href)}
+function importJSON(e){const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{cv=Object.assign(clone(base),JSON.parse(reader.result));render();document.getElementById("status").textContent="Imported CV data. Save Draft when ready."}catch{document.getElementById("status").textContent="Invalid JSON file."}};reader.readAsText(file);e.target.value=""}
+
+(async()=>{try{const saved=localStorage.getItem(KEY);if(saved){cv=Object.assign(clone(base),JSON.parse(saved));render();document.getElementById("status").textContent="Loaded your browser draft."}else{await loadPublished()}}catch{cv=clone(base);render()}})();
+</script>
+</body>
+</html>

@@ -91,7 +91,8 @@ function normalizeData(input) {
     company: x.company || "",
     dates: x.dates || x.period || "",
     bullets: Array.isArray(x.bullets) ? x.bullets : [],
-    achievement: x.achievement || ""
+    achievement: x.achievement || "",
+    proof: x.proof || ""
   })) : [];
 
   out.education = Array.isArray(d.education) ? d.education.map(x => ({

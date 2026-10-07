@@ -721,5 +721,25 @@ body{background:#fff!important;color:#111827!important}
   });
 })();
 </script>
+
+<script>
+/* Database-backed CV sync for the existing portfolio. */
+(function(){
+  fetch("https://aditya-cv-api.onrender.com/api/cv?v="+Date.now(),{cache:"no-store"})
+    .then(function(r){if(!r.ok)throw new Error("CV API unavailable");return r.json()})
+    .then(function(result){
+      var d=result.data||{};
+      var summary=document.querySelector("#summary .summary-text");
+      if(summary&&d.summary){
+        summary.innerHTML="<p>"+String(d.summary).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")+"</p>";
+      }
+      var heroLead=document.querySelector(".hero .lead");
+      if(heroLead&&d.summary) heroLead.textContent=d.summary;
+      var role=document.querySelector(".hero .now b");
+      if(role&&d.role) role.textContent=d.role;
+    })
+    .catch(function(){});
+})();
+</script>
 </body>
 </html>

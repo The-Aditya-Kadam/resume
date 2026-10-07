@@ -429,7 +429,15 @@ body{background:#fff!important;color:#111827!important}
 <div class="planet"></div>
 <div class="chips" id="orbitChips"></div>
 </div>
-<div class="ring" id="ring"></div>
+<div class="ring" id="ring">
+<article class="pcard"><div class="shot logo" style="background:#ffffff"><img src="assets/logos/logo-rath.png" alt="Rath Infotech logo" loading="lazy"></div><div class="pmeta"><span>01</span><span>19/01/2026 - Present</span></div><div><h3>Rath Infotech</h3><span class="prole">Assistant Technical Project Manager</span></div><div class="ptags">Delivery · Jira sprints · QA · Core Web Vitals</div><a class="plink" href="https://github.com/The-Aditya-Kadam/rath-infotech" target="_blank" rel="noreferrer">VIEW PROOF ↗</a></article>
+<article class="pcard"><div class="shot logo" style="background:#ffffff"><img src="assets/logos/logo-velocity.png" alt="Velocity Media Lab logo" loading="lazy"></div><div class="pmeta"><span>02</span><span>01/05/2025 - 24/10/2025</span></div><div><h3>Velocity Media Lab</h3><span class="prole">Sr. WP Developer &amp; Team Lead</span></div><div class="ptags">HubSpot · Core Web Vitals · Accessibility</div><a class="plink" href="https://github.com/The-Aditya-Kadam/velocity-media-lab/tree/main/website-list" target="_blank" rel="noreferrer">VIEW PROOF ↗</a></article>
+<article class="pcard"><div class="shot logo" style="background:#ffffff"><img src="assets/logos/logo-epicenter.png" alt="Epicenter Technologies logo" loading="lazy"></div><div class="pmeta"><span>03</span><span>01/05/2023 - 24/03/2025</span></div><div><h3>Epicenter Technologies</h3><span class="prole">Sr. WP Developer &amp; Team Lead</span></div><div class="ptags">Zoho Sprints · Power BI · WP Engine · LMS</div><a class="plink" href="https://github.com/The-Aditya-Kadam/epicenter-technology" target="_blank" rel="noreferrer">VIEW PROOF ↗</a></article>
+<article class="pcard"><div class="shot logo" style="background:#ffffff"><img src="assets/logos/logo-futran.png" alt="Futran Tech Solutions logo" loading="lazy"></div><div class="pmeta"><span>04</span><span>02/01/2020 - 22/03/2023</span></div><div><h3>Futran Tech Solutions</h3><span class="prole">Sr. WP Developer &amp; Team Lead</span></div><div class="ptags">Jira · SEO / SEM · Landing pages · ROI &amp; KPIs</div><a class="plink" href="https://github.com/The-Aditya-Kadam/fts-projects" target="_blank" rel="noreferrer">VIEW PROOF ↗</a></article>
+<article class="pcard"><div class="shot logo" style="background:#ffffff"><img src="assets/logos/logo-aconnect.png" alt="Aconnect logo" loading="lazy"></div><div class="pmeta"><span>05</span><span>10/02/2018 - 01/01/2020</span></div><div><h3>Aconnect Mumbai</h3><span class="prole">Sr. WP Developer, TL &amp; Digital Marketing</span></div><div class="ptags">WooCommerce · GTM · PayPal · SEO</div><a class="plink" href="https://github.com/The-Aditya-Kadam/Aconnect-mumbai" target="_blank" rel="noreferrer">VIEW PROOF ↗</a></article>
+<article class="pcard"><div class="shot logo" style="background:#ffffff"><img src="assets/logos/logo-moblixs.png" alt="Mobclixs Technologies logo" loading="lazy"></div><div class="pmeta"><span>06</span><span>05/02/2014 - 10/12/2017</span></div><div><h3>Mobclixs Technologies</h3><span class="prole">WordPress &amp; PHP Developer</span></div><div class="ptags">PSD to WordPress · EPUB · Assessments</div><a class="plink" href="https://github.com/The-Aditya-Kadam/Formless-technology" target="_blank" rel="noreferrer">VIEW PROOF ↗</a></article>
+</div>
+<div class="floor"></div>
 </div>
 <div class="orbit-controls">
 <button class="icon-btn" id="prevBtn" type="button" aria-label="Previous company"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
@@ -931,10 +939,6 @@ body{background:#fff!important;color:#111827!important}
     setText("#achievements .h2",u.achievementsTitle);
     setText("#skills .kicker",u.skillsKicker);
     setText("#skills .h2",u.skillsTitle);
-    setText("#experience .kicker",u.experienceKicker);
-    setText("#experience .h2",u.experienceTitle);
-    setText("#knowledge .kicker",u.knowledgeKicker);
-    setText("#knowledge .h2",u.knowledgeTitle);
     setText("#contact .kicker",u.contactKicker);
     setText("#contact .h2",u.contactTitle);
     setText("#contact .avail",u.contactAvailability);
@@ -944,7 +948,7 @@ body{background:#fff!important;color:#111827!important}
     var role=document.querySelector(".hero .now b");if(role)role.textContent=d.role||"";
     var summary=document.querySelector("#summary .summary-text");if(summary&&d.summary)summary.innerHTML="<p>"+text(d.summary)+"</p>";
     
-    var themeId=u.themeId||"orbit"; document.documentElement.setAttribute("data-theme",themeId); renderHero(d);renderExperience(d);renderSkills(d);renderEducation(d);renderCertification(d);renderAwards(d);renderKnowledge(d);renderContact(d);
+    var themeId=u.themeId||"orbit"; document.documentElement.setAttribute("data-theme",themeId); renderHero(d);renderSkills(d);renderEducation(d);renderCertification(d);renderAwards(d);renderContact(d);
   }
   api().then(render).catch(function(){});
 })();

@@ -74,6 +74,8 @@
 
   <section class="panel"><h2>Theme Configuration</h2><div class="grid">
     <div><label>Active Theme ID</label><input id="themeId" placeholder="orbit"></div>
+    <div><label>Knowledge Intro</label><input id="knowledgeIntro"></div>
+    <div><label>Knowledge GitHub Label</label><input id="knowledgeGithubLabel"></div>
     <div class="full"><p class="small">Theme ID is stored in PostgreSQL now so future templates can be selected per CV. The current production theme is <b>orbit</b>.</p></div>
   </div></section>
 
@@ -187,6 +189,7 @@ function render(){
   if(st)st.value=cv.site.title||"";
   if(md)md.value=cv.site.description||"";
   set("themeId",cv.ui.themeId||"orbit");
+  set("knowledgeIntro",cv.ui.knowledgeIntro);set("knowledgeGithubLabel",cv.ui.knowledgeGithubLabel);
   document.getElementById("heroMetrics").innerHTML=(cv.ui.heroMetrics||[]).map((x,i)=>`<div class="item"><div class="item-head"><strong>Hero Metric ${i+1}</strong><div class="row-actions"><button class="btn muted" onclick="moveUIItem('heroMetrics',${i},-1)">↑</button><button class="btn muted" onclick="moveUIItem('heroMetrics',${i},1)">↓</button><button class="btn danger" onclick="removeUIItem('heroMetrics',${i})">Remove</button></div></div><div class="grid"><div><label>Value</label><input data-ui-group="heroMetrics" data-i="${i}" data-k="value" value="${esc(x.value)}"></div><div><label>Label</label><input data-ui-group="heroMetrics" data-i="${i}" data-k="label" value="${esc(x.label)}"></div></div></div>`).join("");
   document.getElementById("orbitChips").innerHTML=(cv.ui.orbitChips||[]).map((x,i)=>`<div class="bullet"><input data-chip-index="${i}" value="${esc(x)}"><button class="btn danger" onclick="removeOrbitChip(${i})">Remove</button></div>`).join("");
   document.getElementById("repositories").innerHTML=(cv.repositories||[]).map((x,i)=>`<div class="item"><div class="item-head"><strong>Repository ${i+1}</strong><div class="row-actions"><button class="btn muted" onclick="moveItem('repositories',${i},-1)">↑</button><button class="btn muted" onclick="moveItem('repositories',${i},1)">↓</button><button class="btn danger" onclick="removeItem('repositories',${i})">Remove</button></div></div><div class="grid"><div><label>Card Label</label><input data-group="repositories" data-i="${i}" data-k="label" value="${esc(x.label)}"></div><div><label>Source / Meta</label><input data-group="repositories" data-i="${i}" data-k="source" value="${esc(x.source)}"></div><div class="full"><label>Repository Path</label><input data-group="repositories" data-i="${i}" data-k="path" value="${esc(x.path)}"></div><div><label>Title</label><input data-group="repositories" data-i="${i}" data-k="title" value="${esc(x.title)}"></div><div><label>GitHub URL</label><input data-group="repositories" data-i="${i}" data-k="url" value="${esc(x.url)}"></div><div class="full"><label>Description</label><textarea data-group="repositories" data-i="${i}" data-k="description">${esc(x.description)}</textarea></div><div class="full"><label>Tags (comma separated)</label><input data-repo-tags="${i}" value="${esc((x.tags||[]).join(", "))}"></div></div></div>`).join("");
@@ -207,6 +210,8 @@ function sync(){
   if(val("siteTitle").trim()!=="") cv.site.title=val("siteTitle");
   if(val("metaDescription").trim()!=="") cv.site.description=val("metaDescription");
   cv.ui.themeId=val("themeId").trim()||cv.ui.themeId||"orbit";
+  if(val("knowledgeIntro").trim()!=="") cv.ui.knowledgeIntro=val("knowledgeIntro");
+  if(val("knowledgeGithubLabel").trim()!=="") cv.ui.knowledgeGithubLabel=val("knowledgeGithubLabel");
   cv.ui.heroMetrics=Array.isArray(cv.ui.heroMetrics)?cv.ui.heroMetrics:[];
   document.querySelectorAll("[data-ui-group]").forEach(function(el){var i=+el.dataset.i,k=el.dataset.k,n=el.value.trim();if(n!=="")cv.ui.heroMetrics[i][k]=el.value;});
   cv.ui.orbitChips=Array.from(document.querySelectorAll("[data-chip-index]")).map(function(el){return el.value.trim();}).filter(Boolean);

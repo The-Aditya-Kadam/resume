@@ -15,7 +15,7 @@
 <body>
 <div class="wrap">
   <div class="top">
-    <div><h1>CV Management</h1><p>Edit the CV structure and content. All fields are optional. Changes are saved as a browser draft until publishing is connected.</p></div>
+    <div><h1>CV Management</h1><p>Edit the CV structure and content. All fields are optional. Changes are saved to the CV database.</p></div>
     <div class="row-actions">
       <button class="btn secondary" onclick="loadPublished()">Load Published</button><button class="btn muted" onclick="rollbackDraft()">ROLLBACK</button>
       <button class="btn muted" onclick="exportJSON()">Export JSON</button>
@@ -227,6 +227,69 @@ function importJSON(e){const file=e.target.files[0];if(!file)return;const reader
       await loadPublished();
     }
   }catch{cv=clone(base);render()}
+})();
+</script>
+
+<script>
+/* Database-backed CV management layer. Keeps the existing UI and editor intact. */
+(function(){
+  const API_BASE="https://aditya-cv-api.onrender.com";
+  async function apiGetCV(){
+    const r=await fetch(API_BASE+"/api/cv",{cache:"no-store"});
+    if(!r.ok) throw new Error("Could not load CV from database.");
+    return r.json();
+  }
+  window.loadPublished=async function(){
+    try{
+      const result=await apiGetCV();
+      cv=Object.assign(clone(base),result.data||{});
+      localStorage.setItem(KEY,JSON.stringify(cv));
+      render();
+      updateHistoryStatus();
+      document.getElementById("status").textContent="✓ Database CV loaded. Version "+(result.version||1)+".";
+    }catch(e){
+      document.getElementById("status").textContent=e.message;
+    }
+  };
+  window.saveDraft=async function(){
+    sync();
+    const overlay=document.getElementById("saveOverlay");
+    const message=document.getElementById("saveMessage");
+    overlay.classList.add("show");
+    document.body.style.overflow="hidden";
+    message.textContent="Saving your CV to the database…";
+    try{
+      const r=await fetch(API_BASE+"/api/cv",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({data:cv})
+      });
+      const result=await r.json();
+      if(!r.ok) throw new Error(result.error||"Unable to save CV.");
+      localStorage.setItem(KEY,JSON.stringify(cv));
+      message.textContent="Your CV changes are saved to the database. Opening your main portfolio…";
+      setTimeout(()=>window.location.href="/",900);
+    }catch(e){
+      overlay.classList.remove("show");
+      document.body.style.overflow="";
+      document.getElementById("status").textContent="Save failed: "+e.message;
+    }
+  };
+  window.rollbackDraft=async function(){
+    if(!confirm("Rollback the CV to the previous saved database version?")) return;
+    try{
+      document.getElementById("status").textContent="Rolling back database CV…";
+      const r=await fetch(API_BASE+"/api/cv/rollback",{method:"POST"});
+      const result=await r.json();
+      if(!r.ok) throw new Error(result.error||"Unable to roll back CV.");
+      cv=Object.assign(clone(base),result.data||{});
+      localStorage.setItem(KEY,JSON.stringify(cv));
+      render();
+      document.getElementById("status").textContent="✓ Rolled back to database version "+result.version+".";
+    }catch(e){document.getElementById("status").textContent="Rollback failed: "+e.message;}
+  };
+  window.previewCV=function(){sync();localStorage.setItem(KEY,JSON.stringify(cv));window.open("../cv-page/?preview="+Date.now(),"_blank")};
+  loadPublished();
 })();
 </script>
 </body>

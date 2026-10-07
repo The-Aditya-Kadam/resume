@@ -440,15 +440,7 @@ body{background:#fff!important;color:#111827!important}
 <span class="chip c6">POWER BI</span>
 </div>
 </div>
-<div class="ring" id="ring">
-<article class="pcard"><div class="shot logo" style="background:#ffffff"><img src="assets/logos/logo-rath.png" alt="Rath Infotech logo" loading="lazy"></div><div class="pmeta"><span>01</span><span>19/01/2026 - Present</span></div><div><h3>Rath Infotech</h3><span class="prole">Assistant Technical Project Manager</span></div><div class="ptags">Delivery · Jira sprints · QA · Core Web Vitals</div><a class="plink" href="https://github.com/The-Aditya-Kadam/rath-infotech" target="_blank" rel="noreferrer">VIEW PROOF ↗</a></article>
-<article class="pcard"><div class="shot logo" style="background:#ffffff"><img src="assets/logos/logo-velocity.png" alt="Velocity Media Lab logo" loading="lazy"></div><div class="pmeta"><span>02</span><span>01/05/2025 - 24/10/2025</span></div><div><h3>Velocity Media Lab</h3><span class="prole">Sr. WP Developer &amp; Team Lead</span></div><div class="ptags">HubSpot · Core Web Vitals · Accessibility</div><a class="plink" href="https://github.com/The-Aditya-Kadam/velocity-media-lab/tree/main/website-list" target="_blank" rel="noreferrer">VIEW PROOF ↗</a></article>
-<article class="pcard"><div class="shot logo" style="background:#ffffff"><img src="assets/logos/logo-epicenter.png" alt="Epicenter Technologies logo" loading="lazy"></div><div class="pmeta"><span>03</span><span>01/05/2023 - 24/03/2025</span></div><div><h3>Epicenter Technologies</h3><span class="prole">Sr. WP Developer &amp; Team Lead</span></div><div class="ptags">Zoho Sprints · Power BI · WP Engine · LMS</div><a class="plink" href="https://github.com/The-Aditya-Kadam/epicenter-technology" target="_blank" rel="noreferrer">VIEW PROOF ↗</a></article>
-<article class="pcard"><div class="shot logo" style="background:#ffffff"><img src="assets/logos/logo-futran.png" alt="Futran Tech Solutions logo" loading="lazy"></div><div class="pmeta"><span>04</span><span>02/01/2020 - 22/03/2023</span></div><div><h3>Futran Tech Solutions</h3><span class="prole">Sr. WP Developer &amp; Team Lead</span></div><div class="ptags">Jira · SEO / SEM · Landing pages · ROI &amp; KPIs</div><a class="plink" href="https://github.com/The-Aditya-Kadam/fts-projects" target="_blank" rel="noreferrer">VIEW PROOF ↗</a></article>
-<article class="pcard"><div class="shot logo" style="background:#ffffff"><img src="assets/logos/logo-aconnect.png" alt="Aconnect logo" loading="lazy"></div><div class="pmeta"><span>05</span><span>10/02/2018 - 01/01/2020</span></div><div><h3>Aconnect Mumbai</h3><span class="prole">Sr. WP Developer, TL &amp; Digital Marketing</span></div><div class="ptags">WooCommerce · GTM · PayPal · SEO</div><a class="plink" href="https://github.com/The-Aditya-Kadam/Aconnect-mumbai" target="_blank" rel="noreferrer">VIEW PROOF ↗</a></article>
-<article class="pcard"><div class="shot logo" style="background:#ffffff"><img src="assets/logos/logo-moblixs.png" alt="Mobclixs Technologies logo" loading="lazy"></div><div class="pmeta"><span>06</span><span>05/02/2014 - 10/12/2017</span></div><div><h3>Mobclixs Technologies</h3><span class="prole">WordPress &amp; PHP Developer</span></div><div class="ptags">PSD to WordPress · EPUB · Assessments</div><a class="plink" href="https://github.com/The-Aditya-Kadam/Formless-technology" target="_blank" rel="noreferrer">VIEW PROOF ↗</a></article>
-</div>
-<div class="floor"></div>
+<div class="ring" id="ring"></div>
 </div>
 <div class="orbit-controls">
 <button class="icon-btn" id="prevBtn" type="button" aria-label="Previous company"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
@@ -600,51 +592,91 @@ body{background:#fff!important;color:#111827!important}
   menuBtn.addEventListener('click',function(){setMenu(!links.classList.contains('open'))});
   links.addEventListener('click',function(e){if(e.target.closest('a'))setMenu(false)});
 
-  /* 3D orbit of company cards in front of the planet: a ring on wide screens, a stacked deck on phones */
+  /* Database-driven 3D orbit of company cards. The visual design stays unchanged; card content comes from PostgreSQL. */
   var stage=document.getElementById('stage'),ring=document.getElementById('ring');
-  var cards=[].slice.call(ring.querySelectorAll('.pcard'));
   var counter=document.getElementById('counter'),activeName=document.getElementById('activeName');
-  var n=cards.length,step=360/n,turn=0;
-  function mode(){return window.innerWidth<=700?'deck':'ring'}
-  function radius(){return window.innerWidth<=1100?400:460}
-  function render(){
-    var a=((turn%n)+n)%n,m=mode(),R=radius();
-    stage.style.setProperty('--cw',m==='deck'?Math.min(340,stage.clientWidth-24)+'px':(window.innerWidth<=1100?'300px':'320px'));
-    ring.style.transform=m==='ring'?'translateZ(-'+R+'px) rotateY('+(-turn*step)+'deg)':'none';
-    cards.forEach(function(c,k){
-      var r=((k-a)%n+n)%n,d=Math.min(r,n-r);
-      if(m==='ring'){
-        c.style.transform='rotateY('+(k*step)+'deg) translateZ('+R+'px)';
-        c.style.opacity=[1,.75,.35,.15][d];
-      }else{
-        var vis=r<3;
-        c.style.transform=vis?'translateY('+(-r*26)+'px) translateZ('+(-r*80)+'px)':'translateY(-60px) translateZ(-260px)';
-        c.style.opacity=vis?[1,.7,.4][r]:0;
-      }
-      c.classList.toggle('is-active',k===a);
-      c.setAttribute('aria-hidden',k===a?'false':'true');
-      c.querySelectorAll('a').forEach(function(l){l.tabIndex=k===a?0:-1});
-    });
-    counter.textContent='0'+(a+1)+' / 0'+n+' · ROTATE THE ORBIT';
-    activeName.textContent=cards[a].querySelector('h3').textContent;
+  var orbitTurn=0,orbitStartX=null;
+
+  function orbitLogo(company){
+    var s=String(company||'').toLowerCase();
+    if(s.indexOf('rath')>=0)return 'assets/logos/logo-rath.png';
+    if(s.indexOf('velocity')>=0)return 'assets/logos/logo-velocity.png';
+    if(s.indexOf('epicenter')>=0)return 'assets/logos/logo-epicenter.png';
+    if(s.indexOf('futran')>=0)return 'assets/logos/logo-futran.png';
+    if(s.indexOf('aconnect')>=0)return 'assets/logos/logo-aconnect.png';
+    if(s.indexOf('mob')>=0)return 'assets/logos/logo-moblixs.png';
+    return '';
   }
-  function go(dir){turn+=dir;render()}
-  document.getElementById('prevBtn').addEventListener('click',function(){go(-1)});
-  document.getElementById('nextBtn').addEventListener('click',function(){go(1)});
-  stage.addEventListener('keydown',function(e){
-    if(e.key==='ArrowLeft'){e.preventDefault();go(-1)}
-    if(e.key==='ArrowRight'){e.preventDefault();go(1)}
-  });
-  var startX=null;
-  stage.addEventListener('pointerdown',function(e){startX=e.clientX});
-  stage.addEventListener('pointerup',function(e){
-    if(startX===null)return;
-    var dx=e.clientX-startX;startX=null;
-    if(Math.abs(dx)>40)go(dx<0?1:-1);
-  });
-  stage.addEventListener('pointercancel',function(){startX=null});
-  window.addEventListener('resize',render);
-  render();
+  function orbitTags(x){
+    if(x.orbitTags)return String(x.orbitTags);
+    var b=Array.isArray(x.bullets)?x.bullets.filter(Boolean):[];
+    return b.slice(0,3).map(function(v){return String(v).split(/[.,;]/)[0].trim();}).filter(Boolean).join(' · ');
+  }
+  function setupOrbit(){
+    var cards=[].slice.call(ring.querySelectorAll('.pcard'));
+    var n=cards.length;
+    orbitTurn=((orbitTurn%n)+n)%n;
+    function mode(){return window.innerWidth<=700?'deck':'ring'}
+    function radius(){return window.innerWidth<=1100?400:460}
+    function render(){
+      if(!n){
+        counter.textContent='00 / 00 · NO EXPERIENCE';
+        activeName.textContent='';
+        return;
+      }
+      var a=((orbitTurn%n)+n)%n,m=mode(),R=radius(),step=360/n;
+      stage.style.setProperty('--cw',m==='deck'?Math.min(340,stage.clientWidth-24)+'px':(window.innerWidth<=1100?'300px':'320px'));
+      ring.style.transform=m==='ring'?'translateZ(-'+R+'px) rotateY('+(-orbitTurn*step)+'deg)':'none';
+      cards.forEach(function(c,k){
+        var rr=((k-a)%n+n)%n,d=Math.min(rr,n-rr);
+        if(m==='ring'){
+          c.style.transform='rotateY('+(k*step)+'deg) translateZ('+R+'px)';
+          c.style.opacity=[1,.75,.35,.15][d]||.1;
+        }else{
+          var vis=rr<3;
+          c.style.transform=vis?'translateY('+(-rr*26)+'px) translateZ('+(-rr*80)+'px)':'translateY(-60px) translateZ(-260px)';
+          c.style.opacity=vis?[1,.7,.4][rr]:0;
+        }
+        c.classList.toggle('is-active',k===a);
+        c.setAttribute('aria-hidden',k===a?'false':'true');
+        c.querySelectorAll('a').forEach(function(l){l.tabIndex=k===a?0:-1});
+      });
+      counter.textContent='0'+(a+1)+' / '+String(n).padStart(2,'0')+' · ROTATE THE ORBIT';
+      activeName.textContent=cards[a].querySelector('h3').textContent;
+    }
+    function go(dir){if(!n)return;orbitTurn+=dir;render()}
+    document.getElementById('prevBtn').onclick=function(){go(-1)};
+    document.getElementById('nextBtn').onclick=function(){go(1)};
+    stage.onkeydown=function(e){
+      if(e.key==='ArrowLeft'){e.preventDefault();go(-1)}
+      if(e.key==='ArrowRight'){e.preventDefault();go(1)}
+    };
+    stage.onpointerdown=function(e){orbitStartX=e.clientX};
+    stage.onpointerup=function(e){
+      if(orbitStartX===null)return;
+      var dx=e.clientX-orbitStartX;orbitStartX=null;
+      if(Math.abs(dx)>40)go(dx<0?1:-1);
+    };
+    stage.onpointercancel=function(){orbitStartX=null};
+    render();
+  }
+  window.renderOrbitFromExperience=function(ex){
+    var items=Array.isArray(ex)?ex:[];
+    ring.innerHTML=items.map(function(x,i){
+      var company=String(x.company||'Experience '+(i+1));
+      var logo=orbitLogo(company);
+      var image=logo?'<img src="'+attr(company)+'" style="display:none">':"";
+      if(logo){
+        image='<img src="'+attr(logo)+'" alt="'+attr(company)+' logo" loading="lazy">';
+      }else{
+        image='<span>'+text(company)+'</span>';
+      }
+      var proof=x.proof?'<a class="plink" href="'+attr(x.proof)+'" target="_blank" rel="noreferrer">VIEW PROOF ↗</a>':"";
+      return '<article class="pcard"><div class="shot logo" style="background:#ffffff">'+image+'</div><div class="pmeta"><span>'+String(i+1).padStart(2,'0')+'</span><span>'+text(x.dates||"")+'</span></div><div><h3>'+text(company)+'</h3><span class="prole">'+text(x.role||"")+'</span></div><div class="ptags">'+text(orbitTags(x))+'</div>'+proof+'</article>';
+    }).join("");
+    setupOrbit();
+  };
+  setupOrbit();
 
   /* Work experience: pick a role to slide its layer out of the 3D stack */
   var slabs=[].slice.call(document.querySelectorAll('#slabs .slab'));
@@ -756,6 +788,7 @@ body{background:#fff!important;color:#111827!important}
     });
     stack+='</div>';
     root.innerHTML=stack;
+    if(window.renderOrbitFromExperience) window.renderOrbitFromExperience(ex);
 
     var slabs=[].slice.call(document.querySelectorAll("#slabs .slab"));
     var jobs=[].slice.call(document.querySelectorAll("#experience .job"));

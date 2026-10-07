@@ -29,6 +29,36 @@
     <div class="full"><label>Meta Description</label><textarea id="metaDescription"></textarea></div>
   </div></section>
 
+  <section class="panel"><h2>Portfolio Labels & Navigation</h2><div class="grid">
+    <div><label>Summary Navigation Label</label><input id="navSummary"></div>
+    <div><label>Education Navigation Label</label><input id="navEducation"></div>
+    <div><label>Skills Navigation Label</label><input id="navSkills"></div>
+    <div><label>Experience Navigation Label</label><input id="navExperience"></div>
+    <div><label>Knowledge Navigation Label</label><input id="navKnowledge"></div>
+    <div><label>Contact Navigation Label</label><input id="navContact"></div>
+    <div class="full"><label>Availability Status</label><input id="availability"></div>
+    <div class="full"><label>Hero Eyebrow</label><input id="heroEyebrow"></div>
+    <div><label>Summary Section Label</label><input id="summaryKicker"></div>
+    <div><label>Summary Section Title</label><input id="summaryTitle"></div>
+    <div><label>Education Section Label</label><input id="educationKicker"></div>
+    <div><label>Education Section Title</label><input id="educationTitle"></div>
+    <div><label>Certification Section Label</label><input id="certificationKicker"></div>
+    <div><label>Certification Section Title</label><input id="certificationTitle"></div>
+    <div><label>Achievements Section Label</label><input id="achievementsKicker"></div>
+    <div><label>Achievements Section Title</label><input id="achievementsTitle"></div>
+    <div><label>Skills Section Label</label><input id="skillsKicker"></div>
+    <div><label>Skills Section Title</label><input id="skillsTitle"></div>
+    <div><label>Experience Section Label</label><input id="experienceKicker"></div>
+    <div><label>Experience Section Title</label><input id="experienceTitle"></div>
+    <div><label>Knowledge Section Label</label><input id="knowledgeKicker"></div>
+    <div><label>Knowledge Section Title</label><input id="knowledgeTitle"></div>
+    <div><label>Contact Section Label</label><input id="contactKicker"></div>
+    <div><label>Contact Section Title</label><input id="contactTitle"></div>
+    <div><label>Contact Availability</label><input id="contactAvailability"></div>
+    <div><label>Footer Left</label><input id="footerLeft"></div>
+    <div><label>Footer Right</label><input id="footerRight"></div>
+  </div></section>
+
   <section class="panel"><h2>Personal Information</h2><div class="grid">
     <div><label>Name</label><input id="name"></div>
     <div><label>Professional Title</label><input id="role"></div>
@@ -56,8 +86,8 @@
   <section class="panel"><div class="item-head"><h2>Custom Sections / Cards</h2><button class="btn secondary" onclick="addCustomSection()">+ Add Section</button></div><div id="customSections"></div></section>
 
   <div class="actions">
-    <button class="btn primary" onclick="saveDraft()">SAVE & OPEN MAIN PAGE</button>
-    <button class="btn secondary" onclick="previewCV()">PREVIEW CV</button>
+    <button class="btn primary" onclick="saveDraft()">SAVE CV TO DATABASE</button>
+    <button class="btn secondary" onclick="previewCV()">OPEN MAIN PORTFOLIO</button>
     <button class="btn muted" onclick="resetDraft()">RESET DRAFT</button>
     <span id="status">Loading published CV data…</span>
   </div>
@@ -79,6 +109,7 @@ let cv=null;
 
 const base={
   site:{title:"Aditya Kadam | Assistant Technical Project Manager",description:"Aditya Shashikant Kadam — Assistant Technical Project Manager with 10+ years of web engineering, technical project management, SEO, digital marketing and data science experience."},
+  ui:{nav:{summary:"Summary",education:"Education",skills:"Skills",experience:"Experience",knowledge:"Knowledge",contact:"Contact"},availability:"Open to opportunities",heroEyebrow:"SENIOR WORDPRESS DEVELOPER · TEAM LEADER · DIGITAL MARKETING MANAGER",summaryKicker:"01 / Summary",summaryTitle:"PM, TL, SEO & DATA.",educationKicker:"02 / Education",educationTitle:"EDUCATION.",certificationKicker:"03 / Certification",certificationTitle:"CERTIFICATION.",achievementsKicker:"04 / Achievements",achievementsTitle:"ACHIEVEMENTS.",skillsKicker:"05 / Additional information",skillsTitle:"SKILLS & TOOLS.",experienceKicker:"06 / Work experience",experienceTitle:"TEN YEARS, STACKED.",knowledgeKicker:"07 / Knowledge",knowledgeTitle:"KNOWLEDGE.",contactKicker:"08 / Thank you",contactTitle:"LET’S BUILD SOMETHING USEFUL.",contactAvailability:"Open to remote & relocation",footerLeft:"ADITYA S. KADAM · 2026",footerRight:"WORDPRESS · TEAM LEADERSHIP · DIGITAL MARKETING · DATA"},
   name:"ADITYA SHASHIKANT KADAM",
   role:"ASSISTANT TECHNICAL PROJECT MANAGER",
   location:"Mumbai, India",
@@ -123,6 +154,9 @@ function set(id,v){document.getElementById(id).value=v||""}
 
 function render(){
   cv.site=cv.site||{};
+  cv.ui=cv.ui||{};
+  const u=cv.ui,n=u.nav||{};
+  [["navSummary",n.summary],["navEducation",n.education],["navSkills",n.skills],["navExperience",n.experience],["navKnowledge",n.knowledge],["navContact",n.contact],["availability",u.availability],["heroEyebrow",u.heroEyebrow],["summaryKicker",u.summaryKicker],["summaryTitle",u.summaryTitle],["educationKicker",u.educationKicker],["educationTitle",u.educationTitle],["certificationKicker",u.certificationKicker],["certificationTitle",u.certificationTitle],["achievementsKicker",u.achievementsKicker],["achievementsTitle",u.achievementsTitle],["skillsKicker",u.skillsKicker],["skillsTitle",u.skillsTitle],["experienceKicker",u.experienceKicker],["experienceTitle",u.experienceTitle],["knowledgeKicker",u.knowledgeKicker],["knowledgeTitle",u.knowledgeTitle],["contactKicker",u.contactKicker],["contactTitle",u.contactTitle],["contactAvailability",u.contactAvailability],["footerLeft",u.footerLeft],["footerRight",u.footerRight]].forEach(function(x){var el=document.getElementById(x[0]);if(el)el.value=x[1]||"";});
   const st=document.getElementById("siteTitle"),md=document.getElementById("metaDescription");
   if(st)st.value=cv.site.title||"";
   if(md)md.value=cv.site.description||"";
@@ -137,6 +171,9 @@ function render(){
 
 function sync(){
   cv.site=cv.site||{};
+  cv.ui=cv.ui||{}; cv.ui.nav=cv.ui.nav||{};
+  [["navSummary","summary"],["navEducation","education"],["navSkills","skills"],["navExperience","experience"],["navKnowledge","knowledge"],["navContact","contact"]].forEach(function(x){var v=val(x[0]).trim();if(v!=="")cv.ui.nav[x[1]]=v;});
+  ["availability","heroEyebrow","summaryKicker","summaryTitle","educationKicker","educationTitle","certificationKicker","certificationTitle","achievementsKicker","achievementsTitle","skillsKicker","skillsTitle","experienceKicker","experienceTitle","knowledgeKicker","knowledgeTitle","contactKicker","contactTitle","contactAvailability","footerLeft","footerRight"].forEach(function(id){var v=val(id).trim();if(v!=="")cv.ui[id]=v;});
   if(val("siteTitle").trim()!=="") cv.site.title=val("siteTitle");
   if(val("metaDescription").trim()!=="") cv.site.description=val("metaDescription");
   // Blank inputs never overwrite an existing value. This lets you leave a field empty

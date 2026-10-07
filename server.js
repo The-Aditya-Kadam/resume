@@ -1,6 +1,4 @@
 const http = require("http");
-const fs = require("fs");
-const path = require("path");
 const { Pool } = require("pg");
 
 const PORT = process.env.PORT || 10000;
@@ -15,8 +13,6 @@ const pool = new Pool({
   connectionString: DATABASE_URL,
   ssl: { rejectUnauthorized: false }
 });
-
-const dataPath = path.join(__dirname, "cv-page", "data.json");
 
 async function ensureDatabase() {
   await pool.query(`
@@ -40,30 +36,88 @@ async function ensureDatabase() {
   `);
 
   const result = await pool.query("SELECT id, data, version FROM cv_documents WHERE id = 1 LIMIT 1");
-
   if (result.rowCount === 0) {
-    const data = JSON.parse(fs.readFileSync(dataPath, "utf8"));
-    await pool.query(
-      "INSERT INTO cv_documents (id, data, version) VALUES (1, $1::jsonb, 1)",
-      [JSON.stringify(data)]
-    );
-    await pool.query(
-      "INSERT INTO cv_versions (document_id, version, data) VALUES (1, 1, $1::jsonb)",
-      [JSON.stringify(data)]
-    );
-    console.log("Current CV data uploaded to PostgreSQL.");
-  } else {
-    const history = await pool.query("SELECT 1 FROM cv_versions WHERE document_id = 1 LIMIT 1");
-    if (history.rowCount === 0) {
-      await pool.query(
-        "INSERT INTO cv_versions (document_id, version, data) VALUES (1, $1, $2::jsonb)",
-        [result.rows[0].version || 1, JSON.stringify(result.rows[0].data)]
-      );
-      console.log("Initial CV version added to rollback history.");
-    } else {
-      console.log("CV data already exists; no seed overwrite performed.");
-    }
+    throw new Error("CV database is empty. Save an initial CV from /cv-management/.");
   }
+
+  const normalized = normalizeData(result.rows[0].data || {});
+  if (JSON.stringify(normalized) !== JSON.stringify(result.rows[0].data || {})) {
+    await pool.query(
+      "UPDATE cv_documents SET data = $1::jsonb, updated_at = NOW() WHERE id = 1",
+      [JSON.stringify(normalized)]
+    );
+    console.log("Normalized existing CV data to the current schema.");
+  }
+
+  const history = await pool.query("SELECT 1 FROM cv_versions WHERE document_id = 1 LIMIT 1");
+  if (history.rowCount === 0) {
+    await pool.query(
+      "INSERT INTO cv_versions (document_id, version, data) VALUES (1, $1, $2::jsonb)",
+      [result.rows[0].version || 1, JSON.stringify(normalized)]
+    );
+    console.log("Initial CV version added to rollback history.");
+  } else {
+    console.log("CV data already exists; no seed overwrite performed.");
+  }
+}
+
+function normalizeData(input) {
+  const d = input && typeof input === "object" && !Array.isArray(input) ? input : {};
+  const out = { ...d };
+
+  out.site = {
+    title: d.site?.title || d.siteTitle || "Aditya Kadam | Assistant Technical Project Manager",
+    description: d.site?.description || d.metaDescription || ""
+  };
+
+  out.name = d.name || "";
+  out.role = d.role || "";
+  out.location = d.location || "";
+  out.phone = d.phone || "";
+  out.email = d.email || "";
+  out.linkedin = d.linkedin || "";
+  out.github = d.github || "";
+  out.portfolio = d.portfolio || "";
+  out.targetLocations = d.targetLocations || "";
+  out.summary = d.summary || d.intro || "";
+
+  out.competencies = Array.isArray(d.competencies) ? d.competencies.map(x => ({
+    title: x.title || x.category || "",
+    text: x.text || x.skills || ""
+  })) : [];
+
+  out.experience = Array.isArray(d.experience) ? d.experience.map(x => ({
+    role: x.role || x.job || "",
+    company: x.company || "",
+    dates: x.dates || x.period || "",
+    bullets: Array.isArray(x.bullets) ? x.bullets : [],
+    achievement: x.achievement || ""
+  })) : [];
+
+  out.education = Array.isArray(d.education) ? d.education.map(x => ({
+    qualification: x.qualification || x.degree || "",
+    institution: x.institution || "",
+    dates: x.dates || x.year || "",
+    details: x.details || ""
+  })) : [];
+
+  out.certifications = Array.isArray(d.certifications) ? d.certifications.map(x => ({
+    title: x.title || x.name || "",
+    issuer: x.issuer || "",
+    date: x.date || x.year || "",
+    details: x.details || ""
+  })) : [];
+
+  out.awards = Array.isArray(d.awards) ? d.awards.map(x => ({
+    title: x.title || "",
+    issuer: x.issuer || "",
+    date: x.date || ""
+  })) : [];
+
+  out.customSections = Array.isArray(d.customSections) ? d.customSections : [];
+  out.cards = Array.isArray(d.cards) ? d.cards : [];
+
+  return out;
 }
 
 function send(res, status, body) {
@@ -134,13 +188,14 @@ const server = http.createServer(async (req, res) => {
   if (req.method === "POST" && req.url === "/api/cv") {
     try {
       const body = await readBody(req);
-      const data = body && body.data;
+      const rawData = body && body.data;
 
-      if (!data || typeof data !== "object" || Array.isArray(data)) {
+      if (!rawData || typeof rawData !== "object" || Array.isArray(rawData)) {
         send(res, 400, { error: "A CV data object is required." });
         return;
       }
 
+      const data = normalizeData(rawData);
       const client = await pool.connect();
       try {
         await client.query("BEGIN");
@@ -224,7 +279,7 @@ const server = http.createServer(async (req, res) => {
         }
 
         const version = previous.rows[0].version;
-        const data = previous.rows[0].data;
+        const data = normalizeData(previous.rows[0].data);
 
         await client.query(
           "UPDATE cv_documents SET data = $1::jsonb, version = $2, updated_at = NOW() WHERE id = 1",

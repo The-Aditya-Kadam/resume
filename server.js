@@ -8,7 +8,7 @@ const DATA_PATH = path.join(ROOT, "cv-page", "data.json");
 const REPO = process.env.GITHUB_REPO || "The-Aditya-Kadam/resume";
 const BRANCH = process.env.GITHUB_BRANCH || "main";
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
-const ADMIN_PASSWORD = process.env.CV_ADMIN_PASSWORD;
+const ADMIN_PASSWORD = process.env.CV_ADMIN_PASSWORD || "123456";
 
 const MIME = {
   ".html":"text/html; charset=utf-8",

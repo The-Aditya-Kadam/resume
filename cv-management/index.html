@@ -202,13 +202,13 @@ function resetDraft(){localStorage.removeItem(KEY);localStorage.removeItem(HISTO
 }
 async function loadPublished(){
   try{
-    const r=await fetch("../data.json?v="+Date.now());
+    const r=await fetch("../cv-page/data.json?v="+Date.now());
     if(!r.ok)throw new Error("Could not load published data");
     const d=await r.json();
     cv=Object.assign(clone(base),d);
     render();
     updateHistoryStatus();
-    if(!historyCount()) document.getElementById("status").textContent="Loaded published data.";
+    if(!historyCount()) document.getElementById("status").textContent="✓ CV ready.";
   }catch(e){document.getElementById("status").textContent=e.message}
 }
 function previewCV(){sync();localStorage.setItem(KEY,JSON.stringify(cv));window.open("../cv-page/?preview="+Date.now(),"_blank")}
@@ -222,7 +222,7 @@ function importJSON(e){const file=e.target.files[0];if(!file)return;const reader
       cv=Object.assign(clone(base),JSON.parse(saved));
       render();
       updateHistoryStatus();
-      document.getElementById("status").textContent="Loaded your browser draft. "+historyCount()+"/5 rollback changes available.";
+      document.getElementById("status").textContent="✓ CV ready. "+historyCount()+"/5 rollback changes available.";
     }else{
       await loadPublished();
     }

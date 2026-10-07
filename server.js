@@ -84,10 +84,24 @@ function normalizeData(input) {
     contactKicker: "08 / Thank you", contactTitle: "LET’S BUILD SOMETHING USEFUL.",
     contactAvailability: "Open to remote & relocation",
     footerLeft: "ADITYA S. KADAM · 2026",
-    footerRight: "WORDPRESS · TEAM LEADERSHIP · DIGITAL MARKETING · DATA"
+    footerRight: "WORDPRESS · TEAM LEADERSHIP · DIGITAL MARKETING · DATA",
+    heroMetrics: [
+      { value: "10", label: "years web development" },
+      { value: "7", label: "years digital marketing" },
+      { value: "2024", label: "Purdue PG, Data Science" }
+    ],
+    orbitChips: ["WORDPRESS", "PYTHON / DATA", "SEO / ANALYTICS", "TEAM LEADERSHIP", "CORE WEB VITALS", "POWER BI"],
+    knowledgeIntro: "Coursework and projects from the Simplilearn institution, published on GitHub.",
+    knowledgeGithubLabel: "github.com/The-Aditya-Kadam",
+    themeId: "orbit"
   };
   out.ui = { ...uiDefaults, ...(d.ui || {}) };
   out.ui.nav = { ...uiDefaults.nav, ...(d.ui?.nav || {}) };
+  out.ui.heroMetrics = Array.isArray(d.ui?.heroMetrics) ? d.ui.heroMetrics.map(x => ({value: x?.value || "", label: x?.label || ""})) : uiDefaults.heroMetrics;
+  out.ui.orbitChips = Array.isArray(d.ui?.orbitChips) ? d.ui.orbitChips.filter(Boolean) : uiDefaults.orbitChips;
+  out.ui.knowledgeIntro = d.ui?.knowledgeIntro || uiDefaults.knowledgeIntro;
+  out.ui.knowledgeGithubLabel = d.ui?.knowledgeGithubLabel || uiDefaults.knowledgeGithubLabel;
+  out.ui.themeId = d.ui?.themeId || uiDefaults.themeId;
 
   out.name = d.name || "";
   out.role = d.role || "";
@@ -111,7 +125,8 @@ function normalizeData(input) {
     dates: x.dates || x.period || "",
     bullets: Array.isArray(x.bullets) ? x.bullets : [],
     achievement: x.achievement || "",
-    proof: x.proof || ""
+    proof: x.proof || "",
+    orbitTags: x.orbitTags || ""
   })) : [];
 
   out.education = Array.isArray(d.education) ? d.education.map(x => ({
@@ -136,6 +151,15 @@ function normalizeData(input) {
 
   out.customSections = Array.isArray(d.customSections) ? d.customSections : [];
   out.cards = Array.isArray(d.cards) ? d.cards : [];
+  out.repositories = Array.isArray(d.repositories) ? d.repositories.map(x => ({
+    label: x.label || "",
+    source: x.source || "",
+    path: x.path || "",
+    title: x.title || "",
+    description: x.description || "",
+    tags: Array.isArray(x.tags) ? x.tags.filter(Boolean) : [],
+    url: x.url || ""
+  })) : [];
 
   return out;
 }

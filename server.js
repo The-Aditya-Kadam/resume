@@ -102,6 +102,7 @@ const server=http.createServer(async(req,res)=>{
   try{
     const url=new URL(req.url,"http://localhost");
     if(req.method==="GET" && url.pathname==="/api/cv"){
+      if(!auth(req)) return send(res,401,{error:"Invalid admin password"});
       const data=JSON.parse(fs.readFileSync(DATA_PATH,"utf8"));
       return send(res,200,data);
     }

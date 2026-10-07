@@ -89,7 +89,7 @@
     <button class="btn primary" onclick="saveDraft()">SAVE CV TO DATABASE</button>
     <button class="btn secondary" onclick="previewCV()">OPEN MAIN PORTFOLIO</button>
     <button class="btn muted" onclick="resetDraft()">RESET DRAFT</button>
-    <span id="status">Loading published CV data…</span>
+    <span id="status" role="status">Loading published CV data…</span>
   </div>
 </div>
 
@@ -310,7 +310,8 @@ function importJSON(e){const file=e.target.files[0];if(!file)return;const reader
     const message=document.getElementById("saveMessage");
     overlay.classList.add("show");
     document.body.style.overflow="hidden";
-    message.textContent="Saving your CV to the database…";
+    message.textContent="Saving your CV to PostgreSQL…";
+    document.getElementById("status").textContent="Saving changes to database…";
     try{
       const r=await fetch(API_BASE+"/api/cv",{
         method:"POST",
@@ -319,9 +320,24 @@ function importJSON(e){const file=e.target.files[0];if(!file)return;const reader
       });
       const result=await r.json();
       if(!r.ok) throw new Error(result.error||"Unable to save CV.");
+      const savedVersion=result.version||1;
+      message.textContent="Database saved. Confirming the published version…";
+      let confirmed=null;
+      for(let attempt=0;attempt<20;attempt++){
+        try{
+          const check=await apiGetCV();
+          if((check.version||0)>=savedVersion){confirmed=check;break;}
+        }catch(e){}
+        await new Promise(function(resolve){setTimeout(resolve,1500);});
+      }
+      if(!confirmed) throw new Error("The database save completed, but the published version could not be confirmed yet.");
+      cv=Object.assign(clone(base),confirmed.data||cv);
       localStorage.setItem(KEY,JSON.stringify(cv));
-      message.textContent="Your CV changes are saved to the database. Opening your main portfolio…";
-      setTimeout(()=>window.location.href="/",900);
+      render();
+      overlay.classList.remove("show");
+      document.body.style.overflow="";
+      const status=document.getElementById("status");
+      status.innerHTML='<a href="https://aditya-cv-api.onrender.com/api/cv" target="_blank" rel="noreferrer" style="color:#1e3a8a;font-weight:800;text-decoration:none">✓ Database CV loaded. Version '+(confirmed.version||savedVersion)+'.</a>';
     }catch(e){
       overlay.classList.remove("show");
       document.body.style.overflow="";

@@ -85,7 +85,15 @@ function removeCard(i){cv.cards.splice(i,1);render()}
 async function loadCV(){
  password=$("password").value;
  if(!password){$("loginStatus").textContent="Enter the admin password.";return}
- const r=await fetch("/api/cv");cv=await r.json();render();$("loginPanel").hidden=true;$("editor").hidden=false;
+ $("loginStatus").textContent="Connecting to CV server…";
+ try{
+   const r=await fetch("/api/cv",{headers:{"x-cv-admin-password":password}});
+   const data=await r.json().catch(()=>({error:"Server returned an invalid response."}));
+   if(!r.ok) throw new Error(data.error||("Server returned "+r.status));
+   cv=data;render();$("loginPanel").hidden=true;$("editor").hidden=false;
+ }catch(e){
+   $("loginStatus").textContent="Login failed: "+e.message+" — Render may still be deploying the latest CV server.";
+ }
 }
 async function saveCV(){
  sync();$("status").textContent="Publishing to GitHub…";

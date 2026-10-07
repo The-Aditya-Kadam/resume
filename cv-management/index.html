@@ -162,7 +162,8 @@ function addEducation(){sync();cv.education.push({qualification:"",institution:"
 function addCertification(){sync();cv.certifications.push({title:"",issuer:"",date:"",details:""});render()}
 function addAward(){sync();cv.awards.push({title:"",issuer:"",date:""});render()}
 function addCustomSection(){sync();cv.customSections.push({label:"",title:"New Section",text:""});render()}
-function removeItem(group,i){sync();cv[group].splice(i,1);render()}\nfunction moveItem(group,i,dir){sync();const j=i+dir;if(j<0||j>=cv[group].length)return;[cv[group][i],cv[group][j]]=[cv[group][j],cv[group][i]];render()}
+function removeItem(group,i){sync();cv[group].splice(i,1);render()}
+function moveItem(group,i,dir){sync();const j=i+dir;if(j<0||j>=cv[group].length)return;[cv[group][i],cv[group][j]]=[cv[group][j],cv[group][i]];render()}
 function addBullet(i){sync();cv.experience[i].bullets.push("");render()}
 function removeBullet(i,j){sync();cv.experience[i].bullets.splice(j,1);render()}
 function saveDraft(){

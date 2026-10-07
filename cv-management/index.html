@@ -160,8 +160,19 @@ function saveDraft(){
     try{pushHistory(JSON.parse(previousRaw))}catch{}
   }
   localStorage.setItem(KEY,JSON.stringify(cv));
-  document.getElementById("status").textContent="Saved. Opening main page…";
-  setTimeout(()=>window.location.href="/",300)
+  let seconds=5;
+  const status=document.getElementById("status");
+  status.textContent="Saved successfully. Opening main page in "+seconds+" seconds…";
+  const timer=setInterval(()=>{
+    seconds--;
+    if(seconds<=0){
+      clearInterval(timer);
+      status.textContent="Opening main page…";
+      window.location.href="/";
+    }else{
+      status.textContent="Saved successfully. Opening main page in "+seconds+" seconds…";
+    }
+  },1000);
 }
 function resetDraft(){localStorage.removeItem(KEY);localStorage.removeItem(HISTORY_KEY);cv=clone(base);render();document.getElementById("status").textContent="Draft reset to the starter CV data. Rollback history cleared."}\nfunction rollbackDraft(){
   const h=historyList();

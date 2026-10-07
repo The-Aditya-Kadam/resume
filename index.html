@@ -645,7 +645,7 @@ body{background:#fff!important;color:#111827!important}
   window.renderOrbitFromExperience=function(ex){
     var items=Array.isArray(ex)?ex:[];
     function orbitEsc(v){
-      return String(v==null?"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+      return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
     }
     ring.innerHTML=items.map(function(x,i){
       var company=String(x.company||'Experience '+(i+1));

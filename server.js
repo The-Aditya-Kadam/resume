@@ -70,6 +70,25 @@ function normalizeData(input) {
     description: d.site?.description || d.metaDescription || ""
   };
 
+  const uiDefaults = {
+    nav: {summary:"Summary", education:"Education", skills:"Skills", experience:"Experience", knowledge:"Knowledge", contact:"Contact"},
+    availability: "Open to opportunities",
+    heroEyebrow: "SENIOR WORDPRESS DEVELOPER · TEAM LEADER · DIGITAL MARKETING MANAGER",
+    summaryKicker: "01 / Summary", summaryTitle: "PM, TL, SEO & DATA.",
+    educationKicker: "02 / Education", educationTitle: "EDUCATION.",
+    certificationKicker: "03 / Certification", certificationTitle: "CERTIFICATION.",
+    achievementsKicker: "04 / Achievements", achievementsTitle: "ACHIEVEMENTS.",
+    skillsKicker: "05 / Additional information", skillsTitle: "SKILLS & TOOLS.",
+    experienceKicker: "06 / Work experience", experienceTitle: "TEN YEARS, STACKED.",
+    knowledgeKicker: "07 / Knowledge", knowledgeTitle: "KNOWLEDGE.",
+    contactKicker: "08 / Thank you", contactTitle: "LET’S BUILD SOMETHING USEFUL.",
+    contactAvailability: "Open to remote & relocation",
+    footerLeft: "ADITYA S. KADAM · 2026",
+    footerRight: "WORDPRESS · TEAM LEADERSHIP · DIGITAL MARKETING · DATA"
+  };
+  out.ui = { ...uiDefaults, ...(d.ui || {}) };
+  out.ui.nav = { ...uiDefaults.nav, ...(d.ui?.nav || {}) };
+
   out.name = d.name || "";
   out.role = d.role || "";
   out.location = d.location || "";

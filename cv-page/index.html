@@ -22,6 +22,15 @@ function esc(v){return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").
 function text(v){return esc(v)}
 function section(title,html){return '<section class="section"><h2>'+text(title)+'</h2>'+html+'</section>'}
 async function getData(){
+  const preview=new URLSearchParams(window.location.search).has("preview");
+  if(preview){
+    const saved=localStorage.getItem(KEY);
+    if(saved){try{return JSON.parse(saved)}catch{}}
+  }
+  try{
+    const r=await fetch("https://aditya-cv-api.onrender.com/api/cv?v="+Date.now(),{cache:"no-store"});
+    if(r.ok){const result=await r.json();return result.data;}
+  }catch(e){}
   const saved=localStorage.getItem(KEY);
   if(saved){try{return JSON.parse(saved)}catch{}}
   const r=await fetch("./data.json?v="+Date.now());

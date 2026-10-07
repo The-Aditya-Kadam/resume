@@ -59,6 +59,24 @@
     <div><label>Footer Right</label><input id="footerRight"></div>
   </div></section>
 
+  <section class="panel"><h2>Hero Metrics & Orbit Chips</h2>
+    <p class="small">These values power the hero statistics and the floating technology chips. They are stored in PostgreSQL and can be changed without editing website code.</p>
+    <div id="heroMetrics"></div>
+    <button class="btn secondary" onclick="addHeroMetric()">+ Add Hero Metric</button>
+    <div id="orbitChips" style="margin-top:14px"></div>
+    <button class="btn secondary" onclick="addOrbitChip()">+ Add Orbit Chip</button>
+  </section>
+
+  <section class="panel"><div class="item-head"><h2>Knowledge / Repository Cards</h2><button class="btn secondary" onclick="addRepository()">+ Add Repository</button></div>
+    <p class="small">Repository cards are fully data-driven. Add, remove, reorder, or update the GitHub links here.</p>
+    <div id="repositories"></div>
+  </section>
+
+  <section class="panel"><h2>Theme Configuration</h2><div class="grid">
+    <div><label>Active Theme ID</label><input id="themeId" placeholder="orbit"></div>
+    <div class="full"><p class="small">Theme ID is stored in PostgreSQL now so future templates can be selected per CV. The current production theme is <b>orbit</b>.</p></div>
+  </div></section>
+
   <section class="panel"><h2>Personal Information</h2><div class="grid">
     <div><label>Name</label><input id="name"></div>
     <div><label>Professional Title</label><input id="role"></div>
@@ -109,7 +127,7 @@ let cv=null;
 
 const base={
   site:{title:"Aditya Kadam | Assistant Technical Project Manager",description:"Aditya Shashikant Kadam — Assistant Technical Project Manager with 10+ years of web engineering, technical project management, SEO, digital marketing and data science experience."},
-  ui:{nav:{summary:"Summary",education:"Education",skills:"Skills",experience:"Experience",knowledge:"Knowledge",contact:"Contact"},availability:"Open to opportunities",heroEyebrow:"SENIOR WORDPRESS DEVELOPER · TEAM LEADER · DIGITAL MARKETING MANAGER",summaryKicker:"01 / Summary",summaryTitle:"PM, TL, SEO & DATA.",educationKicker:"02 / Education",educationTitle:"EDUCATION.",certificationKicker:"03 / Certification",certificationTitle:"CERTIFICATION.",achievementsKicker:"04 / Achievements",achievementsTitle:"ACHIEVEMENTS.",skillsKicker:"05 / Additional information",skillsTitle:"SKILLS & TOOLS.",experienceKicker:"06 / Work experience",experienceTitle:"TEN YEARS, STACKED.",knowledgeKicker:"07 / Knowledge",knowledgeTitle:"KNOWLEDGE.",contactKicker:"08 / Thank you",contactTitle:"LET’S BUILD SOMETHING USEFUL.",contactAvailability:"Open to remote & relocation",footerLeft:"ADITYA S. KADAM · 2026",footerRight:"WORDPRESS · TEAM LEADERSHIP · DIGITAL MARKETING · DATA"},
+  ui:{nav:{summary:"Summary",education:"Education",skills:"Skills",experience:"Experience",knowledge:"Knowledge",contact:"Contact"},availability:"Open to opportunities",heroEyebrow:"SENIOR WORDPRESS DEVELOPER · TEAM LEADER · DIGITAL MARKETING MANAGER",summaryKicker:"01 / Summary",summaryTitle:"PM, TL, SEO & DATA.",educationKicker:"02 / Education",educationTitle:"EDUCATION.",certificationKicker:"03 / Certification",certificationTitle:"CERTIFICATION.",achievementsKicker:"04 / Achievements",achievementsTitle:"ACHIEVEMENTS.",skillsKicker:"05 / Additional information",skillsTitle:"SKILLS & TOOLS.",experienceKicker:"06 / Work experience",experienceTitle:"TEN YEARS, STACKED.",knowledgeKicker:"07 / Knowledge",knowledgeTitle:"KNOWLEDGE.",contactKicker:"08 / Thank you",contactTitle:"LET’S BUILD SOMETHING USEFUL.",contactAvailability:"Open to remote & relocation",footerLeft:"ADITYA S. KADAM · 2026",footerRight:"WORDPRESS · TEAM LEADERSHIP · DIGITAL MARKETING · DATA",heroMetrics:[{value:"10",label:"years web development"},{value:"7",label:"years digital marketing"},{value:"2024",label:"Purdue PG, Data Science"}],orbitChips:["WORDPRESS","PYTHON / DATA","SEO / ANALYTICS","TEAM LEADERSHIP","CORE WEB VITALS","POWER BI"],knowledgeIntro:"Coursework and projects from the Simplilearn institution, published on GitHub.",knowledgeGithubLabel:"github.com/The-Aditya-Kadam",themeId:"orbit"},
   name:"ADITYA SHASHIKANT KADAM",
   role:"ASSISTANT TECHNICAL PROJECT MANAGER",
   location:"Mumbai, India",
@@ -144,7 +162,15 @@ const base={
     {title:"Best Performance & Team Lead",issuer:"Futran Tech Solutions",date:"Nov 2022"},
     {title:"Best Performance & Team Lead",issuer:"ACOnnect",date:"Dec 2020"}
   ],
-  customSections:[]
+  customSections:[],
+  repositories:[
+    {label:"REPO 01",source:"Simplilearn",path:"The-Aditya-Kadam / Natural-Language-Processing",title:"Natural Language Processing",description:"NLP coursework and projects.",tags:["NLP","Text analytics"],url:"https://github.com/The-Aditya-Kadam/Natural-Language-Processing"},
+    {label:"REPO 02",source:"Simplilearn",path:"The-Aditya-Kadam / Data-Science-with-R",title:"Data Science with R",description:"Analysis and modeling in R.",tags:["R","Modeling"],url:"https://github.com/The-Aditya-Kadam/Data-Science-with-R"},
+    {label:"REPO 03",source:"Simplilearn",path:"The-Aditya-Kadam / Data-Science-Capstone",title:"Data Science Capstone",description:"End-to-end data analysis and visualization.",tags:["Capstone","Visualization"],url:"https://github.com/The-Aditya-Kadam/Data-Science-Capstone"},
+    {label:"REPO 04",source:"Simplilearn",path:"The-Aditya-Kadam / Machine-Learning",title:"Machine Learning",description:"Machine-learning coursework and models.",tags:["ML","Models"],url:"https://github.com/The-Aditya-Kadam/Machine-Learning"},
+    {label:"REPO 05",source:"Simplilearn",path:"The-Aditya-Kadam / Tableau-Training",title:"Tableau Training",description:"Dashboards and visual analytics in Tableau.",tags:["Tableau","Dashboards"],url:"https://github.com/The-Aditya-Kadam/Tableau-Training"},
+    {label:"REPO 06",source:"Simplilearn",path:"The-Aditya-Kadam / Applied-Data-Science-with-Python",title:"Applied Data Science with Python",description:"Python for data analysis and machine learning.",tags:["Python","ML"],url:"https://github.com/The-Aditya-Kadam/Applied-Data-Science-with-Python"}
+  ]
 };
 
 function clone(x){return JSON.parse(JSON.stringify(x))}
@@ -160,6 +186,10 @@ function render(){
   const st=document.getElementById("siteTitle"),md=document.getElementById("metaDescription");
   if(st)st.value=cv.site.title||"";
   if(md)md.value=cv.site.description||"";
+  set("themeId",cv.ui.themeId||"orbit");
+  document.getElementById("heroMetrics").innerHTML=(cv.ui.heroMetrics||[]).map((x,i)=>`<div class="item"><div class="item-head"><strong>Hero Metric ${i+1}</strong><div class="row-actions"><button class="btn muted" onclick="moveUIItem('heroMetrics',${i},-1)">↑</button><button class="btn muted" onclick="moveUIItem('heroMetrics',${i},1)">↓</button><button class="btn danger" onclick="removeUIItem('heroMetrics',${i})">Remove</button></div></div><div class="grid"><div><label>Value</label><input data-ui-group="heroMetrics" data-i="${i}" data-k="value" value="${esc(x.value)}"></div><div><label>Label</label><input data-ui-group="heroMetrics" data-i="${i}" data-k="label" value="${esc(x.label)}"></div></div></div>`).join("");
+  document.getElementById("orbitChips").innerHTML=(cv.ui.orbitChips||[]).map((x,i)=>`<div class="bullet"><input data-chip-index="${i}" value="${esc(x)}"><button class="btn danger" onclick="removeOrbitChip(${i})">Remove</button></div>`).join("");
+  document.getElementById("repositories").innerHTML=(cv.repositories||[]).map((x,i)=>`<div class="item"><div class="item-head"><strong>Repository ${i+1}</strong><div class="row-actions"><button class="btn muted" onclick="moveItem('repositories',${i},-1)">↑</button><button class="btn muted" onclick="moveItem('repositories',${i},1)">↓</button><button class="btn danger" onclick="removeItem('repositories',${i})">Remove</button></div></div><div class="grid"><div><label>Card Label</label><input data-group="repositories" data-i="${i}" data-k="label" value="${esc(x.label)}"></div><div><label>Source / Meta</label><input data-group="repositories" data-i="${i}" data-k="source" value="${esc(x.source)}"></div><div class="full"><label>Repository Path</label><input data-group="repositories" data-i="${i}" data-k="path" value="${esc(x.path)}"></div><div><label>Title</label><input data-group="repositories" data-i="${i}" data-k="title" value="${esc(x.title)}"></div><div><label>GitHub URL</label><input data-group="repositories" data-i="${i}" data-k="url" value="${esc(x.url)}"></div><div class="full"><label>Description</label><textarea data-group="repositories" data-i="${i}" data-k="description">${esc(x.description)}</textarea></div><div class="full"><label>Tags (comma separated)</label><input data-repo-tags="${i}" value="${esc((x.tags||[]).join(", "))}"></div></div></div>`).join("");
   set("name",cv.name);set("role",cv.role);set("location",cv.location);set("phone",cv.phone);set("email",cv.email);set("linkedin",cv.linkedin);set("github",cv.github);set("portfolio",cv.portfolio);set("targetLocations",cv.targetLocations);set("summary",cv.summary);
   document.getElementById("competencies").innerHTML=cv.competencies.map((x,i)=>`<div class="item"><div class="item-head"><strong>Competency ${i+1}</strong><div class="row-actions"><button class="btn muted" onclick="moveItem('competencies',${i},-1)">↑</button><button class="btn muted" onclick="moveItem('competencies',${i},1)">↓</button><button class="btn danger" onclick="removeItem('competencies',${i})">Remove</button></div></div><div class="grid"><div><label>Title</label><input data-group="competencies" data-i="${i}" data-k="title" value="${esc(x.title)}"></div><div><label>Skills / Tools</label><input data-group="competencies" data-i="${i}" data-k="text" value="${esc(x.text)}"></div></div></div>`).join("");
   document.getElementById("experience").innerHTML=cv.experience.map((x,i)=>`<div class="item"><div class="item-head"><strong>Experience ${i+1}</strong><div class="row-actions"><button class="btn muted" onclick="moveItem('experience',${i},-1)">↑</button><button class="btn muted" onclick="moveItem('experience',${i},1)">↓</button><button class="btn danger" onclick="removeItem('experience',${i})">Remove</button></div></div><div class="grid"><div><label>Role</label><input data-group="experience" data-i="${i}" data-k="role" value="${esc(x.role)}"></div><div><label>Company</label><input data-group="experience" data-i="${i}" data-k="company" value="${esc(x.company)}"></div><div><label>Dates</label><input data-group="experience" data-i="${i}" data-k="dates" value="${esc(x.dates)}"></div><div><label>Project Proof URL</label><input data-group="experience" data-i="${i}" data-k="proof" value="${esc(x.proof||"")}"></div><div class="full"><label>Achievement</label><input data-group="experience" data-i="${i}" data-k="achievement" value="${esc(x.achievement)}"></div><div class="full"><label>Responsibilities / Bullets</label><div id="bullets-${i}">${(x.bullets||[]).map((b,j)=>`<div class="bullet"><input data-bullet-group="${i}" data-bullet-index="${j}" value="${esc(b)}"><button class="btn danger" onclick="removeBullet(${i},${j})">Remove</button></div>`).join("")}</div><button class="btn secondary" onclick="addBullet(${i})">+ Add Bullet</button></div></div></div>`).join("");
@@ -176,6 +206,13 @@ function sync(){
   ["availability","heroEyebrow","summaryKicker","summaryTitle","educationKicker","educationTitle","certificationKicker","certificationTitle","achievementsKicker","achievementsTitle","skillsKicker","skillsTitle","experienceKicker","experienceTitle","knowledgeKicker","knowledgeTitle","contactKicker","contactTitle","contactAvailability","footerLeft","footerRight"].forEach(function(id){var v=val(id).trim();if(v!=="")cv.ui[id]=v;});
   if(val("siteTitle").trim()!=="") cv.site.title=val("siteTitle");
   if(val("metaDescription").trim()!=="") cv.site.description=val("metaDescription");
+  cv.ui.themeId=val("themeId").trim()||cv.ui.themeId||"orbit";
+  cv.ui.heroMetrics=Array.isArray(cv.ui.heroMetrics)?cv.ui.heroMetrics:[];
+  document.querySelectorAll("[data-ui-group]").forEach(function(el){var i=+el.dataset.i,k=el.dataset.k,n=el.value.trim();if(n!=="")cv.ui.heroMetrics[i][k]=el.value;});
+  cv.ui.orbitChips=Array.from(document.querySelectorAll("[data-chip-index]")).map(function(el){return el.value.trim();}).filter(Boolean);
+  cv.repositories=Array.isArray(cv.repositories)?cv.repositories:[];
+  document.querySelectorAll("[data-repo-tags]").forEach(function(el){var i=+el.dataset.repoTags,n=el.value.split(",").map(function(v){return v.trim();}).filter(Boolean);cv.repositories[i].tags=n;});
+
   // Blank inputs never overwrite an existing value. This lets you leave a field empty
   // without accidentally deleting the published/current value.
   ["name","role","location","phone","email","linkedin","github","portfolio","targetLocations","summary"].forEach(id=>{
@@ -206,6 +243,12 @@ function updateHistoryStatus(){
   const n=historyCount();
   document.getElementById("status").textContent=(n?("Rollback history: "+n+"/5 saved change"+(n===1?"":"s")):"No rollback history yet.");
 }
+function addHeroMetric(){sync();cv.ui.heroMetrics=cv.ui.heroMetrics||[];cv.ui.heroMetrics.push({value:"",label:""});render()}
+function addOrbitChip(){sync();cv.ui.orbitChips=cv.ui.orbitChips||[];cv.ui.orbitChips.push("");render()}
+function removeOrbitChip(i){sync();cv.ui.orbitChips.splice(i,1);render()}
+function moveUIItem(group,i,dir){sync();var a=cv.ui[group]||[],j=i+dir;if(j<0||j>=a.length)return;[a[i],a[j]]=[a[j],a[i]];render()}
+function removeUIItem(group,i){sync();cv.ui[group].splice(i,1);render()}
+function addRepository(){sync();cv.repositories=cv.repositories||[];cv.repositories.push({label:"REPO "+String(cv.repositories.length+1).padStart(2,"0"),source:"",path:"",title:"",description:"",tags:[],url:""});render()}
 function addCompetency(){sync();cv.competencies.push({title:"New Competency",text:""});render()}
 function addExperience(){sync();cv.experience.push({role:"New Role",company:"Company",dates:"",proof:"",bullets:[""],achievement:""});render()}
 function addEducation(){sync();cv.education.push({qualification:"",institution:"",dates:"",details:""});render()}

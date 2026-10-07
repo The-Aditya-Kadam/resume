@@ -796,8 +796,6 @@ body{background:#fff!important;color:#111827!important}
     var grid=document.querySelector("#skills .skill-grid");
     if(!grid)return;
     var list=Array.isArray(d.competencies)?d.competencies:[];
-    grid.style.gridTemplateAreas="none";
-    grid.style.gridTemplateColumns="repeat(3,minmax(0,1fr))";
     grid.innerHTML=list.map(function(x,i){
       var skills=String(x.text||"").split(",").map(function(v){return v.trim();}).filter(Boolean);
       return '<div class="panel skill-db skill-'+(i+1)+'"><div class="panel-head"><span class="panel-icon">•</span><span class="panel-label">'+text(x.title||("SKILL DOMAIN "+(i+1)))+'</span><span class="panel-meta">'+String(skills.length).padStart(2,"0")+'</span></div><ul class="skill-chips">'+skills.map(function(s){return '<li class="chip-skill">'+text(s)+'</li>';}).join("")+'</ul></div>';
@@ -818,8 +816,9 @@ body{background:#fff!important;color:#111827!important}
     if(!root)return;
     var items=Array.isArray(d.certifications)?d.certifications:[];
     var body=items.map(function(x){return '<div class="cert"><span class="year-chip">'+text(x.date)+'</span><b class="cert-title">'+text(x.title)+'</b><span class="entry-sub">'+text(x.issuer)+'</span>'+(x.details?'<span class="entry-sub">'+text(x.details)+'</span>':"")+'</div>';}).join("");
-    var old=root.querySelector(".cert"); if(old)old.parentElement.innerHTML=body;
-    else root.insertAdjacentHTML("beforeend",body);
+    root.querySelectorAll(".cert").forEach(function(el){el.remove();});
+    var head=root.querySelector(".panel-head");
+    if(head)head.insertAdjacentHTML("afterend",body); else root.insertAdjacentHTML("beforeend",body);
     var meta=root.querySelector(".panel-meta"); if(meta)meta.innerHTML=items.length+" record"+(items.length===1?"":"s");
   }
   function renderAwards(d){

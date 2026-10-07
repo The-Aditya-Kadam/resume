@@ -5,7 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>CV Management</title>
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f4f6f8;color:#111827}.wrap{max-width:1100px;margin:auto;padding:32px 20px 80px}.top{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:22px}.top h1{margin:0}.top p{margin:6px 0 0;color:#64748b}.panel{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:22px;margin:16px 0}.panel h2{margin:0 0 18px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.full{grid-column:1/-1}label{display:block;font-size:13px;font-weight:700;margin:0 0 6px}input,textarea,select{width:100%;font:inherit;padding:10px 11px;border:1px solid #cbd5e1;border-radius:8px;background:#fff}textarea{min-height:100px;resize:vertical}.item{border:1px solid #dbe3ec;border-radius:10px;padding:16px;margin:12px 0}.item-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}.item-head strong{font-size:14px}.row-actions{display:flex;gap:8px;flex-wrap:wrap}.btn{border:0;border-radius:8px;padding:10px 13px;font-weight:700;cursor:pointer}.primary{background:#1e3a8a;color:#fff}.secondary{background:#e8eefc;color:#1e3a8a}.danger{background:#fee2e2;color:#991b1b}.muted{background:#eef2f7;color:#334155}.actions{position:sticky;bottom:12px;background:rgba(255,255,255,.96);border:1px solid #dbe3ec;border-radius:12px;padding:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;box-shadow:0 8px 24px rgba(15,23,42,.12)}#status{font-size:13px;color:#475569}.bullet{display:grid;grid-template-columns:1fr auto;gap:8px;margin:8px 0}.small{font-size:12px;color:#64748b}@media(max-width:700px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.top{display:block}.actions{position:static}}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f4f6f8;color:#111827}.wrap{max-width:1100px;margin:auto;padding:32px 20px 80px}.top{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:22px}.top h1{margin:0}.top p{margin:6px 0 0;color:#64748b}.panel{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:22px;margin:16px 0}.panel h2{margin:0 0 18px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.full{grid-column:1/-1}label{display:block;font-size:13px;font-weight:700;margin:0 0 6px}input,textarea,select{width:100%;font:inherit;padding:10px 11px;border:1px solid #cbd5e1;border-radius:8px;background:#fff}textarea{min-height:100px;resize:vertical}.item{border:1px solid #dbe3ec;border-radius:10px;padding:16px;margin:12px 0}.item-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}.item-head strong{font-size:14px}.row-actions{display:flex;gap:8px;flex-wrap:wrap}.btn{border:0;border-radius:8px;padding:10px 13px;font-weight:700;cursor:pointer}.primary{background:#1e3a8a;color:#fff}.secondary{background:#e8eefc;color:#1e3a8a}.danger{background:#fee2e2;color:#991b1b}.muted{background:#eef2f7;color:#334155}.actions{position:sticky;bottom:12px;background:rgba(255,255,255,.96);border:1px solid #dbe3ec;border-radius:12px;padding:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;box-shadow:0 8px 24px rgba(15,23,42,.12)}#status{font-size:13px;color:#475569}
+#saveOverlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,.92);z-index:9999;align-items:center;justify-content:center;color:#fff;text-align:center}
+#saveOverlay.show{display:flex}.save-box{width:min(420px,90vw)}.loader{width:58px;height:58px;border:5px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 24px}
+.save-box h2{margin:0 0 10px;font-size:24px}.save-box p{margin:0;color:#cbd5e1;line-height:1.5}
+@keyframes spin{to{transform:rotate(360deg)}}.bullet{display:grid;grid-template-columns:1fr auto;gap:8px;margin:8px 0}.small{font-size:12px;color:#64748b}@media(max-width:700px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.top{display:block}.actions{position:static}}
 </style>
 </head>
 <body>
@@ -51,6 +55,14 @@
     <button class="btn secondary" onclick="previewCV()">PREVIEW CV</button>
     <button class="btn muted" onclick="resetDraft()">RESET DRAFT</button>
     <span id="status">Loading published CV data…</span>
+  </div>
+</div>
+
+<div id="saveOverlay" aria-live="polite">
+  <div class="save-box">
+    <div class="loader"></div>
+    <h2>Saving your CV…</h2>
+    <p id="saveMessage">Please wait while your changes are being saved.</p>
   </div>
 </div>
 
@@ -160,19 +172,19 @@ function saveDraft(){
     try{pushHistory(JSON.parse(previousRaw))}catch{}
   }
   localStorage.setItem(KEY,JSON.stringify(cv));
-  let seconds=5;
-  const status=document.getElementById("status");
-  status.textContent="Saved successfully. Opening main page in "+seconds+" seconds…";
-  const timer=setInterval(()=>{
-    seconds--;
-    if(seconds<=0){
-      clearInterval(timer);
-      status.textContent="Opening main page…";
-      window.location.href="/";
-    }else{
-      status.textContent="Saved successfully. Opening main page in "+seconds+" seconds…";
-    }
-  },1000);
+
+  const overlay=document.getElementById("saveOverlay");
+  const message=document.getElementById("saveMessage");
+  overlay.classList.add("show");
+  document.body.style.overflow="hidden";
+
+  // Current deployment is a static Render site, so the browser draft is saved
+  // locally first. Keep the loading state visible long enough for the user to
+  // clearly see that the save step completed before redirecting.
+  setTimeout(()=>{
+    message.textContent="Your CV changes are saved. Opening your main portfolio…";
+    setTimeout(()=>window.location.href="/",1200);
+  },1800);
 }
 function resetDraft(){localStorage.removeItem(KEY);localStorage.removeItem(HISTORY_KEY);cv=clone(base);render();document.getElementById("status").textContent="Draft reset to the starter CV data. Rollback history cleared."}\nfunction rollbackDraft(){
   const h=historyList();

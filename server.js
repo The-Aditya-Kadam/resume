@@ -47,6 +47,10 @@ async function ensureDatabase() {
       "INSERT INTO cv_documents (id, data, version) VALUES (1, $1::jsonb, 1)",
       [JSON.stringify(data)]
     );
+    await pool.query(
+      "INSERT INTO cv_versions (document_id, version, data) VALUES (1, 1, $1::jsonb)",
+      [JSON.stringify(data)]
+    );
     console.log("Current CV data uploaded to PostgreSQL.");
   } else {
     console.log("CV data already exists; no seed overwrite performed.");

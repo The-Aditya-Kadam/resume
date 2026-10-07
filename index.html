@@ -860,7 +860,7 @@ body{background:#fff!important;color:#111827!important}
     setText(".nav-links a[href='#experience']",n.experience);
     setText(".nav-links a[href='#knowledge']",n.knowledge);
     setText(".nav-links a[href='#contact']",n.contact);
-    var avail=document.querySelector(".availability");if(avail&&u.availability)avail.innerHTML='<i></i> '+text(u.availability);
+    var avail=document.querySelector(".status-text");if(avail&&u.availability)avail.textContent=u.availability;
     setText(".hero .eyebrow",u.heroEyebrow);
     setText("#summary .kicker",u.summaryKicker);
     setText("#summary .h2",u.summaryTitle);

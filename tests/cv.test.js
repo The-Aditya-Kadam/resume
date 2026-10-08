@@ -28,10 +28,10 @@ test('API save, read, conflict and rollback use an isolated SQL database',async 
  response=await post(data,1);assert.equal(response.status,200);assert.equal((await response.json()).version,2);
  const published=await (await fetch(url)).json();assert.equal(published.data.name,'Changed');assert.equal(published.data.site.title,'');assert.deepEqual(published.data.repositories,[]);
  const pdf='data:application/pdf;base64,'+Buffer.from('%PDF-1.4\nAttachment test\n%%EOF').toString('base64');
- data.attachments={resume:{name:'new-resume.pdf',dataUrl:pdf},coverLetter:{name:'cover.pdf',url:'https://example.com/cover.pdf'}};
+ data.attachments={resume:{name:'new-resume.pdf',dataUrl:pdf},coverLetter:{name:'cover.pdf',dataUrl:pdf}};
  response=await post(data,2);assert.equal(response.status,200);
  const attachments=(await (await fetch(url)).json()).data.attachments;
- assert.equal(attachments.resume.dataUrl,pdf);assert.equal(attachments.coverLetter.url,'https://example.com/cover.pdf');
+ assert.equal(attachments.resume.dataUrl,pdf);assert.equal(attachments.coverLetter.dataUrl,pdf);
  response=await post({...data,attachments:{resume:{url:'javascript:alert(1)'}}},3);assert.equal(response.status,400);
  response=await post({...data,name:'Stale'},1);assert.equal(response.status,409);assert.equal((await (await fetch(url)).json()).data.name,'Changed');
  response=await post({experience:[null]},2);assert.equal(response.status,400);

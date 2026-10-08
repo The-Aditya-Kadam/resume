@@ -624,7 +624,7 @@ body{background:#fff!important;color:#111827!important}
   function setupOrbit(){
     var cards=[].slice.call(ring.querySelectorAll('.pcard'));
     var n=cards.length;
-    orbitTurn=((orbitTurn%n)+n)%n;
+    orbitTurn=n?((orbitTurn%n)+n)%n:0;
     function mode(){return window.innerWidth<=700?'deck':'ring'}
     function radius(){return window.innerWidth<=1100?400:460}
     function render(){
@@ -651,11 +651,14 @@ body{background:#fff!important;color:#111827!important}
         c.querySelectorAll('a').forEach(function(l){l.tabIndex=k===a?0:-1});
       });
       counter.textContent='0'+(a+1)+' / '+String(n).padStart(2,'0')+' · ROTATE THE ORBIT';
-      activeName.textContent=cards[a].querySelector('h3').textContent;
+      var heading=cards[a]&&cards[a].querySelector('h3');
+      activeName.textContent=heading?heading.textContent:'';
     }
     function go(dir){if(!n)return;orbitTurn+=dir;render()}
-    document.getElementById('prevBtn').onclick=function(){go(-1)};
-    document.getElementById('nextBtn').onclick=function(){go(1)};
+    var prevButton=document.getElementById('prevBtn');
+    var nextButton=document.getElementById('nextBtn');
+    if(prevButton){prevButton.disabled=!n;prevButton.onclick=function(){go(-1)};}
+    if(nextButton){nextButton.disabled=!n;nextButton.onclick=function(){go(1)};}
     stage.onkeydown=function(e){
       if(e.key==='ArrowLeft'){e.preventDefault();go(-1)}
       if(e.key==='ArrowRight'){e.preventDefault();go(1)}
@@ -972,7 +975,9 @@ body{background:#fff!important;color:#111827!important}
     // Keep the original timeline and orbit layout; refresh only orbit cards from saved CV data.
     if(Array.isArray(d.experience)&&d.experience.length&&window.renderOrbitFromExperience){window.renderOrbitFromExperience(d.experience);}
   }
-  api().then(render).catch(function(){});
+  api().then(render).catch(function(error){
+    console.error('CV API loading failed; original portfolio content remains available.',error);
+  });
 })();
 </script>
 </body>

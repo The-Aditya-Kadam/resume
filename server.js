@@ -1,5 +1,6 @@
 const http = require("http");
 const { Pool } = require("pg");
+const CVAttachments = require("./cv-attachments");
 
 const PORT = process.env.PORT || 10000;
 const DATABASE_URL = process.env.DATABASE_URL;
@@ -56,6 +57,7 @@ async function ensureDatabase() {
 function normalizeData(input) {
   const d = input && typeof input === "object" && !Array.isArray(input) ? input : {};
   const out = { ...d };
+  out.attachments=CVAttachments.normalize(d.attachments);
 
   out.site = {
     title: d.site?.title ?? d.siteTitle ?? "Aditya Kadam | Assistant Technical Project Manager",
@@ -253,7 +255,8 @@ return http.createServer(async (req, res) => {
           send(res,400,{error:"Invalid "+key+" list."});return;
         }
       }
-      const data = normalizeData(rawData);
+      let data;
+      try{data=normalizeData(rawData);}catch(error){send(res,400,{error:error.message});return;}
       const client = await pool.connect();
       try {
         await client.query("BEGIN");

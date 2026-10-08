@@ -77,7 +77,10 @@
     <div><label>GitHub</label><input id="github"></div>
     <div><label>Portfolio</label><input id="portfolio"></div>
     <div class="full"><label>Target Locations</label><input id="targetLocations"></div>
-  </div></section>
+  </div>
+<h3>Attachments — Resume &amp; Cover Letter</h3><p class="small">Upload a PDF up to 500 KB, or enter a hosted PDF link. Changes remain in your draft until you save.</p>
+<div class="item"><h3>Resume</h3><div class="grid"><div><label for="resumeAttachmentUrl">Resume PDF link</label><input id="resumeAttachmentUrl" data-attachment="resume" onchange="updateAttachmentLink()" placeholder="HTTPS link or /assets/file.pdf"></div><div><label for="resumeAttachmentUpload">Upload resume PDF</label><input id="resumeAttachmentUpload" type="file" accept="application/pdf,.pdf" onchange="uploadAttachment('resume',event)"></div></div><p class="small" id="resumeAttachmentName"></p><div class="row-actions"><a id="resumeAttachmentPreview" class="btn secondary" target="_blank" rel="noopener">Open current PDF</a><button class="btn danger" onclick="removeAttachment('resume')">Remove resume attachment</button><button class="btn muted" onclick="restoreAttachment('resume')">Restore original resume</button></div></div><div class="item"><h3>Cover letter</h3><div class="grid"><div><label for="coverLetterAttachmentUrl">Cover letter PDF link</label><input id="coverLetterAttachmentUrl" data-attachment="coverLetter" onchange="updateAttachmentLink()" placeholder="HTTPS link or /assets/file.pdf"></div><div><label for="coverLetterAttachmentUpload">Upload cover letter PDF</label><input id="coverLetterAttachmentUpload" type="file" accept="application/pdf,.pdf" onchange="uploadAttachment('coverLetter',event)"></div></div><p class="small" id="coverLetterAttachmentName"></p><div class="row-actions"><a id="coverLetterAttachmentPreview" class="btn secondary" target="_blank" rel="noopener">Open current PDF</a><button class="btn danger" onclick="removeAttachment('coverLetter')">Remove cover letter attachment</button><button class="btn muted" onclick="restoreAttachment('coverLetter')">Restore original cover letter</button></div></div>
+</section>
 
   <section class="panel"><h2>Hero Metrics & Orbit Chips</h2>
     <p class="small">These values power the hero statistics and the floating technology chips. They are stored in PostgreSQL and can be changed without editing website code.</p>
@@ -123,6 +126,7 @@
 </div>
 
 <script src="/cv-content.js"></script>
+<script src="/cv-attachments.js"></script>
 <script>
 const KEY="aditya-kadam-cv-draft";
 const HISTORY_KEY="aditya-kadam-cv-history";
@@ -250,6 +254,7 @@ function addBullet(i){sync();cv.experience[i].bullets.push("");render()}
 function removeBullet(i,j){sync();cv.experience[i].bullets.splice(j,1);render()}
 
 </script>
+<script src="/cv-management/attachments.js"></script>
 <script src="/cv-management/manager.js"></script>
 </body>
 </html>

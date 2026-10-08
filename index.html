@@ -420,7 +420,7 @@ body{background:#fff!important;color:#111827!important}
 <div class="hero-actions">
 <!-- Download Resume: put the CV PDF path in href, e.g. href="Aditya-Kadam-Resume.pdf" -->
 <a class="btn" id="resumeLink" href="/assets/logos/Aditya-Kadam-Resume.pdf" download>Download Resume</a>
-<a class="btn primary" href="/assets/logos/Aditya-Kadam-Cover-Letter.pdf" download="Aditya-Kadam-Cover-Letter.pdf"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Download cover letter</a>
+<a class="btn primary" id="coverLetterLink" href="/assets/logos/Aditya-Kadam-Cover-Letter.pdf" download="Aditya-Kadam-Cover-Letter.pdf"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Download cover letter</a>
 </div>
 <div class="metrics" id="heroMetrics"></div>
 </div>
@@ -776,6 +776,7 @@ body{background:#fff!important;color:#111827!important}
 </script>
 
 <script src="/cv-content.js"></script>
+<script src="/cv-attachments.js"></script>
 <script>
 /* PostgreSQL-backed portfolio renderer. PostgreSQL is the single source of truth. */
 (function(){
@@ -949,7 +950,22 @@ body{background:#fff!important;color:#111827!important}
     tiles.forEach(function(t,i){if(!vals[i])return; t.href=vals[i][2]; var v=t.querySelector(".ctile-value");if(v)v.textContent=vals[i][1]||"";});
     var loc=document.querySelector("#contact .loc");if(loc)loc.lastChild.textContent=" "+(d.location||"");
   }
+  var attachmentUrls=[];
+  function renderAttachments(d){
+    attachmentUrls.forEach(url=>URL.revokeObjectURL(url));attachmentUrls=[];
+    var attachments=CVAttachments.normalize(d.attachments);
+    [['resume','resumeLink'],['coverLetter','coverLetterLink']].forEach(function(entry){
+      var item=attachments[entry[0]],link=document.getElementById(entry[1]);
+      link.hidden=!item;
+      // Explicitly override .btn display when an optional attachment is cleared.
+      link.style.display=item?'':'none';
+      if(!item){link.removeAttribute('href');return;}
+      link.href=CVAttachments.blobUrl(item);link.download=item.name;
+      if(item.dataUrl)attachmentUrls.push(link.href);
+    });
+  }
   function render(d){
+    renderAttachments(d);
     if(d.site){
       document.title=d.site.title;
       var meta=document.querySelector('meta[name="description"]');if(meta)meta.setAttribute("content",d.site.description||"");

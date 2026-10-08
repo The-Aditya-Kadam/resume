@@ -4,6 +4,10 @@
   let version=null, published=null, busy=false;
   const originalRender=render;
   const status=message=>{document.getElementById('status').textContent=message;};
+  function rememberDraft(){
+    try{localStorage.setItem(KEY,JSON.stringify(cv));}
+    catch(error){console.warn('Browser draft cache unavailable; the current form remains usable.',error);}
+  }
   const fields=['name','role','location','phone','email','linkedin','github','portfolio','targetLocations','summary'];
   function normalize(input){
     if(!input||typeof input!=='object'||Array.isArray(input))throw new Error('A CV JSON object is required.');
@@ -13,6 +17,7 @@
       if(d[key]!=null&&(!Array.isArray(d[key])||d[key].some(x=>!x||typeof x!=='object'||Array.isArray(x))))throw new Error('Invalid '+key+' list.');
       d[key]=d[key]??clone(base[key]||[]);
     }
+    d.attachments=CVAttachments.normalize(d.attachments);
     d.site={...base.site,...d.site};
     d.ui={...base.ui,...d.ui,nav:{...base.ui.nav,...d.ui?.nav}};
     for(const key of fields)d[key]=d[key]??base[key]??'';
@@ -27,6 +32,7 @@
     document.querySelectorAll('button,input,textarea,select').forEach(el=>{el.disabled=disabled;});
     document.querySelector('.wrap').setAttribute('aria-busy',String(disabled));
   }
+  window.setAttachmentBusy=controls;
   render=function(){
     originalRender();
     document.querySelectorAll('label').forEach((label,i)=>{
@@ -62,7 +68,7 @@
     try{
       const result=await request();
       cv=normalize(result.data);published=clone(cv);version=result.version;
-      localStorage.setItem(KEY,JSON.stringify(cv));
+      rememberDraft();
       render();status('✓ Database CV loaded. Version '+version+'.');
     }catch(error){status('Load failed: '+error.message);}
     finally{controls(false);if(!cv)document.querySelectorAll('button').forEach(b=>{if(b.textContent!=='Load Published')b.disabled=true;});}
@@ -70,7 +76,8 @@
   window.saveDraft=async function(){
     if(busy||!cv)return;
     sync();updateFlags();
-    const submitted=clone(cv);
+    let submitted;
+    try{submitted=normalize(cv);}catch(error){status("Save failed: "+error.message);return;}
     controls(true);
     const overlay=document.getElementById('saveOverlay');
     overlay.classList.add('show');document.body.style.overflow='hidden';
@@ -80,7 +87,7 @@
       const saved=await request('POST',{data:submitted,expectedVersion:version});
       version=saved.version;
       cv=normalize(saved.data||submitted);published=clone(cv);
-      localStorage.setItem(KEY,JSON.stringify(cv));
+      rememberDraft();
       render();status('✓ CV saved to database. Version '+version+'.');
     }catch(error){status('Save failed: '+error.message);}
     finally{overlay.classList.remove('show');document.body.style.overflow='';controls(false);}
@@ -94,13 +101,21 @@
   };
   window.resetDraft=function(){
     if(busy||!published)return;
-    cv=clone(published);localStorage.setItem(KEY,JSON.stringify(cv));render();status('Draft reset to the loaded published CV.');
+    cv=clone(published);rememberDraft();render();status('Draft reset to the loaded published CV.');
   };
   window.previewCV=function(){
     if(busy||!cv)return;
     sync();updateFlags();
     const token=crypto.randomUUID();
-    localStorage.setItem(KEY+':preview:'+token,JSON.stringify(cv));
+    try{
+      const snapshot=JSON.stringify(normalize(cv));
+      try{localStorage.setItem(KEY+':preview:'+token,snapshot);}
+      catch(error){
+        if(error.name!=='QuotaExceededError')throw error;
+        Object.keys(localStorage).filter(k=>k.startsWith(KEY+':preview:')).forEach(k=>localStorage.removeItem(k));
+        localStorage.setItem(KEY+':preview:'+token,snapshot);
+      }
+    }catch(error){status('Preview failed: '+error.message);return;}
     const popup=window.open('/?preview='+encodeURIComponent(token),'_blank');
     if(!popup)status('Preview was blocked by the browser. Allow popups to preview your CV.');
   };
@@ -116,7 +131,7 @@
     try{
       if(file.size>2000000)throw new Error('JSON file is too large (maximum 2 MB).');
       const imported=normalize(JSON.parse(await file.text()));
-      cv=imported;updateFlags();localStorage.setItem(KEY,JSON.stringify(cv));render();status('Imported CV draft. Preview or Save CV to Database when ready.');
+      cv=imported;updateFlags();rememberDraft();render();status('Imported CV draft. Preview or Save CV to Database when ready.');
     }catch(error){status('Import failed: '+error.message);}
   };
   // Initialization does not run twice and editing stays disabled until data exists.

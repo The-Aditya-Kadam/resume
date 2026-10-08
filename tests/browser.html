@@ -1,5 +1,5 @@
-<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CV isolated browser checks</title>
-<style>body{font:16px system-ui;background:#f4f6f8;color:#111827;margin:24px}button{padding:12px 20px;font:inherit}#results{white-space:pre-wrap}iframe{border:1px solid #cbd5e1;height:720px;background:white}section{margin:24px 0;overflow:auto}.pass{color:#166534}.fail{color:#991b1b}</style>
+<!doctype html><html lang="en"><head><meta name="robots" content="noindex,nofollow"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CV isolated browser checks</title>
+<style>body{font:16px system-ui;background:#f4f6f8;color:#111827;margin:24px}button{padding:12px 20px;font:inherit}#results{white-space:pre-wrap}iframe{border:1px solid #cbd5e1;height:720px;background:white}section{margin:24px 0;overflow:auto}.pass{color:#166534}.fail{color:#991b1b}</style></head><body>
 <h1>CV isolated browser checks</h1><p>Save and Rollback in these test frames use temporary browser memory. Production database records are never written.</p>
 <button id="run">Run desktop and mobile checks</button><pre id="results" role="status">Ready.</pre>
 <section><h2>Desktop — 1348 px</h2><iframe id="desktop" title="Desktop draft" style="width:1348px"></iframe></section>
@@ -15,7 +15,7 @@ const escScript=s=>s.replace(/<\/script/gi,'<\\/script');
 let published,publicHTML;
 window.showTestPreview=async function(url){
   const token=new URL(url,location.href).searchParams.get('preview');
-  const html=publicHTML.replace('var previewToken=new URLSearchParams(location.search).get("preview");','var previewToken='+JSON.stringify(token)+';');
+  const html=publicHTML.replace('if(location.hostname','if(true||location.hostname').replace('var previewToken=new URLSearchParams(location.search).get("preview");','var previewToken='+JSON.stringify(token)+';');
   document.getElementById('preview').srcdoc=html;
 };
 async function loadFrame(frame,html){
@@ -59,6 +59,7 @@ async function exercise(frame,label){
     else if(a.chipIndex!==undefined)expected=savedValues.ui.orbitChips[+a.chipIndex];
     else if(a.bulletGroup!==undefined)expected=savedValues.experience[+a.bulletGroup].bullets[+a.bulletIndex];
     else if(a.repoTags!==undefined)expected=savedValues.repositories[+a.repoTags].tags.join(', ');
+    else if(a.attachment)expected=w.CVAttachments.normalize(savedValues.attachments)[a.attachment]?.url||'';
     else if(e.id==='siteTitle')expected=savedValues.site.title;
     else if(e.id==='metaDescription')expected=savedValues.site.description;
     else if(e.id.startsWith('nav'))expected=savedValues.ui.nav[e.id.slice(3).toLowerCase()];
@@ -82,13 +83,34 @@ async function exercise(frame,label){
   w.resetDraft();d.getElementById('name').value='BROWSER PREVIEW QA';w.previewCV();
   await wait(()=>document.getElementById('preview').contentDocument?.documentElement?.dataset.cvSource==='preview');
   check(document.getElementById('preview').contentDocument.querySelector('h1').textContent.includes('BROWSER'),label+': preview displays temporary name');
+  const attachmentPdf='%PDF-1.4\n1 0 obj << /Type /Catalog >> endobj\n%%EOF';
+  for(const key of ['resume','coverLetter']){
+    const file=new w.File([attachmentPdf],key+'-browser-test.pdf',{type:'application/pdf'});
+    await w.uploadAttachment(key,{target:{files:[file],value:''}});
+    check(d.getElementById(key+'AttachmentName').textContent.includes(key+'-browser-test.pdf'),label+': '+key+' PDF upload');
+  }
+  const originalName=d.getElementById('resumeAttachmentName').textContent;
+  await w.uploadAttachment('resume',{target:{files:[new w.File(['wrong'],'wrong.txt')],value:''}});
+  check(d.getElementById('resumeAttachmentName').textContent===originalName,label+': invalid PDF preserves attachment');
+  await w.uploadAttachment('resume',{target:{files:[new w.File([new Uint8Array(512001)],'oversized.pdf')],value:''}});
+  check(d.getElementById('resumeAttachmentName').textContent===originalName,label+': oversized PDF preserves attachment');
+  w.previewCV();await wait(()=>document.getElementById('preview').contentDocument?.querySelector('#resumeLink')?.href.startsWith('blob:'));
+  const previewDoc=document.getElementById('preview').contentDocument;
+  check(previewDoc.querySelector('#resumeLink').download==='resume-browser-test.pdf'&&previewDoc.querySelector('#coverLetterLink').download==='coverLetter-browser-test.pdf',label+': both public download buttons use uploaded draft PDFs');
+  const resumeBytes=await (await fetch(previewDoc.querySelector('#resumeLink').href)).text();
+  check(resumeBytes===attachmentPdf,label+': downloaded PDF bytes match uploaded file');
+  w.removeAttachment('coverLetter');w.previewCV();await wait(()=>document.getElementById('preview').contentDocument?.querySelector('#coverLetterLink')?.style.display==='none');
+  check(document.getElementById('preview').contentDocument.querySelector('#coverLetterLink').hidden,label+': removing attachment hides its public button');
+  w.restoreAttachment('coverLetter');check(d.getElementById('coverLetterAttachmentUrl').value.includes('Cover-Letter.pdf'),label+': original cover letter restored');
   w.exportJSON();const exported=JSON.parse(await w.testExport.text());check(exported.name==='BROWSER PREVIEW QA',label+': Export JSON serializes draft');
+  check(exported.attachments.resume.dataUrl.startsWith('data:application/pdf;base64,'),label+': Export JSON includes uploaded PDF');
   await w.importJSON({target:{files:[new w.File([JSON.stringify(exported)],'cv.json',{type:'application/json'})]}});check(d.getElementById('name').value===exported.name,label+': Import JSON round trip');
   const preserved=d.getElementById('name').value;await w.importJSON({target:{files:[new w.File(['{"experience":[null]}'],'bad.json')]}});check(d.getElementById('name').value===preserved&&d.getElementById('status').textContent.startsWith('Import failed'),label+': invalid import preserves draft');
   await w.saveDraft();check(w.testWrites===1&&d.getElementById('status').textContent.includes('saved to database'),label+': Save succeeds in isolated memory transport');
   await w.loadPublished();check(d.getElementById('name').value==='BROWSER PREVIEW QA',label+': saved draft reloads');
   await w.rollbackDraft();check(d.getElementById('name').value===published.data.name,label+': isolated rollback restores previous version');
   check(d.documentElement.scrollWidth<=d.documentElement.clientWidth,label+': no horizontal overflow');
+  check(d.getElementById('resumeAttachmentName').textContent.includes('resume-browser-test.pdf'),label+': attachment survives isolated save, load and rollback');
   check(w.testErrors.length===0,label+': no JavaScript errors');
   check(w.innerWidth===Number(frame.style.width.replace('px','')),label+': actual iframe viewport width');
 }

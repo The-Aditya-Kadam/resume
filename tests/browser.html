@@ -80,7 +80,7 @@ async function exercise(frame,label){
   for(const id of ['siteTitle','metaDescription','name','summary','knowledgeIntro','knowledgeGithubLabel','navSummary','availability'])d.getElementById(id).value='';
   w.addEducation();check(['siteTitle','metaDescription','name','summary','knowledgeIntro','knowledgeGithubLabel','navSummary','availability'].every(id=>d.getElementById(id).value===''),label+': optional fields remain cleared');
   w.resetDraft();d.getElementById('name').value='BROWSER PREVIEW QA';w.previewCV();
-  await wait(()=>document.getElementById('preview').contentDocument?.documentElement.dataset.cvSource==='preview');
+  await wait(()=>document.getElementById('preview').contentDocument?.documentElement?.dataset.cvSource==='preview');
   check(document.getElementById('preview').contentDocument.querySelector('h1').textContent.includes('BROWSER'),label+': preview displays temporary name');
   w.exportJSON();const exported=JSON.parse(await w.testExport.text());check(exported.name==='BROWSER PREVIEW QA',label+': Export JSON serializes draft');
   await w.importJSON({target:{files:[new w.File([JSON.stringify(exported)],'cv.json',{type:'application/json'})]}});check(d.getElementById('name').value===exported.name,label+': Import JSON round trip');

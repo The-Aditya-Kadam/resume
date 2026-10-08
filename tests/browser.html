@@ -108,9 +108,10 @@ async function exercise(frame,label){
   const preserved=d.getElementById('name').value;await w.importJSON({target:{files:[new w.File(['{"experience":[null]}'],'bad.json')]}});check(d.getElementById('name').value===preserved&&d.getElementById('status').textContent.startsWith('Import failed'),label+': invalid import preserves draft');
   await w.saveDraft();check(w.testWrites===1&&d.getElementById('status').textContent.includes('saved to database'),label+': Save succeeds in isolated memory transport');
   await w.loadPublished();check(d.getElementById('name').value==='BROWSER PREVIEW QA',label+': saved draft reloads');
+  check(d.getElementById('resumeAttachmentName').textContent.includes('resume-browser-test.pdf'),label+': attachment survives isolated save and load');
   await w.rollbackDraft();check(d.getElementById('name').value===published.data.name,label+': isolated rollback restores previous version');
   check(d.documentElement.scrollWidth<=d.documentElement.clientWidth,label+': no horizontal overflow');
-  check(d.getElementById('resumeAttachmentName').textContent.includes('resume-browser-test.pdf'),label+': attachment survives isolated save, load and rollback');
+  check(d.getElementById('resumeAttachmentName').textContent.includes(w.CVAttachments.normalize(published.data.attachments).resume.name),label+': rollback restores original attachment');
   check(w.testErrors.length===0,label+': no JavaScript errors');
   check(w.innerWidth===Number(frame.style.width.replace('px','')),label+': actual iframe viewport width');
 }

@@ -98,7 +98,8 @@ a{color:inherit}
 .pcard h3{margin:0;font-size:24px;line-height:1.15;letter-spacing:-.02em}
 .prole{display:block;margin-top:4px;font-size:15px;line-height:1.35;font-weight:700;color:var(--blue)}
 .ptags{font-size:14px;line-height:1.5;color:var(--muted)}
-.pcard .plink{margin-top:auto;font-size:13px}
+.pcard .plink{margin-top:auto;align-self:flex-start;display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border:1px solid var(--blue);border-radius:999px;font-size:13px;font-weight:700;text-decoration:none;line-height:1.2}
+.pcard .plink:hover{background:var(--blue);color:#fff;text-decoration:none}
 .orbit-controls{display:flex;align-items:center;gap:18px;position:relative;z-index:3}
 .orbit-label{min-width:280px;text-align:center;display:flex;flex-direction:column;gap:2px}
 .orbit-label span{font:700 12px var(--mono);letter-spacing:.14em;color:var(--muted)}
@@ -604,6 +605,17 @@ body{background:#fff!important;color:#111827!important}
     if(s.indexOf('mob')>=0)return 'assets/logos/logo-moblixs.png';
     return '';
   }
+  function orbitProofFallback(company){
+    var name=String(company||'').toLowerCase();
+    var base='https://github.com/The-Aditya-Kadam/';
+    if(name.includes('rath'))return base+'rath-infotech';
+    if(name.includes('velocity'))return base+'velocity-media-lab/tree/main/website-list';
+    if(name.includes('epicenter'))return base+'epicenter-technology';
+    if(name.includes('futran'))return base+'fts-projects';
+    if(name.includes('aconnect'))return base+'Aconnect-mumbai';
+    if(name.includes('mob'))return base+'Formless-technology';
+    return '';
+  }
   function orbitTags(x){
     if(x.orbitTags)return String(x.orbitTags);
     var b=Array.isArray(x.bullets)?x.bullets.filter(Boolean):[];
@@ -671,7 +683,8 @@ body{background:#fff!important;color:#111827!important}
       }else{
         image='<span>'+orbitEsc(company)+'</span>';
       }
-      var proof=x.proof?'<a class="plink" href="'+orbitEsc(x.proof)+'" target="_blank" rel="noreferrer">VIEW PROOF ↗</a>':"";
+      var proofUrl=String(x.proof||"").trim()||orbitProofFallback(company);
+      var proof=/^https:\/\/github\.com\//i.test(proofUrl)?'<a class="plink" href="'+orbitEsc(proofUrl)+'" target="_blank" rel="noopener noreferrer" aria-label="View GitHub proof for '+orbitEsc(company)+'">VIEW PROOF ↗</a>':"";
       return '<article class="pcard"><div class="shot logo" style="background:#ffffff">'+image+'</div><div class="pmeta"><span>'+String(i+1).padStart(2,'0')+'</span><span>'+orbitEsc(x.dates||"")+'</span></div><div><h3>'+orbitEsc(company)+'</h3><span class="prole">'+orbitEsc(x.role||"")+'</span></div>'+proof+'</article>';
     }).join("");
     setupOrbit();

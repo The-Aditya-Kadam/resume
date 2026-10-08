@@ -29,6 +29,13 @@
     <div class="full"><label>Meta Description</label><textarea id="metaDescription"></textarea></div>
   </div></section>
 
+  <section class="panel"><h2>Theme Configuration</h2><div class="grid">
+    <div><label>Active Theme ID</label><input id="themeId" placeholder="orbit"></div>
+    <div><label>Knowledge Intro</label><input id="knowledgeIntro"></div>
+    <div><label>Knowledge GitHub Label</label><input id="knowledgeGithubLabel"></div>
+    <div class="full"><p class="small">Theme ID is stored in PostgreSQL now so future templates can be selected per CV. The current production theme is <b>orbit</b>.</p></div>
+  </div></section>
+
   <section class="panel"><h2>Portfolio Labels & Navigation</h2><div class="grid">
     <div><label>Summary Navigation Label</label><input id="navSummary"></div>
     <div><label>Education Navigation Label</label><input id="navEducation"></div>
@@ -59,26 +66,6 @@
     <div><label>Footer Right</label><input id="footerRight"></div>
   </div></section>
 
-  <section class="panel"><h2>Hero Metrics & Orbit Chips</h2>
-    <p class="small">These values power the hero statistics and the floating technology chips. They are stored in PostgreSQL and can be changed without editing website code.</p>
-    <div id="heroMetrics"></div>
-    <button class="btn secondary" onclick="addHeroMetric()">+ Add Hero Metric</button>
-    <div id="orbitChips" style="margin-top:14px"></div>
-    <button class="btn secondary" onclick="addOrbitChip()">+ Add Orbit Chip</button>
-  </section>
-
-  <section class="panel"><div class="item-head"><h2>Knowledge / Repository Cards</h2><button class="btn secondary" onclick="addRepository()">+ Add Repository</button></div>
-    <p class="small">Repository cards are fully data-driven. Add, remove, reorder, or update the GitHub links here.</p>
-    <div id="repositories"></div>
-  </section>
-
-  <section class="panel"><h2>Theme Configuration</h2><div class="grid">
-    <div><label>Active Theme ID</label><input id="themeId" placeholder="orbit"></div>
-    <div><label>Knowledge Intro</label><input id="knowledgeIntro"></div>
-    <div><label>Knowledge GitHub Label</label><input id="knowledgeGithubLabel"></div>
-    <div class="full"><p class="small">Theme ID is stored in PostgreSQL now so future templates can be selected per CV. The current production theme is <b>orbit</b>.</p></div>
-  </div></section>
-
   <section class="panel"><h2>Personal Information</h2><div class="grid">
     <div><label>Name</label><input id="name"></div>
     <div><label>Professional Title</label><input id="role"></div>
@@ -91,17 +78,30 @@
     <div class="full"><label>Target Locations</label><input id="targetLocations"></div>
   </div></section>
 
+  <section class="panel"><h2>Hero Metrics & Orbit Chips</h2>
+    <p class="small">These values power the hero statistics and the floating technology chips. They are stored in PostgreSQL and can be changed without editing website code.</p>
+    <div id="heroMetrics"></div>
+    <button class="btn secondary" onclick="addHeroMetric()">+ Add Hero Metric</button>
+    <div id="orbitChips" style="margin-top:14px"></div>
+    <button class="btn secondary" onclick="addOrbitChip()">+ Add Orbit Chip</button>
+  </section>
+
   <section class="panel"><h2>Professional Summary</h2><textarea id="summary"></textarea></section>
-
-  <section class="panel"><div class="item-head"><h2>Core Competencies & Technical Toolkit</h2><button class="btn secondary" onclick="addCompetency()">+ Add Competency</button></div><div id="competencies"></div></section>
-
-  <section class="panel"><div class="item-head"><h2>Professional Experience</h2><button class="btn secondary" onclick="addExperience()">+ Add Experience</button></div><div id="experience"></div></section>
 
   <section class="panel"><div class="item-head"><h2>Education</h2><button class="btn secondary" onclick="addEducation()">+ Add Education</button></div><div id="education"></div></section>
 
   <section class="panel"><div class="item-head"><h2>Certifications</h2><button class="btn secondary" onclick="addCertification()">+ Add Certification</button></div><div id="certifications"></div></section>
 
   <section class="panel"><div class="item-head"><h2>Leadership & Awards</h2><button class="btn secondary" onclick="addAward()">+ Add Award</button></div><div id="awards"></div></section>
+
+  <section class="panel"><div class="item-head"><h2>Core Competencies & Technical Toolkit</h2><button class="btn secondary" onclick="addCompetency()">+ Add Competency</button></div><div id="competencies"></div></section>
+
+  <section class="panel"><div class="item-head"><h2>Professional Experience</h2><button class="btn secondary" onclick="addExperience()">+ Add Experience</button></div><div id="experience"></div></section>
+
+  <section class="panel"><div class="item-head"><h2>Knowledge / Repository Cards</h2><button class="btn secondary" onclick="addRepository()">+ Add Repository</button></div>
+    <p class="small">Repository cards are fully data-driven. Add, remove, reorder, or update the GitHub links here.</p>
+    <div id="repositories"></div>
+  </section>
 
   <section class="panel"><div class="item-head"><h2>Custom Sections / Cards</h2><button class="btn secondary" onclick="addCustomSection()">+ Add Section</button></div><div id="customSections"></div></section>
 

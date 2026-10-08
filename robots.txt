@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /cv-management/
+Disallow: /tests/
+Disallow: /*?preview=
+
+Sitemap: https://aditya-kadam-resume.onrender.com/sitemap.xml

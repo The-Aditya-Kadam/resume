@@ -956,6 +956,8 @@ body{background:#fff!important;color:#111827!important}
     var summary=document.querySelector("#summary .summary-text");if(summary&&d.summary)summary.innerHTML="<p>"+text(d.summary)+"</p>";
     
     var themeId=u.themeId||"orbit"; document.documentElement.setAttribute("data-theme",themeId); renderHero(d);renderSkills(d);renderEducation(d);renderCertification(d);renderAwards(d);renderContact(d);
+    // Keep the original timeline and orbit layout; refresh only orbit cards from saved CV data.
+    if(Array.isArray(d.experience)&&d.experience.length&&window.renderOrbitFromExperience){window.renderOrbitFromExperience(d.experience);}
   }
   api().then(render).catch(function(){});
 })();

@@ -1,0 +1,90 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CV isolated browser checks</title>
+<style>body{font:16px system-ui;background:#f4f6f8;color:#111827;margin:24px}button{padding:12px 20px;font:inherit}#results{white-space:pre-wrap}iframe{border:1px solid #cbd5e1;height:720px;background:white}section{margin:24px 0;overflow:auto}.pass{color:#166534}.fail{color:#991b1b}</style>
+<h1>CV isolated browser checks</h1><p>Save and Rollback in these test frames use temporary browser memory. Production database records are never written.</p>
+<button id="run">Run desktop and mobile checks</button><pre id="results" role="status">Ready.</pre>
+<section><h2>Desktop — 1348 px</h2><iframe id="desktop" title="Desktop draft" style="width:1348px"></iframe></section>
+<section><h2>Mobile — 390 px</h2><iframe id="mobile" title="Mobile draft" style="width:390px"></iframe></section>
+<section><h2>Draft preview</h2><iframe id="preview" title="Draft preview" style="width:390px"></iframe></section>
+<script>
+const output=document.getElementById('results');
+const line=(message)=>{output.textContent+=message+'\n';};
+const check=(condition,label)=>{if(!condition)throw new Error(label);line('PASS — '+label);};
+const pause=ms=>new Promise(r=>setTimeout(r,ms));
+async function wait(check){for(let i=0;i<200;i++){if(check())return;await pause(30);}throw new Error('Timed out waiting for test frame');}
+const escScript=s=>s.replace(/<\/script/gi,'<\\/script');
+let published,publicHTML;
+window.showTestPreview=async function(url){
+  const token=new URL(url,location.href).searchParams.get('preview');
+  const html=publicHTML.replace('var previewToken=new URLSearchParams(location.search).get("preview");','var previewToken='+JSON.stringify(token)+';');
+  document.getElementById('preview').srcdoc=html;
+};
+async function loadFrame(frame,html){
+  const seed=JSON.stringify(published).replace(/</g,'\\u003c');
+  const shim=`<script>
+  window.testErrors=[];window.testWrites=0;window.testRequests=0;
+  window.addEventListener('error',e=>testErrors.push(e.message));
+  window.addEventListener('unhandledrejection',e=>testErrors.push(String(e.reason)));
+  let saved=${seed},history=[];
+  const originalFetch=window.fetch.bind(window);
+  window.fetch=async function(url,options={}){
+    if(!String(url).startsWith('https://aditya-cv-api.onrender.com/api/cv'))return originalFetch(url,options);
+    testRequests++;
+    await new Promise(r=>setTimeout(r,30));
+    if(options.method==='POST'){
+      testWrites++;
+      if(String(url).endsWith('/rollback')){if(!history.length)return new Response(JSON.stringify({error:'No previous CV version available.'}),{status:409});saved=history.pop();}
+      else{history.push(JSON.parse(JSON.stringify(saved)));saved={data:JSON.parse(options.body).data,version:saved.version+1};}
+    }
+    return new Response(JSON.stringify(saved),{status:200,headers:{'Content-Type':'application/json'}});
+  };
+  window.open=function(url){parent.showTestPreview(url);return {};};
+  window.confirm=()=>true;
+  window.URL.createObjectURL=function(blob){window.testExport=blob;return 'blob:test';};
+  window.URL.revokeObjectURL=function(){};
+  HTMLAnchorElement.prototype.click=function(){};
+  <\/script>`;
+  frame.srcdoc=html.replace('<script src="/cv-content.js">',shim+'<script src="/cv-content.js">');
+  await wait(()=>frame.contentDocument?.querySelector('#status')?.textContent.includes('Version'));
+}
+async function exercise(frame,label){
+  const w=frame.contentWindow,d=w.document;
+  check(d.querySelectorAll('section.panel').length===13,label+': all 13 sections');
+  check(d.getElementById('name').value===published.data.name,label+': published name loaded');
+  check(d.querySelectorAll('#repositories > .item').length===6,label+': six legacy Knowledge cards loaded');
+  check([...d.querySelectorAll('#experience [data-k="proof"]')].every(e=>e.value.startsWith('https://github.com/')),label+': all six proof links loaded');
+  for(const [add,group] of [['addHeroMetric','heroMetrics'],['addEducation','education'],['addCertification','certifications'],['addAward','awards'],['addCompetency','competencies'],['addExperience','experience'],['addRepository','repositories'],['addCustomSection','customSections']]){
+    let count=d.querySelectorAll('#'+group+' > .item').length;w[add]();w[add]();
+    let items=d.querySelectorAll('#'+group+' > .item');items[items.length-1].querySelector('input').value='Browser QA marker';items[items.length-1].querySelector('[aria-label="Move Up"]').click();
+    items=d.querySelectorAll('#'+group+' > .item');check(items[items.length-2].querySelector('input').value==='Browser QA marker',label+': '+group+' Move Up');items[items.length-2].querySelector('[aria-label="Move Down"]').click();
+    items=d.querySelectorAll('#'+group+' > .item');check(items[items.length-1].querySelector('input').value==='Browser QA marker',label+': '+group+' Move Down');items[items.length-1].querySelector('.danger').click();d.querySelectorAll('#'+group+' > .item')[count].querySelector('.danger').click();
+    check(d.querySelectorAll('#'+group+' > .item').length===count,label+': '+group+' Add/Remove');
+  }
+  const chips=d.querySelectorAll('#orbitChips input').length;w.addOrbitChip();w.addOrbitChip();w.removeOrbitChip(chips+1);w.removeOrbitChip(chips);check(d.querySelectorAll('#orbitChips input').length===chips,label+': orbit chips Add/Remove');
+  const bullets=d.querySelectorAll('#bullets-0 input').length;w.addBullet(0);w.removeBullet(0,bullets);check(d.querySelectorAll('#bullets-0 input').length===bullets,label+': bullets Add/Remove');
+  for(const id of ['siteTitle','metaDescription','name','summary','knowledgeIntro','knowledgeGithubLabel','navSummary','availability'])d.getElementById(id).value='';
+  w.addEducation();check(['siteTitle','metaDescription','name','summary','knowledgeIntro','knowledgeGithubLabel','navSummary','availability'].every(id=>d.getElementById(id).value===''),label+': optional fields remain cleared');
+  w.resetDraft();d.getElementById('name').value='BROWSER PREVIEW QA';w.previewCV();
+  await wait(()=>document.getElementById('preview').contentDocument?.documentElement.dataset.cvSource==='preview');
+  check(document.getElementById('preview').contentDocument.querySelector('h1').textContent.includes('BROWSER'),label+': preview displays temporary name');
+  w.exportJSON();const exported=JSON.parse(await w.testExport.text());check(exported.name==='BROWSER PREVIEW QA',label+': Export JSON serializes draft');
+  await w.importJSON({target:{files:[new w.File([JSON.stringify(exported)],'cv.json',{type:'application/json'})]}});check(d.getElementById('name').value===exported.name,label+': Import JSON round trip');
+  const preserved=d.getElementById('name').value;await w.importJSON({target:{files:[new w.File(['{"experience":[null]}'],'bad.json')]}});check(d.getElementById('name').value===preserved&&d.getElementById('status').textContent.startsWith('Import failed'),label+': invalid import preserves draft');
+  await w.saveDraft();check(w.testWrites===1&&d.getElementById('status').textContent.includes('saved to database'),label+': Save succeeds in isolated memory transport');
+  await w.loadPublished();check(d.getElementById('name').value==='BROWSER PREVIEW QA',label+': saved draft reloads');
+  await w.rollbackDraft();check(d.getElementById('name').value===published.data.name,label+': isolated rollback restores previous version');
+  check(d.documentElement.scrollWidth<=d.documentElement.clientWidth,label+': no horizontal overflow');
+  check(w.testErrors.length===0,label+': no JavaScript errors');
+  check(w.innerWidth===Number(frame.style.width.replace('px','')),label+': actual iframe viewport width');
+}
+document.getElementById('run').onclick=async function(){
+ this.disabled=true;output.textContent='Running isolated real-browser checks…\n';
+ try{
+   const response=await fetch('https://aditya-cv-api.onrender.com/api/cv',{cache:'no-store'});if(!response.ok)throw new Error('Published read failed');published=await response.json();
+   const html=await (await fetch('/cv-management/',{cache:'no-store'})).text();publicHTML=await (await fetch('/',{cache:'no-store'})).text();
+   await loadFrame(document.getElementById('desktop'),html);await exercise(document.getElementById('desktop'),'Desktop');
+   await loadFrame(document.getElementById('mobile'),html);await exercise(document.getElementById('mobile'),'Mobile');
+   line('ALL BROWSER CHECKS PASS. Production database writes: 0.');output.className='pass';
+ }catch(error){line('FAIL — '+error.message);output.className='fail';}
+ finally{this.disabled=false;}
+};
+</script></html>

@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>CV Management</title>
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f4f6f8;color:#111827}.wrap{max-width:1100px;margin:auto;padding:32px 20px 80px}.top{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:22px}.top h1{margin:0}.top p{margin:6px 0 0;color:#64748b}.panel{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:22px;margin:16px 0}.panel h2{margin:0 0 18px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.full{grid-column:1/-1}label{display:block;font-size:13px;font-weight:700;margin:0 0 6px}input,textarea,select{width:100%;font:inherit;padding:10px 11px;border:1px solid #cbd5e1;border-radius:8px;background:#fff}textarea{min-height:100px;resize:vertical}.item{border:1px solid #dbe3ec;border-radius:10px;padding:16px;margin:12px 0}.item-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}.item-head strong{font-size:14px}.row-actions{display:flex;gap:8px;flex-wrap:wrap}.btn{border:0;border-radius:8px;padding:10px 13px;font-weight:700;cursor:pointer}.primary{background:#1e3a8a;color:#fff}.secondary{background:#e8eefc;color:#1e3a8a}.danger{background:#fee2e2;color:#991b1b}.muted{background:#eef2f7;color:#334155}.actions{position:sticky;bottom:12px;background:rgba(255,255,255,.96);border:1px solid #dbe3ec;border-radius:12px;padding:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;box-shadow:0 8px 24px rgba(15,23,42,.12)}#status{font-size:13px;color:#475569}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f4f6f8;color:#111827}.wrap{max-width:1100px;margin:auto;padding:32px 20px 80px}.top{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:22px}.top h1{margin:0}.top p{margin:6px 0 0;color:#64748b}.panel{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:22px;margin:16px 0}.panel h2{margin:0 0 18px}.grid>div{min-width:0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.full{grid-column:1/-1}label{display:block;font-size:13px;font-weight:700;margin:0 0 6px}input,textarea,select{width:100%;font:inherit;padding:10px 11px;border:1px solid #cbd5e1;border-radius:8px;background:#fff}textarea{min-height:100px;resize:vertical}.item{border:1px solid #dbe3ec;border-radius:10px;padding:16px;margin:12px 0}.item-head{flex-wrap:wrap;display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}.item-head strong{font-size:14px}.btn:disabled{opacity:.5;cursor:wait}.row-actions{display:flex;gap:8px;flex-wrap:wrap}.btn{border:0;border-radius:8px;padding:10px 13px;font-weight:700;cursor:pointer}.primary{background:#1e3a8a;color:#fff}.secondary{background:#e8eefc;color:#1e3a8a}.danger{background:#fee2e2;color:#991b1b}.muted{background:#eef2f7;color:#334155}.actions{position:sticky;bottom:12px;background:rgba(255,255,255,.96);border:1px solid #dbe3ec;border-radius:12px;padding:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;box-shadow:0 8px 24px rgba(15,23,42,.12)}#status{font-size:13px;color:#475569}
 #saveOverlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,.92);z-index:9999;align-items:center;justify-content:center;color:#fff;text-align:center}
 #saveOverlay.show{display:flex}.save-box{width:min(420px,90vw)}.loader{width:58px;height:58px;border:5px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 24px}
 .save-box h2{margin:0 0 10px;font-size:24px}.save-box p{margin:0;color:#cbd5e1;line-height:1.5}
-@keyframes spin{to{transform:rotate(360deg)}}.bullet{display:grid;grid-template-columns:1fr auto;gap:8px;margin:8px 0}.small{font-size:12px;color:#64748b}@media(max-width:700px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.top{display:block}.actions{position:static}}
+@keyframes spin{to{transform:rotate(360deg)}}.bullet{display:grid;grid-template-columns:1fr auto;gap:8px;margin:8px 0}.small{font-size:12px;color:#64748b}@media(max-width:700px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.top{display:block}.top .row-actions{margin-top:16px}.panel{padding:16px}.item{padding:12px}.item-head h2{font-size:20px;margin-bottom:0}.row-actions{gap:6px}.actions{position:static}.wrap{padding:20px 12px 40px}.bullet{grid-template-columns:minmax(0,1fr) auto}}
 </style>
 </head>
 <body>
@@ -107,7 +107,7 @@
 
   <div class="actions">
     <button class="btn primary" onclick="saveDraft()">SAVE CV TO DATABASE</button>
-    <button class="btn secondary" onclick="previewCV()">OPEN MAIN PORTFOLIO</button>
+    <button class="btn secondary" onclick="previewCV()">PREVIEW CV</button>
     <button class="btn muted" onclick="resetDraft()">RESET DRAFT</button>
     <span id="status" role="status">Loading published CV data…</span>
   </div>
@@ -121,6 +121,7 @@
   </div>
 </div>
 
+<script src="/cv-content.js"></script>
 <script>
 const KEY="aditya-kadam-cv-draft";
 const HISTORY_KEY="aditya-kadam-cv-history";
@@ -178,17 +179,17 @@ const base={
 function clone(x){return JSON.parse(JSON.stringify(x))}
 function esc(v){return String(v??"").replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
 function val(id){return document.getElementById(id).value}
-function set(id,v){document.getElementById(id).value=v||""}
+function set(id,v){document.getElementById(id).value=v??""}
 
 function render(){
   cv.site=cv.site||{};
   cv.ui=cv.ui||{};
   const u=cv.ui,n=u.nav||{};
-  [["navSummary",n.summary],["navEducation",n.education],["navSkills",n.skills],["navExperience",n.experience],["navKnowledge",n.knowledge],["navContact",n.contact],["availability",u.availability],["heroEyebrow",u.heroEyebrow],["summaryKicker",u.summaryKicker],["summaryTitle",u.summaryTitle],["educationKicker",u.educationKicker],["educationTitle",u.educationTitle],["certificationKicker",u.certificationKicker],["certificationTitle",u.certificationTitle],["achievementsKicker",u.achievementsKicker],["achievementsTitle",u.achievementsTitle],["skillsKicker",u.skillsKicker],["skillsTitle",u.skillsTitle],["experienceKicker",u.experienceKicker],["experienceTitle",u.experienceTitle],["knowledgeKicker",u.knowledgeKicker],["knowledgeTitle",u.knowledgeTitle],["contactKicker",u.contactKicker],["contactTitle",u.contactTitle],["contactAvailability",u.contactAvailability],["footerLeft",u.footerLeft],["footerRight",u.footerRight]].forEach(function(x){var el=document.getElementById(x[0]);if(el)el.value=x[1]||"";});
+  [["navSummary",n.summary],["navEducation",n.education],["navSkills",n.skills],["navExperience",n.experience],["navKnowledge",n.knowledge],["navContact",n.contact],["availability",u.availability],["heroEyebrow",u.heroEyebrow],["summaryKicker",u.summaryKicker],["summaryTitle",u.summaryTitle],["educationKicker",u.educationKicker],["educationTitle",u.educationTitle],["certificationKicker",u.certificationKicker],["certificationTitle",u.certificationTitle],["achievementsKicker",u.achievementsKicker],["achievementsTitle",u.achievementsTitle],["skillsKicker",u.skillsKicker],["skillsTitle",u.skillsTitle],["experienceKicker",u.experienceKicker],["experienceTitle",u.experienceTitle],["knowledgeKicker",u.knowledgeKicker],["knowledgeTitle",u.knowledgeTitle],["contactKicker",u.contactKicker],["contactTitle",u.contactTitle],["contactAvailability",u.contactAvailability],["footerLeft",u.footerLeft],["footerRight",u.footerRight]].forEach(function(x){var el=document.getElementById(x[0]);if(el)el.value=x[1]??"";});
   const st=document.getElementById("siteTitle"),md=document.getElementById("metaDescription");
   if(st)st.value=cv.site.title||"";
   if(md)md.value=cv.site.description||"";
-  set("themeId",cv.ui.themeId||"orbit");
+  set("themeId",cv.ui.themeId??"orbit");
   set("knowledgeIntro",cv.ui.knowledgeIntro);set("knowledgeGithubLabel",cv.ui.knowledgeGithubLabel);
   document.getElementById("heroMetrics").innerHTML=(cv.ui.heroMetrics||[]).map((x,i)=>`<div class="item"><div class="item-head"><strong>Hero Metric ${i+1}</strong><div class="row-actions"><button class="btn muted" onclick="moveUIItem('heroMetrics',${i},-1)">↑</button><button class="btn muted" onclick="moveUIItem('heroMetrics',${i},1)">↓</button><button class="btn danger" onclick="removeUIItem('heroMetrics',${i})">Remove</button></div></div><div class="grid"><div><label>Value</label><input data-ui-group="heroMetrics" data-i="${i}" data-k="value" value="${esc(x.value)}"></div><div><label>Label</label><input data-ui-group="heroMetrics" data-i="${i}" data-k="label" value="${esc(x.label)}"></div></div></div>`).join("");
   document.getElementById("orbitChips").innerHTML=(cv.ui.orbitChips||[]).map((x,i)=>`<div class="bullet"><input data-chip-index="${i}" value="${esc(x)}"><button class="btn danger" onclick="removeOrbitChip(${i})">Remove</button></div>`).join("");
@@ -203,50 +204,32 @@ function render(){
 }
 
 function sync(){
+  if(!cv)return;
   cv.site=cv.site||{};
   cv.ui=cv.ui||{}; cv.ui.nav=cv.ui.nav||{};
-  [["navSummary","summary"],["navEducation","education"],["navSkills","skills"],["navExperience","experience"],["navKnowledge","knowledge"],["navContact","contact"]].forEach(function(x){var v=val(x[0]).trim();if(v!=="")cv.ui.nav[x[1]]=v;});
-  ["availability","heroEyebrow","summaryKicker","summaryTitle","educationKicker","educationTitle","certificationKicker","certificationTitle","achievementsKicker","achievementsTitle","skillsKicker","skillsTitle","experienceKicker","experienceTitle","knowledgeKicker","knowledgeTitle","contactKicker","contactTitle","contactAvailability","footerLeft","footerRight"].forEach(function(id){var v=val(id).trim();if(v!=="")cv.ui[id]=v;});
-  if(val("siteTitle").trim()!=="") cv.site.title=val("siteTitle");
-  if(val("metaDescription").trim()!=="") cv.site.description=val("metaDescription");
-  cv.ui.themeId=val("themeId").trim()||cv.ui.themeId||"orbit";
-  if(val("knowledgeIntro").trim()!=="") cv.ui.knowledgeIntro=val("knowledgeIntro");
-  if(val("knowledgeGithubLabel").trim()!=="") cv.ui.knowledgeGithubLabel=val("knowledgeGithubLabel");
+  [["navSummary","summary"],["navEducation","education"],["navSkills","skills"],["navExperience","experience"],["navKnowledge","knowledge"],["navContact","contact"]].forEach(function(x){cv.ui.nav[x[1]]=val(x[0]);});
+  ["availability","heroEyebrow","summaryKicker","summaryTitle","educationKicker","educationTitle","certificationKicker","certificationTitle","achievementsKicker","achievementsTitle","skillsKicker","skillsTitle","experienceKicker","experienceTitle","knowledgeKicker","knowledgeTitle","contactKicker","contactTitle","contactAvailability","footerLeft","footerRight"].forEach(function(id){cv.ui[id]=val(id);});
+  cv.site.title=val("siteTitle");
+  cv.site.description=val("metaDescription");
+  cv.ui.themeId=val("themeId");
+  cv.ui.knowledgeIntro=val("knowledgeIntro");
+  cv.ui.knowledgeGithubLabel=val("knowledgeGithubLabel");
   cv.ui.heroMetrics=Array.isArray(cv.ui.heroMetrics)?cv.ui.heroMetrics:[];
-  document.querySelectorAll("[data-ui-group]").forEach(function(el){var i=+el.dataset.i,k=el.dataset.k,n=el.value.trim();if(n!=="")cv.ui.heroMetrics[i][k]=el.value;});
-  cv.ui.orbitChips=Array.from(document.querySelectorAll("[data-chip-index]")).map(function(el){return el.value.trim();}).filter(Boolean);
+  document.querySelectorAll("[data-ui-group]").forEach(function(el){var i=+el.dataset.i,k=el.dataset.k;cv.ui.heroMetrics[i][k]=el.value;});
+  cv.ui.orbitChips=Array.from(document.querySelectorAll("[data-chip-index]")).map(function(el){return el.value;});
   cv.repositories=Array.isArray(cv.repositories)?cv.repositories:[];
   document.querySelectorAll("[data-repo-tags]").forEach(function(el){var i=+el.dataset.repoTags,n=el.value.split(",").map(function(v){return v.trim();}).filter(Boolean);cv.repositories[i].tags=n;});
 
-  // Blank inputs never overwrite an existing value. This lets you leave a field empty
-  // without accidentally deleting the published/current value.
   ["name","role","location","phone","email","linkedin","github","portfolio","targetLocations","summary"].forEach(id=>{
-    const next=val(id).trim();
-    if(next!=="") cv[id]=val(id);
+    cv[id]=val(id);
   });
   document.querySelectorAll("[data-group]").forEach(el=>{
-    const next=el.value.trim();
-    if(next!==""){
-      cv[el.dataset.group][+el.dataset.i][el.dataset.k]=el.value;
-    }
+    cv[el.dataset.group][+el.dataset.i][el.dataset.k]=el.value;
   });
   document.querySelectorAll("[data-bullet-group]").forEach(el=>{
-    const i=+el.dataset.bulletGroup,j=+el.dataset.bulletIndex,next=el.value.trim();
-    if(next!=="") cv.experience[i].bullets[j]=el.value;
+    const i=+el.dataset.bulletGroup,j=+el.dataset.bulletIndex;
+    cv.experience[i].bullets[j]=el.value;
   });
-}
-function historyList(){
-  try{return JSON.parse(localStorage.getItem(HISTORY_KEY)||"[]")}catch{return []}
-}
-function pushHistory(snapshot){
-  const h=historyList();
-  h.unshift(clone(snapshot));
-  localStorage.setItem(HISTORY_KEY,JSON.stringify(h.slice(0,MAX_HISTORY)));
-}
-function historyCount(){return historyList().length}
-function updateHistoryStatus(){
-  const n=historyCount();
-  document.getElementById("status").textContent=(n?("Rollback history: "+n+"/5 saved change"+(n===1?"":"s")):"No rollback history yet.");
 }
 function addHeroMetric(){sync();cv.ui.heroMetrics=cv.ui.heroMetrics||[];cv.ui.heroMetrics.push({value:"",label:""});render()}
 function addOrbitChip(){sync();cv.ui.orbitChips=cv.ui.orbitChips||[];cv.ui.orbitChips.push("");render()}
@@ -264,150 +247,8 @@ function removeItem(group,i){sync();cv[group].splice(i,1);render()}
 function moveItem(group,i,dir){sync();const j=i+dir;if(j<0||j>=cv[group].length)return;[cv[group][i],cv[group][j]]=[cv[group][j],cv[group][i]];render()}
 function addBullet(i){sync();cv.experience[i].bullets.push("");render()}
 function removeBullet(i,j){sync();cv.experience[i].bullets.splice(j,1);render()}
-function saveDraft(){
-  sync();
-  const previousRaw=localStorage.getItem(KEY);
-  if(previousRaw){
-    try{pushHistory(JSON.parse(previousRaw))}catch{}
-  }
-  localStorage.setItem(KEY,JSON.stringify(cv));
 
-  const overlay=document.getElementById("saveOverlay");
-  const message=document.getElementById("saveMessage");
-  overlay.classList.add("show");
-  document.body.style.overflow="hidden";
-
-  // Current deployment is a static Render site, so the browser draft is saved
-  // locally first. Keep the loading state visible long enough for the user to
-  // clearly see that the save step completed before redirecting.
-  setTimeout(()=>{
-    message.textContent="Your CV changes are saved. Opening your main portfolio…";
-    setTimeout(()=>window.location.href="/",1200);
-  },1800);
-}
-function resetDraft(){localStorage.removeItem(KEY);localStorage.removeItem(HISTORY_KEY);cv=clone(base);render();document.getElementById("status").textContent="Draft reset to the starter CV data. Rollback history cleared."}
-function rollbackDraft(){
-  const h=historyList();
-  if(!h.length){
-    document.getElementById("status").textContent="No saved changes available to roll back.";
-    return;
-  }
-  if(!confirm("Rollback the current draft by one saved change? You can roll back up to the last 5 saved changes."))return;
-  const previous=h.shift();
-  localStorage.setItem(KEY,JSON.stringify(previous));
-  localStorage.setItem(HISTORY_KEY,JSON.stringify(h));
-  cv=clone(previous);
-  render();
-  document.getElementById("status").textContent="Rolled back 1 change. "+h.length+"/5 rollback changes remain.";
-}
-async function loadPublished(){
-  try{
-    const r=await fetch("https://aditya-cv-api.onrender.com/api/cv?v="+Date.now(),{cache:"no-store"});
-    if(!r.ok)throw new Error("Could not load published data");
-    const result=await r.json();
-    const d=result.data||{};
-    cv=Object.assign(clone(base),d);
-    render();
-    updateHistoryStatus();
-    if(!historyCount()) document.getElementById("status").textContent="✓ CV ready.";
-  }catch(e){document.getElementById("status").textContent=e.message}
-}
-function previewCV(){sync();localStorage.setItem(KEY,JSON.stringify(cv));window.open("/","_blank")}
-function exportJSON(){sync();const blob=new Blob([JSON.stringify(cv,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="aditya-kadam-cv.json";a.click();URL.revokeObjectURL(a.href)}
-function importJSON(e){const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{try{cv=Object.assign(clone(base),JSON.parse(reader.result));render();document.getElementById("status").textContent="Imported CV data. Save Draft when ready."}catch{document.getElementById("status").textContent="Invalid JSON file."}};reader.readAsText(file);e.target.value=""}
-
-(async()=>{
-  try{
-    const saved=localStorage.getItem(KEY);
-    if(saved){
-      cv=Object.assign(clone(base),JSON.parse(saved));
-      render();
-      updateHistoryStatus();
-      document.getElementById("status").textContent="✓ CV ready. "+historyCount()+"/5 rollback changes available.";
-    }else{
-      await loadPublished();
-    }
-  }catch{cv=clone(base);render()}
-})();
 </script>
-
-<script>
-/* Database-backed CV management layer. Keeps the existing UI and editor intact. */
-(function(){
-  const API_BASE="https://aditya-cv-api.onrender.com";
-  async function apiGetCV(){
-    const r=await fetch(API_BASE+"/api/cv",{cache:"no-store"});
-    if(!r.ok) throw new Error("Could not load CV from database.");
-    return r.json();
-  }
-  window.loadPublished=async function(){
-    try{
-      const result=await apiGetCV();
-      cv=Object.assign(clone(base),result.data||{});
-      localStorage.setItem(KEY,JSON.stringify(cv));
-      render();
-      updateHistoryStatus();
-      document.getElementById("status").textContent="✓ Database CV loaded. Version "+(result.version||1)+".";
-    }catch(e){
-      document.getElementById("status").textContent=e.message;
-    }
-  };
-  window.saveDraft=async function(){
-    sync();
-    const overlay=document.getElementById("saveOverlay");
-    const message=document.getElementById("saveMessage");
-    overlay.classList.add("show");
-    document.body.style.overflow="hidden";
-    message.textContent="Saving your CV to PostgreSQL…";
-    document.getElementById("status").textContent="Saving changes to database…";
-    try{
-      const r=await fetch(API_BASE+"/api/cv",{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({data:cv})
-      });
-      const result=await r.json();
-      if(!r.ok) throw new Error(result.error||"Unable to save CV.");
-      const savedVersion=result.version||1;
-      message.textContent="Database saved. Confirming the published version…";
-      let confirmed=null;
-      for(let attempt=0;attempt<20;attempt++){
-        try{
-          const check=await apiGetCV();
-          if((check.version||0)>=savedVersion){confirmed=check;break;}
-        }catch(e){}
-        await new Promise(function(resolve){setTimeout(resolve,1500);});
-      }
-      if(!confirmed) throw new Error("The database save completed, but the published version could not be confirmed yet.");
-      cv=Object.assign(clone(base),confirmed.data||cv);
-      localStorage.setItem(KEY,JSON.stringify(cv));
-      render();
-      overlay.classList.remove("show");
-      document.body.style.overflow="";
-      const status=document.getElementById("status");
-      status.innerHTML='<a href="https://aditya-cv-api.onrender.com/api/cv" target="_blank" rel="noreferrer" style="color:#1e3a8a;font-weight:800;text-decoration:none">✓ Database CV loaded. Version '+(confirmed.version||savedVersion)+'.</a>';
-    }catch(e){
-      overlay.classList.remove("show");
-      document.body.style.overflow="";
-      document.getElementById("status").textContent="Save failed: "+e.message;
-    }
-  };
-  window.rollbackDraft=async function(){
-    if(!confirm("Rollback the CV to the previous saved database version?")) return;
-    try{
-      document.getElementById("status").textContent="Rolling back database CV…";
-      const r=await fetch(API_BASE+"/api/cv/rollback",{method:"POST"});
-      const result=await r.json();
-      if(!r.ok) throw new Error(result.error||"Unable to roll back CV.");
-      cv=Object.assign(clone(base),result.data||{});
-      localStorage.setItem(KEY,JSON.stringify(cv));
-      render();
-      document.getElementById("status").textContent="✓ Rolled back to database version "+result.version+".";
-    }catch(e){document.getElementById("status").textContent="Rollback failed: "+e.message;}
-  };
-  window.previewCV=function(){sync();localStorage.setItem(KEY,JSON.stringify(cv));window.open("/","_blank")};
-  loadPublished();
-})();
-</script>
+<script src="/cv-management/manager.js"></script>
 </body>
 </html>

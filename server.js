@@ -4,15 +4,15 @@ const { Pool } = require("pg");
 const PORT = process.env.PORT || 10000;
 const DATABASE_URL = process.env.DATABASE_URL;
 
-if (!DATABASE_URL) {
+if (require.main === module && !DATABASE_URL) {
   console.error("DATABASE_URL is not configured.");
   process.exit(1);
 }
 
-const pool = new Pool({
+const pool = DATABASE_URL ? new Pool({
   connectionString: DATABASE_URL,
   ssl: { rejectUnauthorized: false }
-});
+}) : null;
 
 async function ensureDatabase() {
   await pool.query(`
@@ -40,20 +40,12 @@ async function ensureDatabase() {
     throw new Error("CV database is empty. Save an initial CV from /cv-management/.");
   }
 
-  const normalized = normalizeData(result.rows[0].data || {});
-  if (JSON.stringify(normalized) !== JSON.stringify(result.rows[0].data || {})) {
-    await pool.query(
-      "UPDATE cv_documents SET data = $1::jsonb, updated_at = NOW() WHERE id = 1",
-      [JSON.stringify(normalized)]
-    );
-    console.log("Normalized existing CV data to the current schema.");
-  }
 
   const history = await pool.query("SELECT 1 FROM cv_versions WHERE document_id = 1 LIMIT 1");
   if (history.rowCount === 0) {
     await pool.query(
       "INSERT INTO cv_versions (document_id, version, data) VALUES (1, $1, $2::jsonb)",
-      [result.rows[0].version || 1, JSON.stringify(normalized)]
+      [result.rows[0].version || 1, JSON.stringify(result.rows[0].data)]
     );
     console.log("Initial CV version added to rollback history.");
   } else {
@@ -66,8 +58,8 @@ function normalizeData(input) {
   const out = { ...d };
 
   out.site = {
-    title: d.site?.title || d.siteTitle || "Aditya Kadam | Assistant Technical Project Manager",
-    description: d.site?.description || d.metaDescription || ""
+    title: d.site?.title ?? d.siteTitle ?? "Aditya Kadam | Assistant Technical Project Manager",
+    description: d.site?.description ?? d.metaDescription ?? ""
   };
 
   const uiDefaults = {
@@ -97,11 +89,11 @@ function normalizeData(input) {
   };
   out.ui = { ...uiDefaults, ...(d.ui || {}) };
   out.ui.nav = { ...uiDefaults.nav, ...(d.ui?.nav || {}) };
-  out.ui.heroMetrics = Array.isArray(d.ui?.heroMetrics) ? d.ui.heroMetrics.map(x => ({value: x?.value || "", label: x?.label || ""})) : uiDefaults.heroMetrics;
-  out.ui.orbitChips = Array.isArray(d.ui?.orbitChips) ? d.ui.orbitChips.filter(Boolean) : uiDefaults.orbitChips;
-  out.ui.knowledgeIntro = d.ui?.knowledgeIntro || uiDefaults.knowledgeIntro;
-  out.ui.knowledgeGithubLabel = d.ui?.knowledgeGithubLabel || uiDefaults.knowledgeGithubLabel;
-  out.ui.themeId = d.ui?.themeId || uiDefaults.themeId;
+  out.ui.heroMetrics = Array.isArray(d.ui?.heroMetrics) ? d.ui.heroMetrics.map(x => ({value: x?.value ?? "", label: x?.label ?? ""})) : uiDefaults.heroMetrics;
+  out.ui.orbitChips = Array.isArray(d.ui?.orbitChips) ? d.ui.orbitChips.map(x => String(x ?? "")) : uiDefaults.orbitChips;
+  out.ui.knowledgeIntro = d.ui?.knowledgeIntro ?? uiDefaults.knowledgeIntro;
+  out.ui.knowledgeGithubLabel = d.ui?.knowledgeGithubLabel ?? uiDefaults.knowledgeGithubLabel;
+  out.ui.themeId = d.ui?.themeId ?? uiDefaults.themeId;
 
   out.name = d.name || "";
   out.role = d.role || "";
@@ -112,38 +104,43 @@ function normalizeData(input) {
   out.github = d.github || "";
   out.portfolio = d.portfolio || "";
   out.targetLocations = d.targetLocations || "";
-  out.summary = d.summary || d.intro || "";
+  out.summary = d.summary ?? d.intro ?? "";
 
   out.competencies = Array.isArray(d.competencies) ? d.competencies.map(x => ({
-    title: x.title || x.category || "",
-    text: x.text || x.skills || ""
+    ...x,
+    title: x.title ?? x.category ?? "",
+    text: x.text ?? x.skills ?? ""
   })) : [];
 
   out.experience = Array.isArray(d.experience) ? d.experience.map(x => ({
-    role: x.role || x.job || "",
+    ...x,
+    role: x.role ?? x.job ?? "",
     company: x.company || "",
-    dates: x.dates || x.period || "",
+    dates: x.dates ?? x.period ?? "",
     bullets: Array.isArray(x.bullets) ? x.bullets : [],
     achievement: x.achievement || "",
-    proof: x.proof || "",
+    proof: x.proof ?? "",
     orbitTags: x.orbitTags || ""
   })) : [];
 
   out.education = Array.isArray(d.education) ? d.education.map(x => ({
-    qualification: x.qualification || x.degree || "",
+    ...x,
+    qualification: x.qualification ?? x.degree ?? "",
     institution: x.institution || "",
-    dates: x.dates || x.year || "",
+    dates: x.dates ?? x.year ?? "",
     details: x.details || ""
   })) : [];
 
   out.certifications = Array.isArray(d.certifications) ? d.certifications.map(x => ({
-    title: x.title || x.name || "",
+    ...x,
+    title: x.title ?? x.name ?? "",
     issuer: x.issuer || "",
-    date: x.date || x.year || "",
+    date: x.date ?? x.year ?? "",
     details: x.details || ""
   })) : [];
 
   out.awards = Array.isArray(d.awards) ? d.awards.map(x => ({
+    ...x,
     title: x.title || "",
     issuer: x.issuer || "",
     date: x.date || ""
@@ -160,6 +157,7 @@ function normalizeData(input) {
     {label:"REPO 06",source:"Simplilearn",path:"The-Aditya-Kadam / Applied-Data-Science-with-Python",title:"Applied Data Science with Python",description:"Python for data analysis and machine learning.",tags:["Python","ML"],url:"https://github.com/The-Aditya-Kadam/Applied-Data-Science-with-Python"}
   ];
   out.repositories = Array.isArray(d.repositories) ? d.repositories.map(x => ({
+    ...x,
     label: x.label || "",
     source: x.source || "",
     path: x.path || "",
@@ -203,7 +201,8 @@ function readBody(req) {
   });
 }
 
-const server = http.createServer(async (req, res) => {
+function createServer(pool) {
+return http.createServer(async (req, res) => {
   const pathname = new URL(req.url, "http://localhost").pathname;
 
   if (req.method === "OPTIONS") {
@@ -249,6 +248,11 @@ const server = http.createServer(async (req, res) => {
         return;
       }
 
+      for (const key of ["education","experience","certifications","awards","competencies","repositories","customSections"]) {
+        if(rawData[key]!=null && (!Array.isArray(rawData[key]) || rawData[key].some(x=>!x||typeof x!=="object"||Array.isArray(x)))) {
+          send(res,400,{error:"Invalid "+key+" list."});return;
+        }
+      }
       const data = normalizeData(rawData);
       const client = await pool.connect();
       try {
@@ -258,14 +262,13 @@ const server = http.createServer(async (req, res) => {
           "SELECT version FROM cv_documents WHERE id = 1 FOR UPDATE"
         );
 
+        if(body.expectedVersion!=null && Number(body.expectedVersion)!==Number(current.rows[0]?.version||0)) {
+          await client.query("ROLLBACK");send(res,409,{error:"The CV was updated elsewhere. Load Published before saving again."});return;
+        }
+
         const nextVersion = current.rowCount
           ? Number(current.rows[0].version || 1) + 1
           : 1;
-
-        await client.query(
-          "INSERT INTO cv_versions (document_id, version, data) VALUES (1, $1, $2::jsonb)",
-          [nextVersion, JSON.stringify(data)]
-        );
 
         await client.query(
           `INSERT INTO cv_documents (id, data, version)
@@ -273,6 +276,11 @@ const server = http.createServer(async (req, res) => {
            ON CONFLICT (id) DO UPDATE
            SET data = EXCLUDED.data, version = EXCLUDED.version, updated_at = NOW()`,
           [JSON.stringify(data), nextVersion]
+        );
+
+        await client.query(
+          "INSERT INTO cv_versions (document_id, version, data) VALUES (1, $1, $2::jsonb)",
+          [nextVersion, JSON.stringify(data)]
         );
 
         await client.query(
@@ -287,7 +295,7 @@ const server = http.createServer(async (req, res) => {
         );
 
         await client.query("COMMIT");
-        send(res, 200, { ok: true, version: nextVersion });
+        send(res, 200, { ok: true, version: nextVersion, data });
       } catch (error) {
         await client.query("ROLLBACK");
         throw error;
@@ -303,6 +311,7 @@ const server = http.createServer(async (req, res) => {
 
   if (req.method === "POST" && pathname === "/api/cv/rollback") {
     try {
+      const body=await readBody(req);
       const client = await pool.connect();
       try {
         await client.query("BEGIN");
@@ -317,6 +326,9 @@ const server = http.createServer(async (req, res) => {
           return;
         }
 
+        if(body.expectedVersion!=null && Number(body.expectedVersion)!==Number(current.rows[0].version)) {
+          await client.query("ROLLBACK");send(res,409,{error:"The CV was updated elsewhere. Load Published before rollback."});return;
+        }
         const previous = await client.query(
           `SELECT version, data
            FROM cv_versions
@@ -362,15 +374,18 @@ const server = http.createServer(async (req, res) => {
 
   send(res, 404, { error: "Not found" });
 });
+}
 
 async function start() {
   await ensureDatabase();
-  server.listen(PORT, "0.0.0.0", () => {
+  createServer(pool).listen(PORT, "0.0.0.0", () => {
     console.log("CV API listening on port " + PORT);
   });
 }
 
-start().catch((error) => {
+if(require.main===module)start().catch((error) => {
   console.error("Startup failed:", error);
   process.exit(1);
 });
+
+module.exports={createServer,normalizeData};

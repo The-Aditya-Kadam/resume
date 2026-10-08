@@ -1,5 +1,10 @@
 /* Single lifecycle for the published document and temporary browser draft. */
 (function(){
+  // A cached directory page may predate the attachment scripts.
+  if(!document.getElementById('resumeAttachmentUrl') && !new URLSearchParams(location.search).has('cvRelease')){
+    location.replace('/cv-management/index.html?cvRelease=attachments-20261008');
+    return;
+  }
   const API='https://aditya-cv-api.onrender.com/api/cv';
   let version=null, published=null, busy=false;
   const originalRender=render;
@@ -17,7 +22,7 @@
       if(d[key]!=null&&(!Array.isArray(d[key])||d[key].some(x=>!x||typeof x!=='object'||Array.isArray(x))))throw new Error('Invalid '+key+' list.');
       d[key]=d[key]??clone(base[key]||[]);
     }
-    d.attachments=CVAttachments.normalize(d.attachments);
+    if(window.CVAttachments)d.attachments=CVAttachments.normalize(d.attachments);
     d.site={...base.site,...d.site};
     d.ui={...base.ui,...d.ui,nav:{...base.ui.nav,...d.ui?.nav}};
     for(const key of fields)d[key]=d[key]??base[key]??'';

@@ -41,7 +41,7 @@
   };
   function updateFlags(){
     if(!published)return;
-    if(JSON.stringify(cv.experience)!==JSON.stringify(published.experience))cv.ui.experienceEdited=true;
+    if(JSON.stringify(cv.experience)!==JSON.stringify(published.experience)||['experienceKicker','experienceTitle'].some(k=>cv.ui[k]!==published.ui[k]))cv.ui.experienceEdited=true;
     const knowledgeKeys=['knowledgeIntro','knowledgeGithubLabel','knowledgeTitle','knowledgeKicker'];
     if(JSON.stringify(cv.repositories)!==JSON.stringify(published.repositories)||knowledgeKeys.some(k=>cv.ui[k]!==published.ui[k]))cv.ui.knowledgeEdited=true;
   }

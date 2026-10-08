@@ -48,7 +48,23 @@ async function loadFrame(frame,html){
 }
 async function exercise(frame,label){
   const w=frame.contentWindow,d=w.document;
-  check(d.querySelectorAll('section.panel').length===13,label+': all 13 sections');
+  const sectionOrder=['Site & SEO Settings','Theme Configuration','Portfolio Labels & Navigation','Personal Information','Hero Metrics & Orbit Chips','Professional Summary','Education','Certifications','Leadership & Awards','Core Competencies & Technical Toolkit','Professional Experience','Knowledge / Repository Cards','Custom Sections / Cards'];
+  check(JSON.stringify([...d.querySelectorAll('section.panel h2')].map(e=>e.textContent))===JSON.stringify(sectionOrder),label+': all 13 sections in exact order');
+  const savedValues=w.CVContent.resolve(published.data);
+  const fields=[...d.querySelectorAll('input:not([type=file]),textarea')];
+  check(fields.every(e=>{
+    let expected;const a=e.dataset;
+    if(a.group)expected=savedValues[a.group][+a.i][a.k];
+    else if(a.uiGroup)expected=savedValues.ui[a.uiGroup][+a.i][a.k];
+    else if(a.chipIndex!==undefined)expected=savedValues.ui.orbitChips[+a.chipIndex];
+    else if(a.bulletGroup!==undefined)expected=savedValues.experience[+a.bulletGroup].bullets[+a.bulletIndex];
+    else if(a.repoTags!==undefined)expected=savedValues.repositories[+a.repoTags].tags.join(', ');
+    else if(e.id==='siteTitle')expected=savedValues.site.title;
+    else if(e.id==='metaDescription')expected=savedValues.site.description;
+    else if(e.id.startsWith('nav'))expected=savedValues.ui.nav[e.id.slice(3).toLowerCase()];
+    else expected=savedValues[e.id]??savedValues.ui[e.id];
+    return e.value===String(expected??'');
+  }),label+': every loaded form field matches its resolved published value ('+fields.length+' fields)');
   check(d.getElementById('name').value===published.data.name,label+': published name loaded');
   check(d.querySelectorAll('#repositories > .item').length===6,label+': six legacy Knowledge cards loaded');
   check([...d.querySelectorAll('#experience [data-k="proof"]')].every(e=>e.value.startsWith('https://github.com/')),label+': all six proof links loaded');

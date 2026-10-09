@@ -1,6 +1,18 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const { targetConfig, copyCV } = require('../cv-migration');
+const { databaseConfig } = require('../server');
+
+test('Neon cutover is explicit, validates TLS and retains the Render rollback configuration', () => {
+  const env = { DATABASE_URL: 'postgresql://source-user:source-test@render-internal/source-db',
+    CV_MIGRATION_TARGET_URL: 'postgresql://neondb_owner:target-test@ep-muddy-glade-b5ycbay7-pooler.c-7.us-east-2.aws.neon.tech/neondb?sslmode=require' };
+  assert.equal(databaseConfig(env).connectionString,env.DATABASE_URL);
+  const neon = databaseConfig({...env,CV_DATABASE_MODE:'neon'});
+  assert.equal(new URL(neon.connectionString).hostname,'ep-muddy-glade-b5ycbay7-pooler.c-7.us-east-2.aws.neon.tech');
+  assert.equal(neon.ssl.rejectUnauthorized,true);
+  assert.equal(databaseConfig({...env,CV_DATABASE_MODE:''}).connectionString,env.DATABASE_URL);
+  assert.throws(()=>databaseConfig({DATABASE_URL:env.DATABASE_URL,CV_DATABASE_MODE:'neon'}),/NEON_DATABASE_URL_NOT_CONFIGURED/);
+});
 
 test('migration only accepts the intended Neon database and verifies TLS', () => {
   const raw = 'postgresql://neondb_owner:test-password@ep-muddy-glade-b5ycbay7-pooler.c-7.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require';

@@ -3,17 +3,24 @@ const { Pool } = require("pg");
 const CVAttachments = require("./cv-attachments");
 
 const PORT = process.env.PORT || 10000;
-const DATABASE_URL = process.env.DATABASE_URL;
+const USE_NEON = process.env.CV_DATABASE_MODE === "neon";
+const DATABASE_URL = USE_NEON ? process.env.CV_MIGRATION_TARGET_URL : process.env.DATABASE_URL;
+
+function databaseConfig(env) {
+  if (env.CV_DATABASE_MODE === "neon") {
+    if (!env.CV_MIGRATION_TARGET_URL) throw new Error("NEON_DATABASE_URL_NOT_CONFIGURED");
+    return { ...require("./cv-migration").targetConfig(env.CV_MIGRATION_TARGET_URL),
+      max: 5, application_name: "cv-api" };
+  }
+  return env.DATABASE_URL ? { connectionString: env.DATABASE_URL, ssl: { rejectUnauthorized: false } } : null;
+}
 
 if (require.main === module && !DATABASE_URL) {
-  console.error("DATABASE_URL is not configured.");
+  console.error(USE_NEON ? "Neon database URL is not configured." : "DATABASE_URL is not configured.");
   process.exit(1);
 }
 
-const pool = DATABASE_URL ? new Pool({
-  connectionString: DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
-}) : null;
+const pool = DATABASE_URL ? new Pool(databaseConfig(process.env)) : null;
 
 async function ensureDatabase() {
   await pool.query(`
@@ -381,9 +388,11 @@ return http.createServer(async (req, res) => {
 
 async function start() {
   await ensureDatabase();
+  const identity = await pool.query("SELECT current_database() AS name");
+  console.log("CV_DATABASE_READY " + (USE_NEON ? "neon" : "render") + " database=" + identity.rows[0].name);
   createServer(pool).listen(PORT, "0.0.0.0", () => {
     console.log("CV API listening on port " + PORT);
-    if (process.env.CV_MIGRATION_MODE === "copy" && process.env.CV_MIGRATION_TARGET_URL) {
+    if (!USE_NEON && process.env.CV_MIGRATION_MODE === "copy" && process.env.CV_MIGRATION_TARGET_URL) {
       require("./cv-migration").runConfiguredCopy(pool, process.env.CV_MIGRATION_TARGET_URL)
         .then(result => console.log("CV_MIGRATION_VERIFIED " + JSON.stringify(result)))
         .catch(error => console.error("CV_MIGRATION_FAILED " + (error.migrationCode || error.code || "COPY_ERROR")));
@@ -396,4 +405,4 @@ if(require.main===module)start().catch((error) => {
   process.exit(1);
 });
 
-module.exports={createServer,normalizeData};
+module.exports={createServer,normalizeData,databaseConfig};

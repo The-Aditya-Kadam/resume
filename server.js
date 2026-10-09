@@ -383,6 +383,11 @@ async function start() {
   await ensureDatabase();
   createServer(pool).listen(PORT, "0.0.0.0", () => {
     console.log("CV API listening on port " + PORT);
+    if (process.env.CV_MIGRATION_MODE === "copy" && process.env.CV_MIGRATION_TARGET_URL) {
+      require("./cv-migration").runConfiguredCopy(pool, process.env.CV_MIGRATION_TARGET_URL)
+        .then(result => console.log("CV_MIGRATION_VERIFIED " + JSON.stringify(result)))
+        .catch(error => console.error("CV_MIGRATION_FAILED " + (error.migrationCode || error.code || "COPY_ERROR")));
+    }
   });
 }
 

@@ -6,6 +6,8 @@
 <section><h2>Mobile — 390 px</h2><iframe id="mobile" title="Mobile draft" style="width:390px"></iframe></section>
 <section><h2>Draft preview</h2><iframe id="preview" title="Draft preview" style="width:390px"></iframe></section>
 <script>
+const requestedWidth=Number(new URLSearchParams(location.search).get('width'));
+if(requestedWidth>=320&&requestedWidth<=2000){document.getElementById('desktop').style.width=requestedWidth+'px';document.querySelector('section h2').textContent='Responsive — '+requestedWidth+' px';}
 const output=document.getElementById('results');
 const line=(message)=>{output.textContent+=message+'\n';};
 const check=(condition,label)=>{if(!condition)throw new Error(label);line('PASS — '+label);};
@@ -111,6 +113,7 @@ async function exercise(frame,label){
   check(d.getElementById('resumeAttachmentName').textContent.includes('resume-browser-test.pdf'),label+': attachment survives isolated save and load');
   await w.rollbackDraft();check(d.getElementById('name').value===published.data.name,label+': isolated rollback restores previous version');
   check(d.documentElement.scrollWidth<=d.documentElement.clientWidth,label+': no horizontal overflow');
+  if(w.innerWidth>1100){const n=d.querySelector('.section-nav').getBoundingClientRect(),c=d.querySelector('.top').getBoundingClientRect();check(n.right+16<=c.left,label+': sidebar stays clear of heading and form');}
   check(d.getElementById('resumeAttachmentName').textContent.includes(w.CVAttachments.normalize(published.data.attachments).resume.name),label+': rollback restores original attachment');
   check(w.testErrors.length===0,label+': no JavaScript errors');
   check(w.innerWidth===Number(frame.style.width.replace('px','')),label+': actual iframe viewport width');

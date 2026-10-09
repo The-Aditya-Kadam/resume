@@ -12,11 +12,17 @@
 .save-box h2{margin:0 0 10px;font-size:24px}.save-box p{margin:0;color:#cbd5e1;line-height:1.5}
 @keyframes spin{to{transform:rotate(360deg)}}.bullet{display:grid;grid-template-columns:1fr auto;gap:8px;margin:8px 0}.small{font-size:12px;color:#64748b}@media(max-width:700px){.grid{grid-template-columns:1fr}.full{grid-column:auto}.top{display:block}.top .row-actions{margin-top:16px}.panel{padding:16px}.item{padding:12px}.item-head h2{font-size:20px;margin-bottom:0}.row-actions{gap:6px}.actions{position:static}.wrap{padding:20px 12px 40px}.bullet{grid-template-columns:minmax(0,1fr) auto}}
 </style>
+<link rel="stylesheet" href="/cv-management/studio.css?v=20261009-studio">
 </head>
 <body>
+<div class="studio-backdrop" aria-hidden="true"></div>
+<header class="studio-header"><a class="studio-brand" href="/cv-management/"><span class="brand-mark" aria-hidden="true">C</span><span>CAREER STUDIO<small>Your story. Your next step.</small></span></a><a class="portfolio-link" href="/" target="_blank" rel="noopener">View portfolio <span aria-hidden="true">↗</span></a></header>
+<nav class="section-nav" aria-label="CV sections"><div class="nav-caption">YOUR WORKSPACE</div><a href="#site-seo"><span>01</span>Site & SEO</a><a href="#theme"><span>02</span>Theme</a><a href="#portfolio-labels"><span>03</span>Portfolio labels</a><a href="#personal-files"><span>04</span>Personal & files</a><a href="#hero-orbit"><span>05</span>Hero & orbit</a><a href="#summary-section"><span>06</span>Summary</a><a href="#education-section"><span>07</span>Education</a><a href="#certifications-section"><span>08</span>Certifications</a><a href="#awards-section"><span>09</span>Awards</a><a href="#skills-section"><span>10</span>Skills & toolkit</a><a href="#experience-section"><span>11</span>Experience</a><a href="#knowledge-section"><span>12</span>Knowledge</a><a href="#custom-sections"><span>13</span>Custom sections</a><div class="nav-note"><span class="draft-dot"></span>Draft first. Publish when ready.</div></nav>
+<a class="studio-skip" href="#site-seo">Skip to CV fields</a>
 <div class="wrap">
   <div class="top">
-    <div><h1>CV Management</h1><p>Edit the CV structure and content. All fields are optional. Changes are saved to the CV database.</p></div>
+    <div class="hero-copy"><div class="hero-kicker"><span class="draft-dot"></span> YOUR CAREER, IN FOCUS</div><h1>CV Management<span class="hero-accent">Make your next move.</span></h1><p>A workspace for your experience, achievements and ambition. Edit your draft, preview your story, then publish when you're ready.</p><div class="hero-tags"><span>13 sections. One story.</span><span>Resume + cover letter</span></div></div>
+    <div class="studio-art" aria-hidden="true"><div class="orbit-ring ring-one"></div><div class="orbit-ring ring-two"></div><div class="art-glow"></div><div class="resume-plane"><div class="plane-badge">CV</div><div class="plane-title"></div><div class="plane-line long"></div><div class="plane-line"></div><div class="plane-divider"></div><div class="plane-block"><i></i><div><b></b><b></b><b></b></div></div><div class="plane-block"><i></i><div><b></b><b></b></div></div><div class="plane-footer"></div></div><div class="art-spark spark-one">✦</div><div class="art-spark spark-two">+</div><div class="art-label">BUILT AROUND YOU</div></div>
     <div class="row-actions">
       <button class="btn secondary" onclick="loadPublished()">Load Published</button><button class="btn muted" onclick="rollbackDraft()">ROLLBACK</button>
       <button class="btn muted" onclick="exportJSON()">Export JSON</button>
@@ -25,19 +31,19 @@
     </div>
   </div>
 
-  <section class="panel"><h2>Site & SEO Settings</h2><div class="grid">
+  <section class="panel" id="site-seo"><h2>Site & SEO Settings</h2><div class="grid">
     <div class="full"><label>Page Title</label><input id="siteTitle"></div>
     <div class="full"><label>Meta Description</label><textarea id="metaDescription"></textarea></div>
   </div></section>
 
-  <section class="panel"><h2>Theme Configuration</h2><div class="grid">
+  <section class="panel" id="theme"><h2>Theme Configuration</h2><div class="grid">
     <div><label>Active Theme ID</label><input id="themeId" placeholder="orbit"></div>
     <div><label>Knowledge Intro</label><input id="knowledgeIntro"></div>
     <div><label>Knowledge GitHub Label</label><input id="knowledgeGithubLabel"></div>
     <div class="full"><p class="small">Theme ID is stored in PostgreSQL now so future templates can be selected per CV. The current production theme is <b>orbit</b>.</p></div>
   </div></section>
 
-  <section class="panel"><h2>Portfolio Labels & Navigation</h2><div class="grid">
+  <section class="panel" id="portfolio-labels"><h2>Portfolio Labels & Navigation</h2><div class="grid">
     <div><label>Summary Navigation Label</label><input id="navSummary"></div>
     <div><label>Education Navigation Label</label><input id="navEducation"></div>
     <div><label>Skills Navigation Label</label><input id="navSkills"></div>
@@ -67,7 +73,7 @@
     <div><label>Footer Right</label><input id="footerRight"></div>
   </div></section>
 
-  <section class="panel"><h2>Personal Information</h2><div class="grid">
+  <section class="panel" id="personal-files"><h2>Personal Information</h2><div class="grid">
     <div><label>Name</label><input id="name"></div>
     <div><label>Professional Title</label><input id="role"></div>
     <div><label>Location</label><input id="location"></div>
@@ -82,7 +88,7 @@
 <div class="item"><h3>Resume</h3><div class="grid"><div><label for="resumeAttachmentUrl">Resume PDF link</label><input id="resumeAttachmentUrl" data-attachment="resume" onchange="updateAttachmentLink()" placeholder="HTTPS link or /assets/file.pdf"></div><div><label for="resumeAttachmentUpload">Upload resume PDF</label><input id="resumeAttachmentUpload" type="file" accept="application/pdf,.pdf" onchange="uploadAttachment('resume',event)"></div></div><p class="small" id="resumeAttachmentName"></p><div class="row-actions"><a id="resumeAttachmentPreview" class="btn secondary" target="_blank" rel="noopener">Open current PDF</a><button class="btn danger" onclick="removeAttachment('resume')">Remove resume attachment</button><button class="btn muted" onclick="restoreAttachment('resume')">Restore original resume</button></div></div><div class="item"><h3>Cover letter</h3><div class="grid"><div><label for="coverLetterAttachmentUrl">Cover letter PDF link</label><input id="coverLetterAttachmentUrl" data-attachment="coverLetter" onchange="updateAttachmentLink()" placeholder="HTTPS link or /assets/file.pdf"></div><div><label for="coverLetterAttachmentUpload">Upload cover letter PDF</label><input id="coverLetterAttachmentUpload" type="file" accept="application/pdf,.pdf" onchange="uploadAttachment('coverLetter',event)"></div></div><p class="small" id="coverLetterAttachmentName"></p><div class="row-actions"><a id="coverLetterAttachmentPreview" class="btn secondary" target="_blank" rel="noopener">Open current PDF</a><button class="btn danger" onclick="removeAttachment('coverLetter')">Remove cover letter attachment</button><button class="btn muted" onclick="restoreAttachment('coverLetter')">Restore original cover letter</button></div></div>
 </section>
 
-  <section class="panel"><h2>Hero Metrics & Orbit Chips</h2>
+  <section class="panel" id="hero-orbit"><h2>Hero Metrics & Orbit Chips</h2>
     <p class="small">These values power the hero statistics and the floating technology chips. They are stored in PostgreSQL and can be changed without editing website code.</p>
     <div id="heroMetrics"></div>
     <button class="btn secondary" onclick="addHeroMetric()">+ Add Hero Metric</button>
@@ -90,24 +96,24 @@
     <button class="btn secondary" onclick="addOrbitChip()">+ Add Orbit Chip</button>
   </section>
 
-  <section class="panel"><h2>Professional Summary</h2><textarea id="summary"></textarea></section>
+  <section class="panel" id="summary-section"><h2>Professional Summary</h2><textarea id="summary"></textarea></section>
 
-  <section class="panel"><div class="item-head"><h2>Education</h2><button class="btn secondary" onclick="addEducation()">+ Add Education</button></div><div id="education"></div></section>
+  <section class="panel" id="education-section"><div class="item-head"><h2>Education</h2><button class="btn secondary" onclick="addEducation()">+ Add Education</button></div><div id="education"></div></section>
 
-  <section class="panel"><div class="item-head"><h2>Certifications</h2><button class="btn secondary" onclick="addCertification()">+ Add Certification</button></div><div id="certifications"></div></section>
+  <section class="panel" id="certifications-section"><div class="item-head"><h2>Certifications</h2><button class="btn secondary" onclick="addCertification()">+ Add Certification</button></div><div id="certifications"></div></section>
 
-  <section class="panel"><div class="item-head"><h2>Leadership & Awards</h2><button class="btn secondary" onclick="addAward()">+ Add Award</button></div><div id="awards"></div></section>
+  <section class="panel" id="awards-section"><div class="item-head"><h2>Leadership & Awards</h2><button class="btn secondary" onclick="addAward()">+ Add Award</button></div><div id="awards"></div></section>
 
-  <section class="panel"><div class="item-head"><h2>Core Competencies & Technical Toolkit</h2><button class="btn secondary" onclick="addCompetency()">+ Add Competency</button></div><div id="competencies"></div></section>
+  <section class="panel" id="skills-section"><div class="item-head"><h2>Core Competencies & Technical Toolkit</h2><button class="btn secondary" onclick="addCompetency()">+ Add Competency</button></div><div id="competencies"></div></section>
 
-  <section class="panel"><div class="item-head"><h2>Professional Experience</h2><button class="btn secondary" onclick="addExperience()">+ Add Experience</button></div><div id="experience"></div></section>
+  <section class="panel" id="experience-section"><div class="item-head"><h2>Professional Experience</h2><button class="btn secondary" onclick="addExperience()">+ Add Experience</button></div><div id="experience"></div></section>
 
-  <section class="panel"><div class="item-head"><h2>Knowledge / Repository Cards</h2><button class="btn secondary" onclick="addRepository()">+ Add Repository</button></div>
+  <section class="panel" id="knowledge-section"><div class="item-head"><h2>Knowledge / Repository Cards</h2><button class="btn secondary" onclick="addRepository()">+ Add Repository</button></div>
     <p class="small">Repository cards are fully data-driven. Add, remove, reorder, or update the GitHub links here.</p>
     <div id="repositories"></div>
   </section>
 
-  <section class="panel"><div class="item-head"><h2>Custom Sections / Cards</h2><button class="btn secondary" onclick="addCustomSection()">+ Add Section</button></div><div id="customSections"></div></section>
+  <section class="panel" id="custom-sections"><div class="item-head"><h2>Custom Sections / Cards</h2><button class="btn secondary" onclick="addCustomSection()">+ Add Section</button></div><div id="customSections"></div></section>
 
   <div class="actions">
     <button class="btn primary" onclick="saveDraft()">SAVE CV TO DATABASE</button>

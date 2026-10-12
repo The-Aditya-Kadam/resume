@@ -81,6 +81,7 @@
     finally{CVAdminAuth.loading(false);controls(false);if(!cv)document.querySelectorAll('.wrap button').forEach(b=>{if(b.textContent!=='Load Published')b.disabled=true;});}
   };
   window.saveDraft=async function(){
+    if(CVAdminAuth.draftOnly){status('Login is paused. Draft editing is available; publishing remains protected.');return;}
     if(busy||!cv)return;
     sync();updateFlags();
     let submitted;
@@ -100,6 +101,7 @@
     finally{overlay.classList.remove('show');document.body.style.overflow='';controls(false);}
   };
   window.rollbackDraft=async function(){
+    if(CVAdminAuth.draftOnly){status('Login is paused. Database rollback remains protected.');return;}
     if(busy||!cv||!confirm('Rollback the CV to the previous saved database version?'))return;
     controls(true);
     try{const result=await request('POST',{expectedVersion:version},'/rollback');cv=normalize(result.data);published=clone(cv);version=result.version;render();status('✓ Rolled back to database version '+version+'.');}

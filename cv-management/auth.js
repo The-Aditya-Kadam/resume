@@ -1,4 +1,5 @@
 (function(){
+  const LOGIN_PAUSED=true;
   const API='https://aditya-cv-api.onrender.com/api/auth';
   const gate=document.getElementById('authGate'),form=document.getElementById('loginForm'),message=document.getElementById('authMessage');
   const tokenKey='cv-admin-session';let start=null,token='';
@@ -23,6 +24,6 @@
   }catch(e){message.textContent=e.message;loading(false);}finally{button.disabled=false;}});
   document.getElementById('retryAuth').addEventListener('click',check);
   document.getElementById('logoutButton').addEventListener('click',async()=>{try{await request('/logout',{});}catch(e){message.textContent='Signed out on this device. The server could not be reached.';}finally{signedOut();}});
-  window.CVAdminAuth={headers:()=>token?{Authorization:'Bearer '+token}:{},expired:()=>{signedOut();message.textContent='Your session expired. Sign in again.';},
-    ready:callback=>{start=callback;if(window.CV_TEST_TRANSPORT===true){gate.hidden=true;loading(false);document.body.classList.add('admin-authenticated');return callback();}return check();},loading};
+  window.CVAdminAuth={headers:()=>token?{Authorization:'Bearer '+token}:{},draftOnly:LOGIN_PAUSED&&window.CV_TEST_TRANSPORT!==true,expired:()=>{signedOut();message.textContent='Your session expired. Sign in again.';},
+    ready:callback=>{start=callback;if(LOGIN_PAUSED){gate.hidden=true;loading(false);document.body.classList.add('admin-authenticated');document.getElementById('logoutButton').hidden=true;return callback();}if(window.CV_TEST_TRANSPORT===true){gate.hidden=true;loading(false);document.body.classList.add('admin-authenticated');return callback();}return check();},loading};
 })();

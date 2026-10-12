@@ -12,7 +12,7 @@ function seed(){
     proofs:{rath:'https://github.com/The-Aditya-Kadam/rath-infotech',velocity:'https://github.com/The-Aditya-Kadam/velocity-media-lab/blob/main/Website%20list',epicenter:'https://github.com/The-Aditya-Kadam/epicenter-technology',futran:'https://github.com/The-Aditya-Kadam/fts-projects',aconnect:'https://github.com/The-Aditya-Kadam/Aconnect-mumbai',mob:'https://github.com/The-Aditya-Kadam/Formless-technology'},
     knowledgeHTML:fs.readFileSync(path.join(__dirname,'scripts/display-knowledge.html'),'utf8'),
     experienceHeadingHTML:'TEN YEARS, <span>STACKED.</span>',knowledgeHeadingHTML:'DATA SCIENCE <span>LAB.</span>',
-    experienceHTML:fs.readFileSync(path.join(__dirname,'scripts/display-experience.html'),'utf8').replaceAll('https://github.com/The-Aditya-Kadam/velocity-media-lab/tree/main/website-list','https://github.com/The-Aditya-Kadam/velocity-media-lab')};
+    experienceHTML:fs.readFileSync(path.join(__dirname,'scripts/display-experience.html'),'utf8').replaceAll('https://github.com/The-Aditya-Kadam/velocity-media-lab/tree/main/website-list','https://github.com/The-Aditya-Kadam/velocity-media-lab/blob/main/Website%20list')};
 }
 async function ensureDisplay(pool){
   const before=await pool.query('SELECT id,data,version FROM cv_documents ORDER BY id');
@@ -35,6 +35,6 @@ function resolveDisplay(raw,defaults){
   if(legacy)(data.experience||[]).forEach(e=>{if(!e.proof){const key=Object.keys(config.proofs).find(k=>String(e.company||'').toLowerCase().includes(k));if(key)e.proof=config.proofs[key];}});
   data.ui.contentSchemaVersion=1;
   delete data.presentation;
-  return {data,presentation:{experienceHTML:config.experienceHTML,knowledgeHTML:config.knowledgeHTML,experienceHeadingHTML:config.experienceHeadingHTML,knowledgeHeadingHTML:config.knowledgeHeadingHTML},attachmentDefaults:config.attachments};
+  return {data,presentation:{experienceHTML:config.experienceHTML.replaceAll('href="https://github.com/The-Aditya-Kadam/velocity-media-lab"','href="'+config.proofs.velocity+'"'),knowledgeHTML:config.knowledgeHTML,experienceHeadingHTML:config.experienceHeadingHTML,knowledgeHeadingHTML:config.knowledgeHeadingHTML},attachmentDefaults:config.attachments};
 }
 module.exports={seed,ensureDisplay,resolveDisplay};

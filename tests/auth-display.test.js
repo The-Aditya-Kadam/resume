@@ -17,7 +17,7 @@ test('display defaults are persisted separately and never overwrite CV records/h
  const resolved=resolveDisplay(raw,stored);
  assert.equal(resolved.data.repositories.length,6);assert.equal(resolved.data.repositories.at(-1).private,true);
  assert.equal(resolved.data.repositories.at(-1).url,'');assert.match(resolved.data.experience[0].proof,/velocity-media-lab/);
- assert.ok(resolved.data.attachments.resume.url);assert.ok(resolved.presentation.experienceHTML.includes('Rath Infotech'));
+ assert.ok(resolved.presentation.experienceHTML.includes(stored.proofs.velocity));assert.ok(resolved.data.attachments.resume.url);assert.ok(resolved.presentation.experienceHTML.includes('Rath Infotech'));
  assert.equal((await pool.query('SELECT COUNT(*) AS n FROM cv_display_defaults')).rows[0].n,1);
  const cleared=resolveDisplay({...raw,ui:{contentSchemaVersion:1},attachments:{resume:null,coverLetter:null},repositories:[]},stored);
  assert.deepEqual(cleared.data.repositories,[]);assert.equal(cleared.data.attachments.resume,null);

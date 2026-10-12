@@ -40,7 +40,7 @@
   window.setAttachmentBusy=controls;
   render=function(){
     originalRender();
-    document.querySelectorAll('label').forEach((label,i)=>{
+    document.querySelectorAll('.wrap label').forEach((label,i)=>{
       const input=label.parentElement.querySelector('input,textarea,select');
       if(input){if(!input.id)input.id='cv-field-'+i;label.htmlFor=input.id;}
     });

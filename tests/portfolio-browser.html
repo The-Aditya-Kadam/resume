@@ -24,6 +24,10 @@ document.getElementById('run').onclick=async function(){this.disabled=true;out.t
   if(width<=1100){d.getElementById('menuBtn').click();check(d.getElementById('navLinks').classList.contains('open'),label+'mobile menu opens');d.querySelector('#navLinks a').click();check(!d.getElementById('navLinks').classList.contains('open'),label+'navigation closes menu');}
   check(d.documentElement.scrollWidth<=d.documentElement.clientWidth,label+'no horizontal overflow');check(w.portfolioErrors.length===0,label+'no JavaScript errors');
  }
+ const recovery=document.createElement('iframe');recovery.style.width='390px';recovery.title='Temporary API failure and retry';document.getElementById('frames').append(recovery);
+ const errorShim=`<script>let failOnce=true;const realFetch=fetch;window.fetch=function(url,options){if(String(url).includes('aditya-cv-api.onrender.com/api/cv')&&failOnce){failOnce=false;return Promise.resolve(new Response('{}',{status:503}));}return realFetch(url,options);};<\/script>`;
+ recovery.srcdoc=html.replace('<head>','<head>'+errorShim);await wait(()=>recovery.contentDocument?.getElementById('cvLoadingNote')?.textContent.includes('could not load'));
+ const rd=recovery.contentDocument;check(rd.querySelector('#home h1')?.textContent.trim(),'API failure preserves readable public content');check(!rd.querySelector('a[href*="website-list"]')&&!rd.querySelector('a[href*="Applied-Data-Science-with-Python"]'),'API failure fallback has no known broken links');rd.querySelector('#cvLoadingNote button').click();await wait(()=>rd.documentElement.dataset.cvSource==='published');check(rd.getElementById('cvLoadingNote').hidden,'public Retry loads database content and closes error');
  log('ALL PUBLIC CHECKS PASS. Owner login / CV writes: 0.');
 }catch(e){log('FAIL — '+e.message);}finally{this.disabled=false;}};
 </script>

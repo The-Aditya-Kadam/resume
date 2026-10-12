@@ -7,8 +7,8 @@
     ['Machine-Learning','Machine Learning','Machine-learning coursework and models.',['ML','Models']],
     ['Tableau-Training','Tableau Training','Dashboards and visual analytics in Tableau.',['Tableau','Dashboards']],
     ['Applied-Data-Science-with-Python','Applied Data Science with Python','Python for data analysis and machine learning.',['Python','ML']]
-  ].map((r,i)=>({label:'REPO '+String(i+1).padStart(2,'0'),source:'Simplilearn',path:'The-Aditya-Kadam / '+r[0],title:r[1],description:r[2],tags:r[3],url:'https://github.com/The-Aditya-Kadam/'+r[0]}));
-  const proofs={rath:'rath-infotech',velocity:'velocity-media-lab/tree/main/website-list',epicenter:'epicenter-technology',futran:'fts-projects',aconnect:'Aconnect-mumbai',mob:'Formless-technology'};
+  ].map((r,i)=>({label:'REPO '+String(i+1).padStart(2,'0'),source:'Simplilearn',path:'The-Aditya-Kadam / '+r[0],title:r[1],description:r[2],tags:r[3],url:i===5?'':'https://github.com/The-Aditya-Kadam/'+r[0],private:i===5}));
+  const proofs={rath:'rath-infotech',velocity:'velocity-media-lab/blob/main/Website%20list',epicenter:'epicenter-technology',futran:'fts-projects',aconnect:'Aconnect-mumbai',mob:'Formless-technology'};
   function resolve(input){
     const data=JSON.parse(JSON.stringify(input));
     data.ui=data.ui||{};

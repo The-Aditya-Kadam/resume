@@ -78,12 +78,14 @@ test('dashboard lifecycle, all item controls, clearing and preview snapshot',asy
  dom.window.close();
 });
 
-test('public Experience and Knowledge source markup is preserved',()=>{
+test('public Experience and Knowledge content is preserved except verified link corrections',()=>{
  const {execFileSync}=require('node:child_process');
  const previous=execFileSync('git',['show','HEAD:index.html'],{cwd:root,encoding:'utf8'});
  const current=fs.readFileSync(path.join(root,'index.html'),'utf8');
  for(const id of ['experience','knowledge']){
    const extract=s=>s.slice(s.indexOf('<section id="'+id+'"'),s.indexOf('</section>',s.indexOf('<section id="'+id+'"'))+10);
-   assert.equal(extract(current),extract(previous));
+   let expected=extract(previous).replaceAll('https://github.com/The-Aditya-Kadam/velocity-media-lab/tree/main/website-list','https://github.com/The-Aditya-Kadam/velocity-media-lab/blob/main/Website%20list');
+   if(id==='knowledge'){expected=expected.replace('href="https://github.com/The-Aditya-Kadam/Applied-Data-Science-with-Python" target="_blank"','href="#contact"');const pos=expected.indexOf('href="#contact"');expected=expected.slice(0,pos)+expected.slice(pos).replace('<span>View repository</span>','<span>Private repository · Request access</span>');}
+   assert.equal(extract(current),expected);
  }
 });

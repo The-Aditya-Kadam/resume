@@ -24,9 +24,8 @@ function createAuth(pool,{setupToken=process.env.CV_ADMIN_SETUP_TOKEN||'',origin
     const username=String(body.username||'').trim().toLowerCase(),password=String(body.password||'');
     const address=req.socket.remoteAddress||'unknown';
     const key=hash(address);
-    const attempts=await pool.query('SELECT attempts,expires_at FROM cv_login_attempts WHERE key_hash=$1',[key]);
-    if(attempts.rows[0]&&new Date(attempts.rows[0].expires_at)>new Date()&&attempts.rows[0].attempts>=5){send(res,429,{error:'Too many attempts. Try again in 15 minutes.'});return true;}
-    await pool.query("INSERT INTO cv_login_attempts(key_hash,attempts,expires_at) VALUES($1,1,NOW()+INTERVAL '15 minutes') ON CONFLICT(key_hash) DO UPDATE SET attempts=CASE WHEN cv_login_attempts.expires_at<NOW() THEN 1 ELSE cv_login_attempts.attempts+1 END,expires_at=CASE WHEN cv_login_attempts.expires_at<NOW() THEN NOW()+INTERVAL '15 minutes' ELSE cv_login_attempts.expires_at END",[key]);
+    const attempt=await pool.query("INSERT INTO cv_login_attempts(key_hash,attempts,expires_at) VALUES($1,1,NOW()+INTERVAL '15 minutes') ON CONFLICT(key_hash) DO UPDATE SET attempts=CASE WHEN cv_login_attempts.expires_at<NOW() THEN 1 ELSE cv_login_attempts.attempts+1 END,expires_at=CASE WHEN cv_login_attempts.expires_at<NOW() THEN NOW()+INTERVAL '15 minutes' ELSE cv_login_attempts.expires_at END RETURNING attempts",[key]);
+    if(attempt.rows[0].attempts>5){send(res,429,{error:'Too many attempts. Try again in 15 minutes.'});return true;}
     if(password.length>256||!username||username.length>100){send(res,400,{error:'Invalid sign-in details.'});return true;}
     if(pathname==='/api/auth/setup'){
       if(!setupToken||!safe(String(body.setupToken||''),setupToken)){send(res,403,{error:'Invalid owner setup key.'});return true;}

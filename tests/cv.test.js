@@ -48,7 +48,7 @@ test('dashboard lifecycle, all item controls, clearing and preview snapshot',asy
    w.fetch=async(url,options={})=>{await new Promise(r=>setTimeout(r,10));if(options.method==='POST')writes++;return {ok:true,json:async()=>options.method==='POST'?{data:JSON.parse(options.body).data,version:8}:{data:raw,version:7}};};
    w.open=url=>{opened=url;return {};};w.addEventListener('error',e=>errors.push(e.message));
  }});
- const w=dom.window,doc=w.document;await new Promise(r=>setTimeout(r,80));
+ const w=dom.window,doc=w.document;for(let i=0;i<100&&!doc.getElementById('status').textContent.includes('Version');i++)await new Promise(r=>setTimeout(r,20));
  assert.equal(doc.querySelectorAll('section.panel').length,13);
  assert.equal(doc.querySelector('#name').value,'Saved Person');assert.equal(doc.querySelectorAll('#repositories > .item').length,6);
  assert.equal(doc.querySelector('#siteTitle').disabled,false);

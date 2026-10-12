@@ -12,7 +12,7 @@
   }catch(e){if(e.name==='AbortError')throw new Error('The server is still waking up. Try again.');throw e;}finally{clearTimeout(timer);}}
   async function check(){loading(true,'Connecting securely…');try{const s=await request('/status');
     const setupView=!s.configured&&(new URLSearchParams(location.search).get('setup')==='1'||form.dataset.ownerSetup==='true');
-    document.getElementById('setupFields').hidden=!setupView;document.getElementById('ownerSetupToken').required=setupView;document.getElementById('adminPassword').autocomplete=setupView?'new-password':'current-password';form.dataset.setup=String(setupView);document.getElementById('loginTitle').textContent=setupView?'Set up your private workspace.':'Welcome back.';
+    document.getElementById('setupFields').hidden=!setupView;document.getElementById('ownerSetupToken').required=setupView;document.getElementById('adminPassword').autocomplete=setupView?'new-password':'current-password';document.getElementById('adminPassword').minLength=setupView?6:0;form.dataset.setup=String(setupView);document.getElementById('loginTitle').textContent=setupView?'Set up your private workspace.':'Welcome back.';
     document.getElementById('signInButton').textContent=setupView?'Create owner account':'Sign in';
     document.getElementById('ownerSetupLink').hidden=s.configured||setupView;
     if(s.authenticated){gate.hidden=true;document.body.classList.add('admin-authenticated');document.getElementById('logoutButton').hidden=false;await start();}else signedOut();

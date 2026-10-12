@@ -29,7 +29,7 @@ function createAuth(pool,{setupToken=process.env.CV_ADMIN_SETUP_TOKEN||'',origin
     if(password.length>256||!username||username.length>100){send(res,400,{error:'Invalid sign-in details.'});return true;}
     if(pathname==='/api/auth/setup'){
       if(!setupToken||!safe(String(body.setupToken||''),setupToken)){send(res,403,{error:'Invalid owner setup key.'});return true;}
-      if(password.length<15){send(res,400,{error:'Use a password of at least 15 characters.'});return true;}
+      if(password.length<6){send(res,400,{error:'Use a password of at least 6 characters.'});return true;}
       const encoded=await passwordHash(password);
       const inserted=await pool.query('INSERT INTO cv_admin(id,username,password_hash) VALUES(1,$1,$2) ON CONFLICT(id) DO NOTHING RETURNING id',[username,encoded]);
       if(!inserted.rows.length){send(res,409,{error:'Owner already configured. Sign in instead.'});return true;}

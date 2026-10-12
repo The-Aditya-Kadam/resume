@@ -41,13 +41,14 @@ test('owner setup, authorization, expiry, logout and throttling protect CV write
  assert.equal((await post('/api/cv',{data:{name:'Bad'},expectedVersion:7})).status,401);
  assert.equal((await post('/api/cv/rollback',{expectedVersion:7})).status,401);
  assert.deepEqual((await pool.query('SELECT data FROM cv_documents')).rows[0].data,{name:'Preserved'});
- let response=await post('/api/auth/setup',{username:'owner',password:'A unique owner test password',setupToken:'test-only-owner-bootstrap'});assert.equal(response.status,200);const first=(await response.json()).token;
+ assert.equal((await post('/api/auth/setup',{username:'owner',password:'abcde',setupToken:'test-only-owner-bootstrap'})).status,400);
+ let response=await post('/api/auth/setup',{username:'owner',password:'abc123',setupToken:'test-only-owner-bootstrap'});assert.equal(response.status,200);const first=(await response.json()).token;
  assert.equal((await post('/api/auth/setup',{username:'second',password:'Another unique test password',setupToken:'test-only-owner-bootstrap'})).status,409);
  assert.equal((await post('/api/cv',{data:{name:'Authorized'},expectedVersion:7},first,'https://evil.example')).status,403);
  response=await post('/api/cv',{data:{name:'Authorized'},expectedVersion:7},first);assert.equal(response.status,200);
  assert.equal((await (await fetch(root+'/api/auth/status',{headers:{Authorization:'Bearer '+first}})).json()).authenticated,true);
  assert.equal((await post('/api/auth/logout',{},first)).status,200);assert.equal((await post('/api/cv/rollback',{},first)).status,401);
- response=await post('/api/auth/login',{username:'owner',password:'A unique owner test password'});assert.equal(response.status,200);const second=(await response.json()).token;
+ response=await post('/api/auth/login',{username:'owner',password:'abc123'});assert.equal(response.status,200);const second=(await response.json()).token;
  await pool.query("UPDATE cv_admin_sessions SET expires_at=NOW()-INTERVAL '1 hour'");assert.equal((await post('/api/cv/rollback',{},second)).status,401);
  for(let i=0;i<5;i++)assert.equal((await post('/api/auth/login',{username:'owner',password:'bad'})).status,401);
  assert.equal((await post('/api/auth/login',{username:'owner',password:'bad'})).status,429);

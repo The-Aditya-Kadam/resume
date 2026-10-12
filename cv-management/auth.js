@@ -11,8 +11,10 @@
     const data=await r.json();if(!r.ok)throw new Error(data.error||'Sign-in unavailable.');return data;
   }catch(e){if(e.name==='AbortError')throw new Error('The server is still waking up. Try again.');throw e;}finally{clearTimeout(timer);}}
   async function check(){loading(true,'Connecting securely…');try{const s=await request('/status');
-    document.getElementById('setupFields').hidden=s.configured;document.getElementById('ownerSetupToken').required=!s.configured;document.getElementById('adminPassword').autocomplete=s.configured?'current-password':'new-password';form.dataset.setup=String(!s.configured);document.getElementById('loginTitle').textContent=s.configured?'Welcome back.':'Set up your private workspace.';
-    document.getElementById('signInButton').textContent=s.configured?'Sign in':'Create owner account';
+    const setupView=!s.configured&&(new URLSearchParams(location.search).get('setup')==='1'||form.dataset.ownerSetup==='true');
+    document.getElementById('setupFields').hidden=!setupView;document.getElementById('ownerSetupToken').required=setupView;document.getElementById('adminPassword').autocomplete=setupView?'new-password':'current-password';form.dataset.setup=String(setupView);document.getElementById('loginTitle').textContent=setupView?'Set up your private workspace.':'Welcome back.';
+    document.getElementById('signInButton').textContent=setupView?'Create owner account':'Sign in';
+    document.getElementById('ownerSetupLink').hidden=s.configured||setupView;
     if(s.authenticated){gate.hidden=true;document.body.classList.add('admin-authenticated');document.getElementById('logoutButton').hidden=false;await start();}else signedOut();
   }catch(e){signedOut();message.textContent=e.message;}finally{loading(false);}}
   form.addEventListener('submit',async e=>{e.preventDefault();const button=document.getElementById('signInButton');button.disabled=true;message.textContent='';loading(true,'Signing in securely…');try{

@@ -19,7 +19,7 @@ test('empty optional strings survive backend normalization and legacy content re
 test('API save, read, conflict and rollback use an isolated SQL database',async t=>{
  const db=newDb(),adapter=db.adapters.createPg(),pool=new adapter.Pool();
  await pool.query('CREATE TABLE cv_documents (id INTEGER PRIMARY KEY,data JSONB NOT NULL,version INTEGER NOT NULL,updated_at TIMESTAMPTZ DEFAULT NOW()); CREATE TABLE cv_versions (id SERIAL PRIMARY KEY,document_id INTEGER REFERENCES cv_documents(id),version INTEGER,data JSONB)');
- const server=createServer(pool);await new Promise(r=>server.listen(0,'127.0.0.1',r));
+ const server=createServer(pool,{requireAuth:false,display:false});await new Promise(r=>server.listen(0,'127.0.0.1',r));
  t.after(async()=>{await new Promise(r=>server.close(r));await pool.end();});
  const url='http://127.0.0.1:'+server.address().port+'/api/cv';
  const post=(data,version)=>fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({data,expectedVersion:version})});
@@ -42,6 +42,7 @@ class LocalResources extends ResourceLoader{fetch(url){const pathname=new URL(ur
 test('dashboard lifecycle, all item controls, clearing and preview snapshot',async()=>{
  const errors=[];let writes=0,opened=null;
  const dom=new JSDOM(fs.readFileSync(path.join(root,'cv-management/index.html'),'utf8'),{url:'https://portfolio.test/cv-management/',runScripts:'dangerously',resources:new LocalResources(),pretendToBeVisual:true,beforeParse(w){
+   w.CV_TEST_TRANSPORT=true;
    w.URL.createObjectURL=()=> 'blob:attachment-test';w.URL.revokeObjectURL=()=>{};
    w.crypto.randomUUID=()=> 'test-preview';
    w.fetch=async(url,options={})=>{await new Promise(r=>setTimeout(r,10));if(options.method==='POST')writes++;return {ok:true,json:async()=>options.method==='POST'?{data:JSON.parse(options.body).data,version:8}:{data:raw,version:7}};};

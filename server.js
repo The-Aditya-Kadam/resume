@@ -1,6 +1,8 @@
 const http = require("http");
 const { Pool } = require("pg");
 const CVAttachments = require("./cv-attachments");
+const {ensureDisplay,resolveDisplay}=require('./cv-display');
+const {ensureAuth,createAuth}=require('./cv-auth');
 
 const PORT = process.env.PORT || 10000;
 const USE_NEON = process.env.CV_DATABASE_MODE === "neon";
@@ -64,6 +66,7 @@ async function ensureDatabase() {
 function normalizeData(input) {
   const d = input && typeof input === "object" && !Array.isArray(input) ? input : {};
   const out = { ...d };
+  delete out.presentation;
   out.attachments=CVAttachments.normalize(d.attachments);
 
   out.site = {
@@ -172,6 +175,7 @@ function normalizeData(input) {
     path: x.path || "",
     title: x.title || "",
     description: x.description || "",
+    private: Boolean(x.private),
     tags: Array.isArray(x.tags) ? x.tags.filter(Boolean) : [],
     url: x.url || ""
   })) : repositoryDefaults;
@@ -184,7 +188,7 @@ function send(res, status, body) {
     "Content-Type": "application/json; charset=utf-8",
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type"
+    "Access-Control-Allow-Headers": "Content-Type, Authorization"
   });
   res.end(JSON.stringify(body));
 }
@@ -210,7 +214,8 @@ function readBody(req) {
   });
 }
 
-function createServer(pool) {
+function createServer(pool,options={}) {
+const auth=options.requireAuth===false?null:createAuth(pool,options.auth);
 return http.createServer(async (req, res) => {
   const pathname = new URL(req.url, "http://localhost").pathname;
 
@@ -224,6 +229,17 @@ return http.createServer(async (req, res) => {
     return;
   }
 
+  if(auth&&pathname.startsWith('/api/auth/')){
+    try{await auth.handle(req,res,pathname,readBody,send);}catch{send(res,400,{error:'Unable to process sign-in request.'});}
+    return;
+  }
+  if(auth&&req.method==='POST'&&pathname.startsWith('/api/cv')){
+    const allowed=['https://aditya-kadam-resume.onrender.com','https://aditya-cv-dashboard-checks.onrender.com'];
+    if(req.headers.origin&&!allowed.includes(req.headers.origin)){send(res,403,{error:'Origin not allowed.'});return;}
+    try{if(!await auth.authorized(req)){send(res,401,{error:'Sign in to manage your CV.'});return;}}
+    catch{send(res,503,{error:'Authentication temporarily unavailable.'});return;}
+  }
+
   if (req.method === "GET" && pathname === "/api/cv") {
     try {
       const result = await pool.query(
@@ -235,8 +251,9 @@ return http.createServer(async (req, res) => {
         return;
       }
 
+      const display=options.display===false?{data:result.rows[0].data}:resolveDisplay(result.rows[0].data,(await pool.query('SELECT data FROM cv_display_defaults WHERE id=1')).rows[0].data);
       send(res, 200, {
-        data: result.rows[0].data,
+        ...display,
         version: result.rows[0].version,
         updatedAt: result.rows[0].updated_at
       });
@@ -388,6 +405,8 @@ return http.createServer(async (req, res) => {
 
 async function start() {
   await ensureDatabase();
+  await ensureDisplay(pool);
+  await ensureAuth(pool);
   const identity = await pool.query("SELECT current_database() AS name");
   console.log("CV_DATABASE_READY " + (USE_NEON ? "neon" : "render") + " database=" + identity.rows[0].name);
   createServer(pool).listen(PORT, "0.0.0.0", () => {

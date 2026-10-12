@@ -23,6 +23,7 @@ window.showTestPreview=async function(url){
 async function loadFrame(frame,html){
   const seed=JSON.stringify(published).replace(/</g,'\\u003c');
   const shim=`<script>
+  window.CV_TEST_TRANSPORT=true;
   window.testErrors=[];window.testWrites=0;window.testRequests=0;
   window.addEventListener('error',e=>testErrors.push(e.message));
   window.addEventListener('unhandledrejection',e=>testErrors.push(String(e.reason)));

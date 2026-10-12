@@ -16,7 +16,7 @@
   const fields=['name','role','location','phone','email','linkedin','github','portfolio','targetLocations','summary'];
   function normalize(input){
     if(!input||typeof input!=='object'||Array.isArray(input))throw new Error('A CV JSON object is required.');
-    const d=clone(input);
+    const d=clone(input);delete d.presentation;
     for(const key of ['site','ui'])if(d[key]!=null&&(typeof d[key]!=='object'||Array.isArray(d[key])))throw new Error('Invalid '+key+' object.');
     for(const key of ['education','certifications','awards','competencies','experience','repositories','customSections']){
       if(d[key]!=null&&(!Array.isArray(d[key])||d[key].some(x=>!x||typeof x!=='object'||Array.isArray(x))))throw new Error('Invalid '+key+' list.');
@@ -34,7 +34,7 @@
   }
   function controls(disabled){
     busy=disabled;
-    document.querySelectorAll('button,input,textarea,select').forEach(el=>{el.disabled=disabled;});
+    document.querySelectorAll('.wrap button,.wrap input,.wrap textarea,.wrap select,.section-nav button').forEach(el=>{el.disabled=disabled;});
     document.querySelector('.wrap').setAttribute('aria-busy',String(disabled));
   }
   window.setAttachmentBusy=controls;
@@ -60,8 +60,9 @@
     const controller=new AbortController();
     const timeout=setTimeout(()=>controller.abort(),90000);
     try{
-      const response=await fetch(API+pathname,{method,cache:'no-store',signal:controller.signal,...(body?{headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}:{})});
+      const response=await fetch(API+pathname,{method,cache:'no-store',signal:controller.signal,...(body?{headers:{'Content-Type':'application/json',...CVAdminAuth.headers()},body:JSON.stringify(body)}:{})});
       const result=await response.json();
+      if(response.status===401){CVAdminAuth.expired();throw new Error('Your session expired. Sign in again.');}
       if(!response.ok)throw new Error(result.error||'CV request failed ('+response.status+').');
       return result;
     }catch(error){if(error.name==='AbortError')throw new Error('CV request timed out. Try Load Published again.');throw error;}
@@ -69,14 +70,15 @@
   }
   window.loadPublished=async function(){
     if(busy)return;
-    controls(true);status('Loading published CV data…');
+    controls(true);CVAdminAuth.loading(true,'Loading your saved CV…');status('Loading published CV data…');
     try{
       const result=await request();
+      if(result.attachmentDefaults)Object.assign(CVAttachments.defaults,result.attachmentDefaults);
       cv=normalize(result.data);published=clone(cv);version=result.version;
       rememberDraft();
       render();status('✓ Database CV loaded. Version '+version+'.');
     }catch(error){status('Load failed: '+error.message);}
-    finally{controls(false);if(!cv)document.querySelectorAll('button').forEach(b=>{if(b.textContent!=='Load Published')b.disabled=true;});}
+    finally{CVAdminAuth.loading(false);controls(false);if(!cv)document.querySelectorAll('.wrap button').forEach(b=>{if(b.textContent!=='Load Published')b.disabled=true;});}
   };
   window.saveDraft=async function(){
     if(busy||!cv)return;
@@ -140,5 +142,5 @@
     }catch(error){status('Import failed: '+error.message);}
   };
   // Initialization does not run twice and editing stays disabled until data exists.
-  loadPublished();
+  CVAdminAuth.ready(loadPublished);
 })();

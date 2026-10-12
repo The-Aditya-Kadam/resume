@@ -796,7 +796,7 @@ body{background:#fff!important;color:#111827!important}
     return fetch(API+"?v="+Date.now(),{cache:"no-store"}).then(function(r){
       if(!r.ok) throw new Error("CV API unavailable");
       return r.json();
-    }).then(function(r){return CVContent.resolve(r.data||{});});
+    }).then(function(r){var d=CVContent.resolve(r.data||{});d.presentation=r.presentation;return d;});
   }
   function renderExperience(d){
     var root=document.querySelector("#experience .career");
@@ -817,8 +817,15 @@ body{background:#fff!important;color:#111827!important}
     });
     stack+='</div>';
     root.innerHTML=stack;
+    bindExperience(root,ex);
+  }
+  function bindExperience(root,ex){
+    root.querySelectorAll('.job-dur[data-since]').forEach(function(el){
+      var p=el.dataset.since.split('-'),from=new Date(+p[0],+p[1]-1,+p[2]),now=new Date(),y=now.getFullYear()-from.getFullYear(),m=now.getMonth()-from.getMonth(),day=now.getDate()-from.getDate();
+      if(day<0){m--;day+=new Date(now.getFullYear(),now.getMonth(),0).getDate();}if(m<0){y--;m+=12;}
+      el.textContent=y+' years '+m+' months '+day+' days';
+    });
     if(window.renderOrbitFromExperience) window.renderOrbitFromExperience(ex);
-
     var slabs=[].slice.call(document.querySelectorAll("#slabs .slab"));
     var jobs=[].slice.call(document.querySelectorAll("#experience .job"));
     function pick(sel){
@@ -842,13 +849,13 @@ body{background:#fff!important;color:#111827!important}
     slabs.forEach(function(sl,k){
       sl.addEventListener("click",function(){
         pick(k);
-        if(window.matchMedia("(max-width:1100px)").matches && jobs[k]) jobs[k].scrollIntoView({behavior:"smooth",block:"start"});
+        if(window.matchMedia("(max-width:1100px)").matches && jobs[k]) jobs[k].scrollIntoView({behavior:"auto",block:"start"});
       });
     });
     document.querySelectorAll("#experience .back-btn").forEach(function(b){
       b.addEventListener("click",function(){
         var target=window.matchMedia("(max-width:1100px)").matches?document.querySelector("#experience .stack-view"):document.getElementById("experience");
-        if(target)target.scrollIntoView({behavior:"smooth",block:"start"});
+        if(target)target.scrollIntoView({behavior:"auto",block:"start"});
       });
     });
     if(jobs.length)pick(0);
@@ -930,7 +937,7 @@ body{background:#fff!important;color:#111827!important}
       return '<article class="panel repo"><div class="panel-head"><span class="panel-icon">•</span><span class="panel-label">'+text(x.label||("REPO "+String(i+1).padStart(2,"0")))+
         '</span><span class="panel-meta">'+text(x.source||"")+'</span></div><div class="repo-body"><span class="repo-path">'+text(x.path||"")+
         '</span><h3>'+text(x.title||"")+'</h3><p>'+text(x.description||"")+'</p><div class="repo-tags">'+tags.map(function(t){return '<span>'+text(t)+'</span>';}).join("")+
-        '</div></div><a class="repo-link" href="'+attr(x.url||"#")+'" target="_blank" rel="noreferrer"><span>View repository</span><span aria-hidden="true">↗</span></a></article>';
+        '</div></div><a class="repo-link" href="'+attr(x.private?'#contact':x.url||'#')+'"'+(x.private?'':' target="_blank" rel="noreferrer"')+'><span>'+(x.private?'Private repository · Request access':'View repository')+'</span><span aria-hidden="true">↗</span></a></article>';
     }).join("");
   }
   function renderContact(d){
@@ -948,7 +955,14 @@ body{background:#fff!important;color:#111827!important}
     var tiles=document.querySelectorAll("#contact .ctile");
     var vals=[["EMAIL",d.email,"mailto:"+d.email],["PHONE",d.phone,"tel:"+String(d.phone||"").replace(/\s+/g,"")],["LINKEDIN",d.linkedin,"https://www.linkedin.com/in/"+String(d.linkedin||"").replace(/^.*linkedin\.com\/in\//,"").replace(/\/$/,"")+"/"],["GITHUB",d.github,"https://github.com/"+String(d.github||"").replace(/^.*github\.com\//,"").replace(/\/$/,"")]];
     tiles.forEach(function(t,i){if(!vals[i])return; t.href=vals[i][2]; var v=t.querySelector(".ctile-value");if(v)v.textContent=vals[i][1]||"";});
-    var loc=document.querySelector("#contact .loc");if(loc)loc.lastChild.textContent=" "+(d.location||"");
+    var portfolio=document.getElementById('portfolioContact');
+    if(!portfolio){portfolio=document.createElement('a');portfolio.id='portfolioContact';portfolio.className='gh-chip';document.querySelector('#contact .wrap').append(portfolio);}
+    var p=String(d.portfolio||'').trim();var portfolioURL='';try{var pu=new URL(/^https:\/\//i.test(p)?p:'https://'+p);if(p&&pu.protocol==='https:'&&!pu.username&&!pu.password&&pu.hostname.includes('.'))portfolioURL=pu.href;}catch(e){}
+    portfolio.hidden=!portfolioURL;portfolio.textContent=p;portfolio.href=portfolioURL;portfolio.rel='noopener noreferrer';portfolio.target='_blank';
+    var destinations=document.getElementById('targetLocationsContact');
+    if(!destinations){destinations=document.createElement('p');destinations.id='targetLocationsContact';destinations.className='loc';document.querySelector('#contact .wrap').append(destinations);}
+    destinations.hidden=!d.targetLocations;destinations.textContent=d.targetLocations?'Target locations: '+d.targetLocations:'';
+    var loc=document.querySelector("#contact .loc:not(#targetLocationsContact)");if(loc)loc.lastChild.textContent=" "+(d.location||"");
   }
   var attachmentUrls=[];
   function renderAttachments(d){
@@ -1004,8 +1018,14 @@ body{background:#fff!important;color:#111827!important}
     if(previewToken||u.experienceEdited){
       setText("#experience .kicker",u.experienceKicker);setText("#experience .h2",u.experienceTitle);
       renderExperience(d);
+    }else if(d.presentation&&d.presentation.experienceHTML){
+      var career=document.querySelector('#experience .career');
+      career.innerHTML=d.presentation.experienceHTML;document.querySelector('#experience .h2').innerHTML=d.presentation.experienceHeadingHTML;bindExperience(career,d.experience||[]);
     }else if(Array.isArray(d.experience)&&window.renderOrbitFromExperience){window.renderOrbitFromExperience(d.experience);}
-    if(previewToken||u.knowledgeEdited){
+    if(!previewToken&&!u.knowledgeEdited&&d.presentation&&d.presentation.knowledgeHTML){
+      document.querySelector('#knowledge .repo-grid').innerHTML=d.presentation.knowledgeHTML;
+      document.querySelector('#knowledge .h2').innerHTML=d.presentation.knowledgeHeadingHTML;
+    }else if(Array.isArray(d.repositories)){
       setText("#knowledge .kicker",u.knowledgeKicker);setText("#knowledge .h2",u.knowledgeTitle);
       renderKnowledge(d);
     }

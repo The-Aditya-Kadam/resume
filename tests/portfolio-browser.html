@@ -1,0 +1,29 @@
+<!doctype html><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><title>Public portfolio browser checks</title><style>body{font:16px system-ui;margin:24px}pre{white-space:pre-wrap}iframe{height:800px;border:1px solid #ddd;display:block}button{padding:12px}</style><h1>Anonymous portfolio checks</h1><p>Public reads only. No owner login or CV writes.</p><button id="run">Run portfolio checks</button><pre id="results">Ready.</pre><div id="frames"></div><script>
+const out=document.getElementById('results'),log=t=>out.textContent+=t+'\n';
+const check=(yes,label)=>{if(!yes)throw Error(label);log('PASS — '+label);};
+const wait=async f=>{for(let n=0;n<300;n++){if(f())return;await new Promise(r=>setTimeout(r,30));}throw Error('Portfolio timed out');};
+document.getElementById('run').onclick=async function(){this.disabled=true;out.textContent='Running…\n';try{
+ const published=await(await fetch('https://aditya-cv-api.onrender.com/api/cv')).json(),html=await(await fetch('/')).text();
+ check(published.version===7,'published CV remains version 7');check(published.data.repositories.length===6,'six repositories arrive from API');check(Object.keys(published.data.attachments).length===2,'both attachments arrive from API');check(published.data.experience.every(x=>x.proof),'six proof links arrive from API');
+ for(const width of [1348,390,768]){
+  const frame=document.createElement('iframe');frame.title=width+' px anonymous portfolio';frame.style.width=width+'px';document.getElementById('frames').append(frame);
+  const shim='<script>window.portfolioErrors=[];window.addEventListener("error",e=>portfolioErrors.push(e.message));window.addEventListener("unhandledrejection",e=>portfolioErrors.push(String(e.reason)));<\/script>';
+  frame.srcdoc=html.replace('<head>','<head>'+shim);await wait(()=>frame.contentDocument?.documentElement.dataset.cvSource==='published');
+  const w=frame.contentWindow,d=w.document,label=width+' px: ';
+  check(!d.querySelector('#authGate'),label+'public page has no login gate');check(d.getElementById('cvLoadingNote').hidden,label+'loading status closes after API');
+  check(d.querySelectorAll('#experience .job').length===6,label+'six original experience cards');check(d.querySelectorAll('#knowledge .repo').length===6,label+'six original Knowledge cards');
+  const expected=w.document.createElement('div');expected.innerHTML=published.presentation.experienceHTML;check(d.querySelectorAll('#experience li').length===expected.querySelectorAll('li').length,label+'all original responsibilities preserved');
+  check(d.querySelector('#experience .proof-btn[href*="Website%20list"]')!==null,label+'Velocity proof points to verified file');
+  check(![...d.querySelectorAll('#knowledge a')].some(a=>a.href.includes('Applied-Data-Science-with-Python')),label+'private repo does not expose broken public link');
+  check(d.getElementById('portfolioContact').textContent===String(published.data.portfolio||'').trim(),label+'Portfolio value is database-bound');check(d.getElementById('targetLocationsContact').textContent===(published.data.targetLocations?'Target locations: '+published.data.targetLocations:''),label+'Target Locations is database-bound');
+  const before=d.getElementById('activeName').textContent;d.getElementById('nextBtn').click();check(d.getElementById('activeName').textContent!==before,label+'orbit next');d.getElementById('prevBtn').click();check(d.getElementById('activeName').textContent===before,label+'orbit previous');
+  d.getElementById('stage').dispatchEvent(new w.KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true}));check(d.getElementById('activeName').textContent!==before,label+'orbit keyboard');
+  const slabs=[...d.querySelectorAll('#experience .slab')];for(let n=0;n<slabs.length;n++){slabs[n].click();check(d.querySelectorAll('#experience .job')[n].classList.contains('is-active'),label+'rapid layer '+(n+1));}
+  d.querySelector('#experience .job.is-active .back-btn').click();check(d.querySelector('.to-top').getAttribute('href')==='#home',label+'back navigation targets');
+  const dark=d.body.classList.contains('dark-theme');d.getElementById('themeToggle').click();check(d.body.classList.contains('dark-theme')!==dark,label+'theme toggle');d.getElementById('themeToggle').click();
+  if(width<=1100){d.getElementById('menuBtn').click();check(d.getElementById('navLinks').classList.contains('open'),label+'mobile menu opens');d.querySelector('#navLinks a').click();check(!d.getElementById('navLinks').classList.contains('open'),label+'navigation closes menu');}
+  check(d.documentElement.scrollWidth<=d.documentElement.clientWidth,label+'no horizontal overflow');check(w.portfolioErrors.length===0,label+'no JavaScript errors');
+ }
+ log('ALL PUBLIC CHECKS PASS. Owner login / CV writes: 0.');
+}catch(e){log('FAIL — '+e.message);}finally{this.disabled=false;}};
+</script>

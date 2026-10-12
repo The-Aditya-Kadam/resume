@@ -7,7 +7,7 @@ document.getElementById('run').onclick=async function(){this.disabled=true;out.t
  check(published.version===7,'published CV remains version 7');check(published.data.repositories.length===6,'six repositories arrive from API');check(Object.keys(published.data.attachments).length===2,'both attachments arrive from API');check(published.data.experience.every(x=>x.proof),'six proof links arrive from API');
  for(const width of [1348,390,768]){
   const frame=document.createElement('iframe');frame.title=width+' px anonymous portfolio';frame.style.width=width+'px';document.getElementById('frames').append(frame);
-  const shim='<script>window.portfolioErrors=[];window.addEventListener("error",e=>portfolioErrors.push(e.message));window.addEventListener("unhandledrejection",e=>portfolioErrors.push(String(e.reason)));<\/script>';
+  const shim=`<script>document.addEventListener('click',e=>{const a=e.target.closest('a[href^="#"]');if(a){e.preventDefault();const id=a.getAttribute('href').slice(1);if(id)document.getElementById(id)?.scrollIntoView();}});window.portfolioErrors=[];window.addEventListener('error',e=>portfolioErrors.push(e.message));window.addEventListener('unhandledrejection',e=>portfolioErrors.push(String(e.reason)));<\/script>`;
   frame.srcdoc=html.replace('<head>','<head>'+shim);await wait(()=>frame.contentDocument?.documentElement.dataset.cvSource==='published');
   const w=frame.contentWindow,d=w.document,label=width+' px: ';
   check(!d.querySelector('#authGate'),label+'public page has no login gate');check(d.getElementById('cvLoadingNote').hidden,label+'loading status closes after API');

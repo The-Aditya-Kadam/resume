@@ -408,6 +408,14 @@ body{background:#fff!important;color:#111827!important}
 .hero .structured-group h3{font-size:12px;line-height:1.4;font-weight:700;color:var(--ink);letter-spacing:1px;text-transform:uppercase;margin:0 0 9px}
 .hero .structured-group p{font-size:15px;line-height:1.75;white-space:pre-wrap;color:var(--muted);margin:0}
 @media(max-width:600px){.hero .lead{padding:22px 20px;border-radius:18px}.hero .structured-intro{font-size:17px}.hero .structured-group p{font-size:14px}}
+
+.hero .hero-approach{border-top:1px solid var(--line);margin-top:20px;padding-top:10px}
+.hero .hero-approach summary{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:48px;font-size:14px;font-weight:600;color:var(--ink);cursor:pointer;list-style:none}
+.hero .hero-approach summary::-webkit-details-marker{display:none}
+.hero .reader-indicator{display:grid;place-items:center;flex:0 0 30px;width:30px;height:30px;border-radius:50%;background:var(--surface2)}
+.hero .reader-indicator::after{content:'+';font-size:20px;font-weight:400}
+.hero .hero-approach[open] .reader-indicator::after{content:'−'}
+.hero .hero-approach-body .structured-group:first-child{border-top:0;margin-top:10px;padding-top:10px}
 </style>
 </head>
 <body>
@@ -800,7 +808,7 @@ body{background:#fff!important;color:#111827!important}
 })();
 </script>
 
-<script src="/summary-reader.js?v=20261013-structured-hero"></script>
+<script src="/summary-reader.js?v=20261013-folded-hero"></script>
 <script src="/section-order.js?v=20261013-drag"></script>
 <script src="/project-cards.js?v=20261013-position"></script>
 <script src="/cv-content.js"></script>

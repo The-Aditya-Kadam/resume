@@ -385,6 +385,21 @@ body{background:#fff!important;color:#111827!important}
 .card-shell,.job{box-shadow:none;break-inside:avoid}
 .ctile,.loc,.avail{background:#fff!important;border-color:#d0d5dd!important}.contact-orbit{display:none}
 }
+
+/* Compact reader: presentation only; all summary copy comes from the CV API. */
+#summary .summary-text{background:var(--surface);border:1px solid var(--line);box-shadow:0 14px 38px rgba(30,40,65,.07);padding:30px;border-radius:24px;align-self:start}
+#summary .reader-intro{font-size:20px;line-height:1.65;color:var(--ink);margin:0}
+#summary .reader-tags{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0}
+#summary .reader-tags span{font-size:12px;font-weight:600;line-height:1.5;padding:7px 11px;border-radius:8px;background:var(--surface2);color:var(--ink);border:1px solid var(--line)}
+#summary .reader-details{margin-top:22px;border-top:1px solid var(--line);padding-top:10px}
+#summary .reader-details summary{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:48px;font-size:14px;font-weight:600;cursor:pointer;list-style:none;color:var(--ink)}
+#summary .reader-details summary::-webkit-details-marker{display:none}
+#summary .reader-indicator{display:grid;place-items:center;flex:0 0 30px;width:30px;height:30px;border-radius:50%;background:var(--surface2)}
+#summary .reader-indicator::after{content:'+';font-size:20px;font-weight:400}
+#summary .reader-details[open] .reader-indicator::after{content:'−'}
+#summary .reader-body{padding-top:14px}#summary .reader-body p{white-space:pre-wrap;font-size:16px;line-height:1.85;margin:0;color:var(--muted)}
+@media(max-width:600px){#summary .summary-text{padding:24px 20px;border-radius:20px}#summary .reader-intro{font-size:18px}#summary .reader-body p{font-size:15px}}
+@media print{#summary .reader-details:not([open]) .reader-body{display:block}#summary .reader-details summary{display:none}}
 </style>
 </head>
 <body>
@@ -777,6 +792,7 @@ body{background:#fff!important;color:#111827!important}
 })();
 </script>
 
+<script src="/summary-reader.js?v=20261013-compact"></script>
 <script src="/section-order.js?v=20261013-drag"></script>
 <script src="/project-cards.js?v=20261013-position"></script>
 <script src="/cv-content.js"></script>
@@ -1018,7 +1034,7 @@ body{background:#fff!important;color:#111827!important}
     var h1=document.querySelector(".hero h1");if(h1&&d.name!=null)h1.innerHTML=String(d.name).trim().split(/\s+/).map(function(w){return "<span>"+text(w)+"</span>";}).join("");
     var lead=document.querySelector(".hero .lead");if(lead&&d.summary!=null)lead.textContent=d.summary;
     var role=document.querySelector(".hero .now b");if(role)role.textContent=d.role||"";
-    var summary=document.querySelector("#summary .summary-text");if(summary&&d.summary!=null)summary.innerHTML="<p>"+text(d.summary)+"</p>";
+    var summary=document.querySelector("#summary .summary-text");if(summary&&d.summary!=null)summary.innerHTML=CVSummaryReader.render(d.summary);
     
     var themeId=u.themeId||"orbit"; document.documentElement.setAttribute("data-theme",themeId); renderHero(d);renderSkills(d);renderEducation(d);renderCertification(d);renderAwards(d);renderContact(d);
     // Existing sections stay byte-for-byte intact until their content is edited.

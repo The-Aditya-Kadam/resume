@@ -1,0 +1,5 @@
+(function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;else root.CVSummaryReader=api;})(typeof window!=='undefined'?window:globalThis,function(){
+ const escape=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+ function render(value){const raw=String(value??'');if(!raw)return '';const end=raw.search(/[.!?](?=\s|$)/),cut=end<0?raw.length:end+1,intro=raw.slice(0,cut),rest=raw.slice(cut);const tags=['Agile/Scrum','SDLC','WordPress'].filter(t=>raw.toLowerCase().includes(t.toLowerCase()));return '<p class="reader-intro" data-summary-copy>'+escape(intro)+'</p>'+(tags.length?'<div class="reader-tags" aria-label="Summary highlights">'+tags.map(t=>'<span>'+escape(t)+'</span>').join('')+'</div>':'')+(rest.trim()?'<details class="reader-details"><summary>Explore my approach<span class="reader-indicator" aria-hidden="true"></span></summary><div class="reader-body"><p data-summary-copy>'+escape(rest)+'</p></div></details>':'');}
+ return {render};
+});

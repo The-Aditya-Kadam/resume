@@ -1,0 +1,31 @@
+{
+  "sourceVersion": 7,
+  "status": "reviewed-draft-not-published",
+  "summary": "Assistant Technical Project Manager with 10+ years of full-lifecycle web engineering and experience coordinating cross-functional technical teams. Skilled in software development lifecycle (SDLC), Agile/Scrum delivery, project scope and milestone planning, sprint planning, backlog management, resource allocation, stakeholder communication, and quality assurance. Combines hands-on WordPress, PHP, MySQL, JavaScript, HTML and CSS expertise with technical SEO, performance optimization, and analytics reporting. Holds a postgraduate Data Science certification, with foundational Python and machine learning knowledge. Connects client business goals with technical execution to support timely, quality-focused web delivery.",
+  "competencies": [
+    {
+      "title": "Technical Project Delivery & SDLC",
+      "text": "Software Development Lifecycle (SDLC), Scope Definition, Milestone Planning, Delivery Roadmaps, Resource Allocation, Risk Assessment, QA Governance, Technical Blocker Resolution."
+    },
+    {
+      "title": "Agile/Scrum & Team Coordination",
+      "text": "Agile, Scrum, Kanban, Sprint Planning, Backlog Management and Grooming, Task Coordination, Daily Standups, Sprint Reviews and Retrospectives, Cross-functional Team Management, Jira, Zoho Sprints."
+    },
+    {
+      "title": "Stakeholder Communication & Delivery Reporting",
+      "text": "Client Communication, Business and Technical Alignment, Stakeholder Coordination, Milestone Reviews, Project Progress Updates, Performance Reporting, Overseas Client Collaboration."
+    },
+    {
+      "title": "Web Engineering, Databases & CMS",
+      "text": "Frontend and Backend Web Development, WordPress, WooCommerce, Shopify, Drupal, PrestaShop, PHP, MySQL, JavaScript, HTML5, CSS3, GitHub Project Repositories, WP Engine, cPanel, Server Migrations, Payment Gateway Integration."
+    },
+    {
+      "title": "Analytics & Data Science Foundations",
+      "text": "Power BI, GA4, Google Tag Manager, Google Search Console, Python Basics, Machine Learning Basics, Analytics Dashboards, Data-driven Performance Monitoring. Postgraduate Data Science certification."
+    },
+    {
+      "text": "Technical SEO Audits, Core Web Vitals, Crawlability, Schema Markup, Structured Data, Generative Engine Optimization (GEO), Google AI Overviews.",
+      "title": "Search & Discovery (SEO/GEO)"
+    }
+  ]
+}

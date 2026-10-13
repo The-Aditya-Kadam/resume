@@ -14,7 +14,8 @@
 </style>
 <link rel="stylesheet" href="/cv-management/studio.css?v=20261009-header">
 <link rel="stylesheet" href="/cv-management/auth.css?v=20261012">
-<style>#sectionOrderList{padding:0;list-style:none;display:grid;gap:8px}#sectionOrderList li{display:flex;align-items:center;gap:8px;padding:10px;border:1px solid #8576ab55;border-radius:12px;background:#172039}#sectionOrderList li span{flex:1;min-width:0;overflow-wrap:anywhere}.section-drag-handle{touch-action:none;cursor:grab;min-width:44px;min-height:44px;border:0;border-radius:8px;font-size:24px;background:#8576ab22;color:inherit}#sectionOrderList .btn{min-width:44px;min-height:44px;padding:8px}#sectionOrderList .dragging{outline:2px solid #8b5cf6;opacity:.8}</style></head>
+<style>#sectionOrderList{padding:0;list-style:none;display:grid;gap:8px}#sectionOrderList li{display:flex;align-items:center;gap:8px;padding:10px;border:1px solid #8576ab55;border-radius:12px;background:#172039}#sectionOrderList li span{flex:1;min-width:0;overflow-wrap:anywhere}.section-drag-handle{touch-action:none;cursor:grab;min-width:44px;min-height:44px;border:0;border-radius:8px;font-size:24px;background:#8576ab22;color:inherit}#sectionOrderList .btn{min-width:44px;min-height:44px;padding:8px}#sectionOrderList .dragging{outline:2px solid #8b5cf6;opacity:.8}</style><link rel="stylesheet" href="/cv-management/theme-gallery.css?v=20261013-gallery">
+</head>
 <body>
 <div class="studio-backdrop" aria-hidden="true"></div>
 <header class="studio-header"><a class="studio-brand" href="/cv-management/"><span class="brand-mark" aria-hidden="true">C</span><span>CAREER STUDIO<small>Your story. Your next step.</small></span></a><div class="header-actions"><div class="nav-note"><span class="draft-dot"></span>No login. Preview, then publish.</div><a class="portfolio-link" href="/" target="_blank" rel="noopener">View portfolio <span aria-hidden="true">↗</span></a></div><button id="logoutButton" class="session-action" hidden type="button">Sign out</button></header>
@@ -37,11 +38,11 @@
     <div class="full"><label>Meta Description</label><textarea id="metaDescription"></textarea></div>
   </div></section>
 
-  <section class="panel" id="theme"><h2>Theme Configuration</h2><div class="grid">
-    <div><label>Active Theme ID</label><input id="themeId" placeholder="orbit"></div>
+  <section class="panel" id="theme"><h2>Theme Gallery</h2><p class="small">Choose a design for your draft. Content, files and section order stay the same. Preview before publishing.</p><div id="themeGallery" class="theme-gallery"><button type="button" class="theme-choice" data-theme-choice="orbit" aria-pressed="false"><span class="theme-art theme-orbit" aria-hidden="true"><i></i><i></i></span><strong>Orbit</strong><small>Your original 3D portfolio.</small><span class="theme-choice-state">Select theme</span></button><button type="button" class="theme-choice" data-theme-choice="professional" aria-pressed="false"><span class="theme-art theme-professional" aria-hidden="true"><i></i><i></i></span><strong>Professional</strong><small>Editorial typography and a clean career layout.</small><span class="theme-choice-state">Select theme</span></button><button type="button" class="theme-choice" data-theme-choice="studio" aria-pressed="false"><span class="theme-art theme-studio" aria-hidden="true"><i></i><i></i></span><strong>Studio</strong><small>Soft gradients, bold spacing and modern cards.</small><span class="theme-choice-state">Select theme</span></button></div><div class="grid">
+    <div><label for="themeId">Selected theme</label><select id="themeId"><option value="orbit">Orbit</option><option value="professional">Professional</option><option value="studio">Studio</option></select></div>
     <div><label>Knowledge Intro</label><input id="knowledgeIntro"></div>
     <div><label>Knowledge GitHub Label</label><input id="knowledgeGithubLabel"></div>
-    <div class="full"><p class="small">Theme ID is stored in PostgreSQL now so future templates can be selected per CV. The current production theme is <b>orbit</b>.</p></div>
+    <div class="full"><p class="small">Your theme selection is saved with your CV. Preview is a temporary draft; Save publishes your chosen design.</p></div>
   </div></section>
 
   <section class="panel" id="portfolio-labels"><h2>Portfolio Labels & Navigation</h2><div class="grid">
@@ -136,6 +137,7 @@
 
 <main id="authGate" class="auth-gate" hidden><section class="auth-card"><span>CAREER STUDIO · PRIVATE WORKSPACE</span><h1 id="loginTitle">Welcome back.</h1><p>Sign in to manage your CV. Your public portfolio remains open to everyone.</p><form id="loginForm"><label for="adminUsername">Username</label><input id="adminUsername" autocomplete="username" required maxlength="100"><label for="adminPassword">Password</label><input id="adminPassword" type="password" autocomplete="current-password" required maxlength="256"><div id="setupFields" hidden><label for="ownerSetupToken">Owner setup key</label><input id="ownerSetupToken" type="password" autocomplete="off"><small>For first setup, copy CV_ADMIN_SETUP_TOKEN from your Render API environment. Choose a password of at least 6 characters. Never share the key or password.</small></div><button id="signInButton" class="primary" type="submit">Sign in</button><p id="authMessage" role="alert"></p></form><a id="ownerSetupLink" class="btn secondary" href="?setup=1" hidden>Finish first-time account setup</a><button id="retryAuth" class="btn secondary" type="button">Retry connection</button></section></main><div id="loadGate" class="load-gate" role="status" aria-live="polite"><span class="load-spinner" aria-hidden="true"></span><h2 id="loadMessage">Connecting securely…</h2><p>Preparing your workspace. The server may take a moment to wake up.</p></div>
 <script src="/section-order.js?v=20261013-drag"></script>
+<script src="/themes.js?v=20261013-gallery"></script>
 <script src="/project-cards.js?v=20261013-position"></script>
 <script src="/cv-content.js"></script>
 <script src="/cv-attachments.js?v=20261012-auth"></script>
@@ -206,7 +208,7 @@ function render(){
   const st=document.getElementById("siteTitle"),md=document.getElementById("metaDescription");
   if(st)st.value=cv.site.title||"";
   if(md)md.value=cv.site.description||"";
-  set("themeId",cv.ui.themeId??"orbit");
+  set("themeId",CVThemes.resolve(cv.ui.themeId));if(window.renderThemeGallery)renderThemeGallery();
   set("knowledgeIntro",cv.ui.knowledgeIntro);set("knowledgeGithubLabel",cv.ui.knowledgeGithubLabel);
   document.getElementById("heroMetrics").innerHTML=(cv.ui.heroMetrics||[]).map((x,i)=>`<div class="item"><div class="item-head"><strong>Hero Metric ${i+1}</strong><div class="row-actions"><button class="btn muted" onclick="moveUIItem('heroMetrics',${i},-1)">↑</button><button class="btn muted" onclick="moveUIItem('heroMetrics',${i},1)">↓</button><button class="btn danger" onclick="removeUIItem('heroMetrics',${i})">Remove</button></div></div><div class="grid"><div><label>Value</label><input data-ui-group="heroMetrics" data-i="${i}" data-k="value" value="${esc(x.value)}"></div><div><label>Label</label><input data-ui-group="heroMetrics" data-i="${i}" data-k="label" value="${esc(x.label)}"></div></div></div>`).join("");
   document.getElementById("orbitChips").innerHTML=(cv.ui.orbitChips||[]).map((x,i)=>`<div class="bullet"><input data-chip-index="${i}" value="${esc(x)}"><button class="btn danger" onclick="removeOrbitChip(${i})">Remove</button></div>`).join("");
@@ -279,6 +281,7 @@ function removeBullet(i,j){sync();cv.experience[i].bullets.splice(j,1);render()}
 <script src="/cv-management/auth.js?v=20261013-publish-key"></script>
 <script src="/cv-management/section-order.js?v=20261013-drag2"></script>
 <script src="/cv-management/publish-confirm.js?v=20261013-confirm"></script>
+<script src="/cv-management/theme-gallery.js?v=20261013-gallery"></script>
 <script src="/cv-management/manager.js?v=20261013-confirm"></script>
 </body>
 </html>

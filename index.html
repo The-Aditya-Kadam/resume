@@ -417,6 +417,7 @@ body{background:#fff!important;color:#111827!important}
 .hero .hero-approach[open] .reader-indicator::after{content:'−'}
 .hero .hero-approach-body .structured-group:first-child{border-top:0;margin-top:10px;padding-top:10px}
 </style>
+<link rel="stylesheet" href="/themes.css?v=20261013-gallery">
 </head>
 <body>
 <!-- Google Tag Manager (noscript) -->
@@ -808,6 +809,7 @@ body{background:#fff!important;color:#111827!important}
 })();
 </script>
 
+<script src="/themes.js?v=20261013-gallery"></script>
 <script src="/summary-reader.js?v=20261013-folded-hero"></script>
 <script src="/section-order.js?v=20261013-drag"></script>
 <script src="/project-cards.js?v=20261013-position"></script>
@@ -1052,7 +1054,7 @@ body{background:#fff!important;color:#111827!important}
     var role=document.querySelector(".hero .now b");if(role)role.textContent=d.role||"";
     var summary=document.querySelector("#summary .summary-text");if(summary&&d.summary!=null)summary.innerHTML=CVSummaryReader.render(d.summary);
     
-    var themeId=u.themeId||"orbit"; document.documentElement.setAttribute("data-theme",themeId); renderHero(d);renderSkills(d);renderEducation(d);renderCertification(d);renderAwards(d);renderContact(d);
+    var themeId=CVThemes.apply(document,u.themeId); renderHero(d);renderSkills(d);renderEducation(d);renderCertification(d);renderAwards(d);renderContact(d);
     // Existing sections stay byte-for-byte intact until their content is edited.
     if(previewToken||u.experienceEdited){
       setText("#experience .kicker",u.experienceKicker);setText("#experience .h2",u.experienceTitle);

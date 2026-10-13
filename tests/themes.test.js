@@ -1,0 +1,2 @@
+const test=require('node:test'),assert=require('node:assert/strict'),{JSDOM}=require('jsdom'),themes=require('../themes');
+test('theme catalog is bounded and changes only the presentation attribute',()=>{const d=new JSDOM('<main><p>Saved content</p></main>').window.document,html=d.body.innerHTML;for(const theme of ['orbit','professional','studio','unknown']){assert.equal(themes.apply(d,theme),theme==='unknown'?'orbit':theme);assert.equal(d.body.innerHTML,html);}assert.equal(themes.catalog.length,3);});

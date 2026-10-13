@@ -8,5 +8,8 @@
     const links=x.private?'<a class="repo-link" href="#contact" aria-label="Request code access — '+esc(x.title)+'">Request code access ↗</a>':(x.githubUrl?link(x.githubUrl,'View code'):'')+(x.setupUrl?link(x.setupUrl,'Setup on GitHub'):'');
     return '<article class="panel repo project-card" data-project-id="'+esc(x.id)+'"><div class="panel-head"><span class="panel-icon">•</span><span class="panel-label">PROJECT '+String(i+1).padStart(2,'0')+'</span><span class="panel-meta">'+(x.private?'Private source':'Public source')+'</span></div>'+(x.thumbnailUrl?'<img class="project-thumbnail" src="'+esc(x.thumbnailUrl)+'" alt="'+esc(x.title+' project thumbnail')+'" loading="lazy" width="369" height="121">':'')+'<div class="repo-body"><h3>'+esc(x.title)+'</h3><p>'+esc(x.description)+'</p><div class="repo-tags">'+x.tags.map(t=>'<span>'+esc(t)+'</span>').join('')+'</div>'+(!x.demoUrl?'<p class="project-note">'+(x.private?'Browser extension · no hosted demo':'No live demo provided')+'</p>':'')+'</div><div class="project-links">'+links+(x.demoUrl?link(x.demoUrl,'Live demo'):'')+'</div></article>';
   }).join('');}
-  return {url,normalizeProjects,render};
+  const positions=['after-summary','after-education','after-skills','before-knowledge','after-knowledge','before-contact'];
+  function position(value){return positions.includes(value)?value:'after-knowledge';}
+  function place(doc,section,value){const chosen=position(value),ids={'after-summary':'summary','after-education':'education','after-skills':'skills','before-knowledge':'knowledge','after-knowledge':'knowledge','before-contact':'contact'};const target=doc.getElementById(ids[chosen]);if(target){if(chosen.startsWith('before-'))target.before(section);else target.after(section);}section.dataset.projectPosition=chosen;return chosen;}
+  return {url,normalizeProjects,render,positions,position,place};
 });

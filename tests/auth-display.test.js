@@ -53,3 +53,16 @@ test('owner setup, authorization, expiry, logout and throttling protect CV write
  for(let i=0;i<5;i++)assert.equal((await post('/api/auth/login',{username:'owner',password:'bad'})).status,401);
  assert.equal((await post('/api/auth/login',{username:'owner',password:'bad'})).status,429);
 });
+
+test('private publish key allows Save and Rollback without exposing anonymous writes',async t=>{
+ const pool=await testPool();await ensureAuth(pool);
+ await pool.query('CREATE TABLE cv_documents(id INTEGER PRIMARY KEY,data JSONB,version INTEGER,updated_at TIMESTAMPTZ DEFAULT NOW())');await pool.query('CREATE TABLE cv_versions(id SERIAL PRIMARY KEY,document_id INTEGER,version INTEGER,data JSONB)');
+ await pool.query('INSERT INTO cv_documents(id,data,version) VALUES(1,$1,8)',[{name:'Original'}]);await pool.query('INSERT INTO cv_versions(document_id,version,data) VALUES(1,8,$1)',[{name:'Original'}]);
+ const server=createServer(pool,{display:false,auth:{publishKey:'synthetic-private-publish-key'}});await new Promise(r=>server.listen(0,'127.0.0.1',r));t.after(async()=>{await new Promise(r=>server.close(r));await pool.end();});
+ const root='http://127.0.0.1:'+server.address().port,post=(route,key='',origin='https://aditya-kadam-resume.onrender.com',body={data:{name:'Authorized draft',ui:{projectPosition:'after-skills'}},expectedVersion:8})=>fetch(root+route,{method:'POST',headers:{'Content-Type':'application/json','X-CV-Publish-Key':key,Origin:origin},body:JSON.stringify(body)});
+ assert.equal((await fetch(root+'/api/cv')).status,200);assert.equal((await post('/api/cv')).status,401);assert.equal((await post('/api/cv','wrong')).status,401);
+ assert.equal((await post('/api/cv','synthetic-private-publish-key','https://evil.example')).status,403);
+ let r=await post('/api/cv','synthetic-private-publish-key');assert.equal(r.status,200);let saved=await r.json();assert.equal(saved.version,9);assert.equal(saved.data.ui.projectPosition,'after-skills');
+ r=await post('/api/cv/rollback','synthetic-private-publish-key','https://aditya-kadam-resume.onrender.com',{expectedVersion:9});assert.equal(r.status,200);assert.equal((await r.json()).data.name,'Original');
+ const preflight=await fetch(root+'/api/cv',{method:'OPTIONS'});assert.ok(preflight.headers.get('access-control-allow-headers').includes('X-CV-Publish-Key'));
+});

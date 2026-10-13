@@ -30,3 +30,12 @@ test('thumbnail update preserves existing URLs and does not replay over later ed
  let data=(await query('SELECT data FROM cv_project_defaults')).rows[0].data;assert.equal(data[1].demoUrl,old[1].demoUrl);assert.equal(data[1].custom,'preserve');assert.equal(data[1].description,seed[1].description);assert.equal(data[1].thumbnailUrl,seed[1].thumbnailUrl);
  data[1].description='Later owner edit';await query('UPDATE cv_project_defaults SET data=$1',[data]);await ensureProjects(pool);assert.deepEqual((await query('SELECT data FROM cv_project_defaults')).rows[0].data,data);
 });
+
+test('all section positions move only projects and survive backend normalization',()=>{
+ const {JSDOM}=require('jsdom'),cards=require('../project-cards');
+ const dom=new JSDOM('<main><section id="summary"></section><section id="education"></section><section id="skills"></section><section id="experience">Protected experience</section><section id="knowledge">Protected knowledge</section><div id="customCVSections"></div><section id="projects"></section><section id="contact"></section></main>');const doc=dom.window.document,section=doc.getElementById('projects');
+ const targets={'after-summary':'summary','after-education':'education','after-skills':'skills','before-knowledge':'knowledge','after-knowledge':'knowledge','before-contact':'contact'};
+ for(const p of cards.positions){cards.place(doc,section,p);assert.equal((p.startsWith('before-')?section.nextElementSibling:section.previousElementSibling).id,targets[p]);assert.equal(normalizeData({ui:{projectPosition:p}}).ui.projectPosition,p);}
+ assert.equal(doc.getElementById('experience').innerHTML,'Protected experience');assert.equal(doc.getElementById('knowledge').innerHTML,'Protected knowledge');assert.equal(cards.place(doc,section,'#malicious'),'after-knowledge');assert.equal(normalizeData({ui:{projectPosition:'unknown'}}).ui.projectPosition,'after-knowledge');
+ dom.window.close();
+});

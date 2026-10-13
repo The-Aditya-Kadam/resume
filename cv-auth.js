@@ -10,9 +10,9 @@ async function ensureAuth(pool){
   await pool.query('CREATE TABLE IF NOT EXISTS cv_admin_sessions (token_hash TEXT PRIMARY KEY,expires_at TIMESTAMPTZ NOT NULL)');
   await pool.query('CREATE TABLE IF NOT EXISTS cv_login_attempts (key_hash TEXT PRIMARY KEY,attempts INTEGER NOT NULL,expires_at TIMESTAMPTZ NOT NULL)');
 }
-function createAuth(pool,{setupToken=process.env.CV_ADMIN_SETUP_TOKEN||'',origins=['https://aditya-kadam-resume.onrender.com','https://aditya-cv-dashboard-checks.onrender.com']}={}){
+function createAuth(pool,{setupToken=process.env.CV_ADMIN_SETUP_TOKEN||'',publishKey=process.env.CV_ADMIN_PUBLISH_KEY||'',origins=['https://aditya-kadam-resume.onrender.com','https://aditya-cv-dashboard-checks.onrender.com']}={}){
   const dummyHash=passwordHash(crypto.randomBytes(24).toString('hex'));
-  async function authorized(req){const match=/^Bearer ([A-Za-z0-9_-]{43})$/.exec(req.headers.authorization||'');if(!match)return false;const row=await pool.query('SELECT token_hash FROM cv_admin_sessions WHERE token_hash=$1 AND expires_at>NOW()',[hash(match[1])]);return row.rows.length===1;}
+  async function authorized(req){if(publishKey&&safe(req.headers['x-cv-publish-key']||'',publishKey))return true;const match=/^Bearer ([A-Za-z0-9_-]{43})$/.exec(req.headers.authorization||'');if(!match)return false;const row=await pool.query('SELECT token_hash FROM cv_admin_sessions WHERE token_hash=$1 AND expires_at>NOW()',[hash(match[1])]);return row.rows.length===1;}
   async function handle(req,res,pathname,readBody,send){
     if(!pathname.startsWith('/api/auth/'))return false;
     res.setHeader('Cache-Control','no-store');

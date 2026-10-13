@@ -24,6 +24,6 @@
   }catch(e){message.textContent=e.message;loading(false);}finally{button.disabled=false;}});
   document.getElementById('retryAuth').addEventListener('click',check);
   document.getElementById('logoutButton').addEventListener('click',async()=>{try{await request('/logout',{});}catch(e){message.textContent='Signed out on this device. The server could not be reached.';}finally{signedOut();}});
-  window.CVAdminAuth={headers:()=>token?{Authorization:'Bearer '+token}:{},draftOnly:LOGIN_PAUSED&&window.CV_TEST_TRANSPORT!==true,expired:()=>{signedOut();message.textContent='Your session expired. Sign in again.';},
+  window.CVAdminAuth={headers:()=>{const key=document.getElementById('publishAccessKey')?.value||'';return {...(token?{Authorization:'Bearer '+token}:{}),...(key?{'X-CV-Publish-Key':key}:{})};},canPublish:()=>window.CV_TEST_TRANSPORT===true||!!token||!!document.getElementById('publishAccessKey')?.value,expired:()=>{if(LOGIN_PAUSED){token='';try{sessionStorage.removeItem(tokenKey);}catch{}gate.hidden=true;document.body.classList.add('admin-authenticated');loading(false);}else{signedOut();message.textContent='Your session expired. Sign in again.';}},
     ready:callback=>{start=callback;if(LOGIN_PAUSED){gate.hidden=true;loading(false);document.body.classList.add('admin-authenticated');document.getElementById('logoutButton').hidden=true;return callback();}if(window.CV_TEST_TRANSPORT===true){gate.hidden=true;loading(false);document.body.classList.add('admin-authenticated');return callback();}return check();},loading};
 })();

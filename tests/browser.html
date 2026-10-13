@@ -62,6 +62,7 @@ async function exercise(frame,label){
     else if(a.chipIndex!==undefined)expected=savedValues.ui.orbitChips[+a.chipIndex];
     else if(a.bulletGroup!==undefined)expected=savedValues.experience[+a.bulletGroup].bullets[+a.bulletIndex];
     else if(a.repoTags!==undefined)expected=savedValues.repositories[+a.repoTags].tags.join(', ');
+    else if(a.projectTags!==undefined)expected=savedValues.projects[+a.projectTags].tags.join(', ');
     else if(a.attachment)expected=w.CVAttachments.normalize(savedValues.attachments)[a.attachment]?.url||'';
     else if(e.id==='siteTitle')expected=savedValues.site.title;
     else if(e.id==='metaDescription')expected=savedValues.site.description;

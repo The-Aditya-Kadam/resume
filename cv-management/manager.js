@@ -63,7 +63,7 @@
     try{
       const response=await fetch(API+pathname,{method,cache:'no-store',signal:controller.signal,...(body?{headers:{'Content-Type':'application/json',...CVAdminAuth.headers()},body:JSON.stringify(body)}:{})});
       const result=await response.json();
-      if(response.status===401){CVAdminAuth.expired();throw new Error('Your session expired. Sign in again.');}
+      if(response.status===401){CVAdminAuth.expired();throw new Error('A valid private publish key is required to save or roll back.');}
       if(!response.ok)throw new Error(result.error||'CV request failed ('+response.status+').');
       return result;
     }catch(error){if(error.name==='AbortError')throw new Error('CV request timed out. Try Load Published again.');throw error;}
@@ -82,7 +82,7 @@
     finally{CVAdminAuth.loading(false);controls(false);if(!cv)document.querySelectorAll('.wrap button').forEach(b=>{if(b.textContent!=='Load Published')b.disabled=true;});}
   };
   window.saveDraft=async function(){
-    if(CVAdminAuth.draftOnly){status('Login is paused. Draft editing is available; publishing remains protected.');return;}
+    if(!CVAdminAuth.canPublish()){status('Enter your private publish key to save.');document.getElementById('publishAccessKey').focus();return;}
     if(busy||!cv)return;
     sync();updateFlags();
     let submitted;
@@ -102,7 +102,7 @@
     finally{overlay.classList.remove('show');document.body.style.overflow='';controls(false);}
   };
   window.rollbackDraft=async function(){
-    if(CVAdminAuth.draftOnly){status('Login is paused. Database rollback remains protected.');return;}
+    if(!CVAdminAuth.canPublish()){status('Enter your private publish key to roll back.');document.getElementById('publishAccessKey').focus();return;}
     if(busy||!cv||!confirm('Rollback the CV to the previous saved database version?'))return;
     controls(true);
     try{const result=await request('POST',{expectedVersion:version},'/rollback');cv=normalize(result.data);published=clone(cv);version=result.version;render();status('✓ Rolled back to database version '+version+'.');}

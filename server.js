@@ -4,7 +4,7 @@ const CVAttachments = require("./cv-attachments");
 const {ensureDisplay,resolveDisplay}=require('./cv-display');
 const {ensureAuth,createAuth}=require('./cv-auth');
 const {ensureProjects,resolveProjects}=require('./cv-project-defaults');
-const {normalizeProjects}=require('./project-cards');
+const {normalizeProjects,position}=require('./project-cards');
 
 const PORT = process.env.PORT || 10000;
 const USE_NEON = process.env.CV_DATABASE_MODE === "neon";
@@ -108,6 +108,7 @@ function normalizeData(input) {
   out.ui.knowledgeIntro = d.ui?.knowledgeIntro ?? uiDefaults.knowledgeIntro;
   out.ui.knowledgeGithubLabel = d.ui?.knowledgeGithubLabel ?? uiDefaults.knowledgeGithubLabel;
   out.ui.themeId = d.ui?.themeId ?? uiDefaults.themeId;
+  out.ui.projectPosition = position(d.ui?.projectPosition);
 
   out.name = d.name || "";
   out.role = d.role || "";
@@ -191,7 +192,7 @@ function send(res, status, body) {
     "Content-Type": "application/json; charset=utf-8",
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization"
+    "Access-Control-Allow-Headers": "Content-Type, Authorization, X-CV-Publish-Key"
   });
   res.end(JSON.stringify(body));
 }

@@ -43,6 +43,7 @@ test('dashboard lifecycle, all item controls, clearing and preview snapshot',asy
  const errors=[];let writes=0,opened=null;
  const dom=new JSDOM(fs.readFileSync(path.join(root,'cv-management/index.html'),'utf8'),{url:'https://portfolio.test/cv-management/',runScripts:'dangerously',resources:new LocalResources(),pretendToBeVisual:true,beforeParse(w){
    w.CV_TEST_TRANSPORT=true;
+   w.HTMLDialogElement.prototype.showModal=function(){this.open=true;};w.HTMLDialogElement.prototype.close=function(){this.open=false;};
    w.URL.createObjectURL=()=> 'blob:attachment-test';w.URL.revokeObjectURL=()=>{};
    w.crypto.randomUUID=()=> 'test-preview';
    w.fetch=async(url,options={})=>{await new Promise(r=>setTimeout(r,10));if(options.method==='POST')writes++;return {ok:true,json:async()=>options.method==='POST'?{data:JSON.parse(options.body).data,version:8}:{data:raw,version:7}};};
@@ -73,7 +74,7 @@ test('dashboard lifecycle, all item controls, clearing and preview snapshot',asy
  w.removeAttachment('coverLetter');w.previewCV();assert.equal(JSON.parse(w.localStorage.getItem('aditya-kadam-cv-draft:preview:test-preview')).attachments.coverLetter,null);
  w.restoreAttachment('coverLetter');assert.match(doc.getElementById('coverLetterAttachmentUrl').value,/Cover-Letter.pdf/);
  doc.getElementById('name').value='Preview Only';w.previewCV();assert.equal(opened,'/?preview=test-preview');assert.equal(JSON.parse(w.localStorage.getItem('aditya-kadam-cv-draft:preview:test-preview')).name,'Preview Only');assert.equal(writes,0);
- await w.saveDraft();assert.equal(writes,1);assert.match(doc.getElementById('status').textContent,/saved to database/);assert.equal(doc.getElementById('saveOverlay').classList.contains('show'),false);
+ let save=w.saveDraft();assert.equal(doc.getElementById('publishConfirm').open,true);assert.equal(writes,0);doc.getElementById('cancelPublish').click();await save;assert.equal(writes,0);save=w.saveDraft();doc.getElementById('confirmPublish').click();await save;assert.equal(writes,1);assert.match(doc.getElementById('status').textContent,/saved to database/);assert.equal(doc.getElementById('saveOverlay').classList.contains('show'),false);
  w.resetDraft();assert.equal(doc.getElementById('name').value,'Preview Only');assert.deepEqual(errors,[]);
  dom.window.close();
 });

@@ -82,7 +82,8 @@
     finally{CVAdminAuth.loading(false);controls(false);if(!cv)document.querySelectorAll('.wrap button').forEach(b=>{if(b.textContent!=='Load Published')b.disabled=true;});}
   };
   window.saveDraft=async function(){
-    if(!CVAdminAuth.canPublish()){status('Enter your private publish key to save.');document.getElementById('publishAccessKey').focus();return;}
+    if(busy||!cv)return;
+    if(!await confirmCVPublish('save'))return;
     if(busy||!cv)return;
     sync();updateFlags();
     let submitted;
@@ -99,15 +100,16 @@
       rememberDraft();
       render();status('✓ CV saved to database. Version '+version+'.');
     }catch(error){status('Save failed: '+error.message);}
-    finally{overlay.classList.remove('show');document.body.style.overflow='';controls(false);}
+    finally{document.getElementById('publishAccessKey').value='';overlay.classList.remove('show');document.body.style.overflow='';controls(false);}
   };
   window.rollbackDraft=async function(){
-    if(!CVAdminAuth.canPublish()){status('Enter your private publish key to roll back.');document.getElementById('publishAccessKey').focus();return;}
-    if(busy||!cv||!confirm('Rollback the CV to the previous saved database version?'))return;
+    if(busy||!cv)return;
+    if(!await confirmCVPublish('rollback'))return;
+    if(busy||!cv)return;
     controls(true);
     try{const result=await request('POST',{expectedVersion:version},'/rollback');cv=normalize(result.data);published=clone(cv);version=result.version;render();status('✓ Rolled back to database version '+version+'.');}
     catch(error){status('Rollback failed: '+error.message);}
-    finally{controls(false);}
+    finally{document.getElementById('publishAccessKey').value='';controls(false);}
   };
   window.resetDraft=function(){
     if(busy||!published)return;

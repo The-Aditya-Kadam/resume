@@ -1056,14 +1056,14 @@ body{background:#fff!important;color:#111827!important}
     
     var themeId=CVThemes.apply(document,u.themeId); renderHero(d);renderSkills(d);renderEducation(d);renderCertification(d);renderAwards(d);renderContact(d);
     // Existing sections stay byte-for-byte intact until their content is edited.
-    if(previewToken||u.experienceEdited){
+    if(u.experienceEdited||(previewToken&&!(d.presentation&&d.presentation.experienceHTML))){
       setText("#experience .kicker",u.experienceKicker);setText("#experience .h2",u.experienceTitle);
       renderExperience(d);
     }else if(d.presentation&&d.presentation.experienceHTML){
       var career=document.querySelector('#experience .career');
       career.innerHTML=d.presentation.experienceHTML;document.querySelector('#experience .h2').innerHTML=d.presentation.experienceHeadingHTML;bindExperience(career,d.experience||[]);
     }else if(Array.isArray(d.experience)&&window.renderOrbitFromExperience){window.renderOrbitFromExperience(d.experience);}
-    if(!previewToken&&!u.knowledgeEdited&&d.presentation&&d.presentation.knowledgeHTML){
+    if(!u.knowledgeEdited&&d.presentation&&d.presentation.knowledgeHTML){
       document.querySelector('#knowledge .repo-grid').innerHTML=d.presentation.knowledgeHTML;
       document.querySelector('#knowledge .h2').innerHTML=d.presentation.knowledgeHeadingHTML;
     }else if(Array.isArray(d.repositories)){

@@ -6,7 +6,7 @@
     return;
   }
   const API='https://aditya-cv-api.onrender.com/api/cv';
-  let version=null, published=null, busy=false;
+  let version=null, published=null, busy=false, trustedPresentation=null;
   const originalRender=render;
   const status=message=>{document.getElementById('status').textContent=message;};
   function rememberDraft(){
@@ -75,6 +75,7 @@
     try{
       const result=await request();
       if(result.attachmentDefaults)Object.assign(CVAttachments.defaults,result.attachmentDefaults);
+      if(result.data.presentation)trustedPresentation=clone(result.data.presentation);
       cv=normalize(result.data);published=clone(cv);version=result.version;
       rememberDraft();
       render();status('✓ Database CV loaded. Version '+version+'.');
@@ -120,7 +121,9 @@
     sync();updateFlags();
     const token=crypto.randomUUID();
     try{
-      const snapshot=JSON.stringify(normalize(cv));
+      const previewData=normalize(cv);
+      if(trustedPresentation)previewData.presentation=clone(trustedPresentation);
+      const snapshot=JSON.stringify(previewData);
       try{localStorage.setItem(KEY+':preview:'+token,snapshot);}
       catch(error){
         if(error.name!=='QuotaExceededError')throw error;

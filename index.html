@@ -162,6 +162,7 @@ section{position:relative}
 .repo-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
 .repo-tags span{padding:4px 9px;border-radius:7px;background:var(--surface2);border:1px solid var(--line);font:600 12px var(--mono);color:var(--blue)}
 .repo-link{display:flex;justify-content:space-between;align-items:center;min-height:52px;padding:0 22px;border-top:1px dashed var(--line);font:700 13px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--blue);text-decoration:none;transition:background .2s}
+.project-card{min-width:0;display:flex;flex-direction:column}.project-card .repo-body{flex:1}.project-links{display:flex;flex-wrap:wrap}.project-links .repo-link{flex:1 1 150px;gap:8px;min-width:0;padding:14px 18px;overflow-wrap:anywhere}.project-note{font:12px var(--mono);color:var(--muted)}
 .repo-link:hover{background:var(--surface2)}
 @media (max-width:1100px){.repo-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:700px){.repo-grid{grid-template-columns:1fr;gap:14px}}
@@ -775,6 +776,7 @@ body{background:#fff!important;color:#111827!important}
 })();
 </script>
 
+<script src="/project-cards.js?v=20261013-projects"></script>
 <script src="/cv-content.js"></script>
 <script src="/cv-attachments.js"></script>
 <script>
@@ -1032,6 +1034,10 @@ body{background:#fff!important;color:#111827!important}
       setText("#knowledge .kicker",u.knowledgeKicker);setText("#knowledge .h2",u.knowledgeTitle);
       renderKnowledge(d);
     }
+    var projects=document.getElementById("projects");
+    if(!projects){projects=document.createElement("section");projects.id="projects";projects.className="block";document.getElementById("contact").before(projects);}
+    projects.hidden=!(Array.isArray(d.projects)&&d.projects.length);
+    projects.innerHTML='<div class="wrap"><div class="kicker">Selected projects</div><h2 class="h2">PROJECTS &amp; TOOLS.</h2><div class="repo-grid">'+CVProjectCards.render(d.projects||[])+'</div></div>';
     var custom=document.getElementById("customCVSections");
     if(!custom){custom=document.createElement("div");custom.id="customCVSections";document.getElementById("contact").before(custom);}
     custom.innerHTML=(Array.isArray(d.customSections)?d.customSections:[]).map(function(x){return '<section class="block"><div class="wrap"><div class="kicker">'+text(x.label)+'</div><h2 class="h2">'+text(x.title)+'</h2><p>'+text(x.text)+'</p></div></section>';}).join("");

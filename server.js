@@ -3,6 +3,8 @@ const { Pool } = require("pg");
 const CVAttachments = require("./cv-attachments");
 const {ensureDisplay,resolveDisplay}=require('./cv-display');
 const {ensureAuth,createAuth}=require('./cv-auth');
+const {ensureProjects,resolveProjects}=require('./cv-project-defaults');
+const {normalizeProjects}=require('./project-cards');
 
 const PORT = process.env.PORT || 10000;
 const USE_NEON = process.env.CV_DATABASE_MODE === "neon";
@@ -159,6 +161,7 @@ function normalizeData(input) {
   })) : [];
 
   out.customSections = Array.isArray(d.customSections) ? d.customSections : [];
+  if(Object.prototype.hasOwnProperty.call(d,"projects"))out.projects=normalizeProjects(d.projects);
   out.cards = Array.isArray(d.cards) ? d.cards : [];
   const repositoryDefaults = [
     {label:"REPO 01",source:"Simplilearn",path:"The-Aditya-Kadam / Natural-Language-Processing",title:"Natural Language Processing",description:"NLP coursework and projects.",tags:["NLP","Text analytics"],url:"https://github.com/The-Aditya-Kadam/Natural-Language-Processing"},
@@ -252,6 +255,7 @@ return http.createServer(async (req, res) => {
       }
 
       const display=options.display===false?{data:result.rows[0].data}:resolveDisplay(result.rows[0].data,(await pool.query('SELECT data FROM cv_display_defaults WHERE id=1')).rows[0].data);
+      if(options.display!==false)display.data=resolveProjects(display.data,(await pool.query("SELECT data FROM cv_project_defaults WHERE id=1")).rows[0]?.data);
       send(res, 200, {
         ...display,
         version: result.rows[0].version,
@@ -274,7 +278,7 @@ return http.createServer(async (req, res) => {
         return;
       }
 
-      for (const key of ["education","experience","certifications","awards","competencies","repositories","customSections"]) {
+      for (const key of ["education","experience","certifications","awards","competencies","repositories","customSections","projects"]) {
         if(rawData[key]!=null && (!Array.isArray(rawData[key]) || rawData[key].some(x=>!x||typeof x!=="object"||Array.isArray(x)))) {
           send(res,400,{error:"Invalid "+key+" list."});return;
         }
@@ -407,6 +411,7 @@ async function start() {
   await ensureDatabase();
   await ensureDisplay(pool);
   await ensureAuth(pool);
+  await ensureProjects(pool);
   if(USE_NEON){
     try{const result=await require("./cv-approved-content").publishApprovedContent(pool);console.log("CV_APPROVED_CONTENT "+JSON.stringify(result));}
     catch(error){console.error("CV_APPROVED_CONTENT_FAILED "+(error.code||"PUBLICATION_ERROR"));}

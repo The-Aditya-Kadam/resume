@@ -114,7 +114,7 @@
     <div id="repositories"></div>
   </section>
 
-  <section class="panel" id="custom-sections"><div class="item-head"><h2>Custom Sections / Cards</h2><button class="btn secondary" onclick="addCustomSection()">+ Add Section</button></div><div id="customSections"></div></section>
+  <section class="panel" id="custom-sections"><div class="item-head"><h2>Custom Sections / Cards</h2><button class="btn secondary" onclick="addCustomSection()">+ Add Section</button></div><div id="customSections"></div><h3>Project Cards</h3><p class="small">GitHub, setup and live demo links. Private source stays private; public visitors can request access.</p><div id="projects"></div><button class="btn secondary" onclick="addProjectCard()">+ Add Project Card</button></section>
 
   <div class="actions">
     <button class="btn primary" onclick="saveDraft()">SAVE CV TO DATABASE</button>
@@ -133,6 +133,7 @@
 </div>
 
 <main id="authGate" class="auth-gate" hidden><section class="auth-card"><span>CAREER STUDIO · PRIVATE WORKSPACE</span><h1 id="loginTitle">Welcome back.</h1><p>Sign in to manage your CV. Your public portfolio remains open to everyone.</p><form id="loginForm"><label for="adminUsername">Username</label><input id="adminUsername" autocomplete="username" required maxlength="100"><label for="adminPassword">Password</label><input id="adminPassword" type="password" autocomplete="current-password" required maxlength="256"><div id="setupFields" hidden><label for="ownerSetupToken">Owner setup key</label><input id="ownerSetupToken" type="password" autocomplete="off"><small>For first setup, copy CV_ADMIN_SETUP_TOKEN from your Render API environment. Choose a password of at least 6 characters. Never share the key or password.</small></div><button id="signInButton" class="primary" type="submit">Sign in</button><p id="authMessage" role="alert"></p></form><a id="ownerSetupLink" class="btn secondary" href="?setup=1" hidden>Finish first-time account setup</a><button id="retryAuth" class="btn secondary" type="button">Retry connection</button></section></main><div id="loadGate" class="load-gate" role="status" aria-live="polite"><span class="load-spinner" aria-hidden="true"></span><h2 id="loadMessage">Connecting securely…</h2><p>Preparing your workspace. The server may take a moment to wake up.</p></div>
+<script src="/project-cards.js?v=20261013-projects"></script>
 <script src="/cv-content.js"></script>
 <script src="/cv-attachments.js?v=20261012-auth"></script>
 <script>
@@ -214,6 +215,8 @@ function render(){
   document.getElementById("certifications").innerHTML=cv.certifications.map((x,i)=>`<div class="item"><div class="item-head"><strong>Certification ${i+1}</strong><div class="row-actions"><button class="btn muted" onclick="moveItem('certifications',${i},-1)">↑</button><button class="btn muted" onclick="moveItem('certifications',${i},1)">↓</button><button class="btn danger" onclick="removeItem('certifications',${i})">Remove</button></div></div><div class="grid"><div><label>Certification</label><input data-group="certifications" data-i="${i}" data-k="title" value="${esc(x.title)}"></div><div><label>Issuer</label><input data-group="certifications" data-i="${i}" data-k="issuer" value="${esc(x.issuer)}"></div><div><label>Date</label><input data-group="certifications" data-i="${i}" data-k="date" value="${esc(x.date)}"></div><div><label>Credential / Details</label><input data-group="certifications" data-i="${i}" data-k="details" value="${esc(x.details)}"></div></div></div>`).join("");
   document.getElementById("awards").innerHTML=cv.awards.map((x,i)=>`<div class="item"><div class="item-head"><strong>Award ${i+1}</strong><div class="row-actions"><button class="btn muted" onclick="moveItem('awards',${i},-1)">↑</button><button class="btn muted" onclick="moveItem('awards',${i},1)">↓</button><button class="btn danger" onclick="removeItem('awards',${i})">Remove</button></div></div><div class="grid"><div><label>Award</label><input data-group="awards" data-i="${i}" data-k="title" value="${esc(x.title)}"></div><div><label>Issuer</label><input data-group="awards" data-i="${i}" data-k="issuer" value="${esc(x.issuer)}"></div><div><label>Date</label><input data-group="awards" data-i="${i}" data-k="date" value="${esc(x.date)}"></div></div></div>`).join("");
   document.getElementById("customSections").innerHTML=cv.customSections.map((x,i)=>`<div class="item"><div class="item-head"><strong>Custom Section ${i+1}</strong><div class="row-actions"><button class="btn muted" onclick="moveItem('customSections',${i},-1)">↑</button><button class="btn muted" onclick="moveItem('customSections',${i},1)">↓</button><button class="btn danger" onclick="removeItem('customSections',${i})">Remove</button></div></div><div class="grid"><div><label>Label</label><input data-group="customSections" data-i="${i}" data-k="label" value="${esc(x.label)}"></div><div><label>Title</label><input data-group="customSections" data-i="${i}" data-k="title" value="${esc(x.title)}"></div><div class="full"><label>Paragraph</label><textarea data-group="customSections" data-i="${i}" data-k="text">${esc(x.text)}</textarea></div></div></div>`).join("");
+  document.getElementById("projects").innerHTML=(cv.projects||[]).map((x,i)=>`<div class="item"><div class="item-head"><strong>Project ${i+1}</strong><div class="row-actions"><button class="btn muted" onclick="moveItem('projects',${i},-1)">↑</button><button class="btn muted" onclick="moveItem('projects',${i},1)">↓</button><button class="btn danger" onclick="removeItem('projects',${i})">Remove</button></div></div><div class="grid">${[['title','Title'],['description','Description'],['githubUrl','GitHub URL'],['setupUrl','GitHub setup URL'],['demoUrl','Live demo URL']].map(([k,label])=>`<div><label>${label}</label><input data-group="projects" data-i="${i}" data-k="${k}" value="${esc(x[k])}"></div>`).join('')}<div><label>Source visibility</label><select data-project-private="${i}"><option value="false"${x.private?'':' selected'}>Public</option><option value="true"${x.private?' selected':''}>Private</option></select></div><div class="full"><label>Tags (comma separated)</label><input data-project-tags="${i}" value="${esc((x.tags||[]).join(', '))}"></div></div></div>`).join('');
+
 }
 
 function sync(){
@@ -239,6 +242,8 @@ function sync(){
   document.querySelectorAll("[data-group]").forEach(el=>{
     cv[el.dataset.group][+el.dataset.i][el.dataset.k]=el.value;
   });
+  document.querySelectorAll("[data-project-private]").forEach(el=>{cv.projects[+el.dataset.projectPrivate].private=el.value==="true";});
+  document.querySelectorAll("[data-project-tags]").forEach(el=>{cv.projects[+el.dataset.projectTags].tags=el.value.split(",").map(v=>v.trim()).filter(Boolean);});
   document.querySelectorAll("[data-bullet-group]").forEach(el=>{
     const i=+el.dataset.bulletGroup,j=+el.dataset.bulletIndex;
     cv.experience[i].bullets[j]=el.value;
@@ -255,6 +260,7 @@ function addExperience(){sync();cv.experience.push({role:"New Role",company:"Com
 function addEducation(){sync();cv.education.push({qualification:"",institution:"",dates:"",details:""});render()}
 function addCertification(){sync();cv.certifications.push({title:"",issuer:"",date:"",details:""});render()}
 function addAward(){sync();cv.awards.push({title:"",issuer:"",date:""});render()}
+function addProjectCard(){sync();cv.projects=cv.projects||[];cv.projects.push({id:"project-"+Date.now(),title:"New Project",description:"",githubUrl:"",setupUrl:"",demoUrl:"",private:false,tags:[]});render()}
 function addCustomSection(){sync();cv.customSections.push({label:"",title:"New Section",text:""});render()}
 function removeItem(group,i){sync();cv[group].splice(i,1);render()}
 function moveItem(group,i,dir){sync();const j=i+dir;if(j<0||j>=cv[group].length)return;[cv[group][i],cv[group][j]]=[cv[group][j],cv[group][i]];render()}
@@ -264,6 +270,6 @@ function removeBullet(i,j){sync();cv.experience[i].bullets.splice(j,1);render()}
 </script>
 <script src="/cv-management/attachments.js?v=20261012-auth"></script>
 <script src="/cv-management/auth.js?v=20261012-paused-v2"></script>
-<script src="/cv-management/manager.js?v=20261012-paused-v2"></script>
+<script src="/cv-management/manager.js?v=20261013-projects"></script>
 </body>
 </html>

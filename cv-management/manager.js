@@ -18,7 +18,7 @@
     if(!input||typeof input!=='object'||Array.isArray(input))throw new Error('A CV JSON object is required.');
     const d=clone(input);delete d.presentation;
     for(const key of ['site','ui'])if(d[key]!=null&&(typeof d[key]!=='object'||Array.isArray(d[key])))throw new Error('Invalid '+key+' object.');
-    for(const key of ['education','certifications','awards','competencies','experience','repositories','customSections']){
+    for(const key of ['education','certifications','awards','competencies','experience','repositories','customSections','projects']){
       if(d[key]!=null&&(!Array.isArray(d[key])||d[key].some(x=>!x||typeof x!=='object'||Array.isArray(x))))throw new Error('Invalid '+key+' list.');
       d[key]=d[key]??clone(base[key]||[]);
     }
@@ -30,6 +30,7 @@
     d.ui.heroMetrics.forEach(x=>{if(!x||typeof x!=='object'||Array.isArray(x))throw new Error('Invalid hero metric.');});
     d.experience.forEach(x=>{if(x.bullets!=null&&!Array.isArray(x.bullets))throw new Error('Invalid responsibilities list.');x.bullets=x.bullets||[];});
     d.repositories.forEach(x=>{if(x.tags!=null&&!Array.isArray(x.tags))throw new Error('Invalid repository tags.');x.tags=x.tags||[];});
+    d.projects=CVProjectCards.normalizeProjects(d.projects);
     return CVContent.resolve(d);
   }
   function controls(disabled){

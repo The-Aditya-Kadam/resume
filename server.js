@@ -5,6 +5,7 @@ const {ensureDisplay,resolveDisplay}=require('./cv-display');
 const {ensureAuth,createAuth}=require('./cv-auth');
 const {ensureProjects,resolveProjects}=require('./cv-project-defaults');
 const {normalizeProjects,position}=require('./project-cards');
+const sectionOrder=require('./section-order');
 
 const PORT = process.env.PORT || 10000;
 const USE_NEON = process.env.CV_DATABASE_MODE === "neon";
@@ -109,6 +110,7 @@ function normalizeData(input) {
   out.ui.knowledgeGithubLabel = d.ui?.knowledgeGithubLabel ?? uiDefaults.knowledgeGithubLabel;
   out.ui.themeId = d.ui?.themeId ?? uiDefaults.themeId;
   out.ui.projectPosition = position(d.ui?.projectPosition);
+  if(Array.isArray(d.ui?.sectionOrder))out.ui.sectionOrder=sectionOrder.normalize(d.ui.sectionOrder);
 
   out.name = d.name || "";
   out.role = d.role || "";

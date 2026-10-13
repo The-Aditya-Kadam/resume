@@ -777,6 +777,7 @@ body{background:#fff!important;color:#111827!important}
 })();
 </script>
 
+<script src="/section-order.js?v=20261013-drag"></script>
 <script src="/project-cards.js?v=20261013-position"></script>
 <script src="/cv-content.js"></script>
 <script src="/cv-attachments.js"></script>
@@ -1043,6 +1044,7 @@ body{background:#fff!important;color:#111827!important}
     if(!custom){custom=document.createElement("div");custom.id="customCVSections";document.getElementById("contact").before(custom);}
     custom.innerHTML=(Array.isArray(d.customSections)?d.customSections:[]).map(function(x){return '<section class="block"><div class="wrap"><div class="kicker">'+text(x.label)+'</div><h2 class="h2">'+text(x.title)+'</h2><p>'+text(x.text)+'</p></div></section>';}).join("");
     CVProjectCards.place(document,projects,u.projectPosition);
+    if(Array.isArray(u.sectionOrder))CVSectionOrder.apply(document,u.sectionOrder);
     document.documentElement.dataset.cvSource=previewToken?"preview":"published";
     document.dispatchEvent(new CustomEvent("cv:ready"));
   }

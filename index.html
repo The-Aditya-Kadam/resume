@@ -162,6 +162,7 @@ section{position:relative}
 .repo-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
 .repo-tags span{padding:4px 9px;border-radius:7px;background:var(--surface2);border:1px solid var(--line);font:600 12px var(--mono);color:var(--blue)}
 .repo-link{display:flex;justify-content:space-between;align-items:center;min-height:52px;padding:0 22px;border-top:1px dashed var(--line);font:700 13px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--blue);text-decoration:none;transition:background .2s}
+.project-thumbnail{display:block;width:100%;height:140px;object-fit:contain;padding:22px;background:var(--surface2);border-bottom:1px solid var(--line)}
 .project-card{min-width:0;display:flex;flex-direction:column}.project-card .repo-body{flex:1}.project-links{display:flex;flex-wrap:wrap}.project-links .repo-link{flex:1 1 150px;gap:8px;min-width:0;padding:14px 18px;overflow-wrap:anywhere}.project-note{font:12px var(--mono);color:var(--muted)}
 .repo-link:hover{background:var(--surface2)}
 @media (max-width:1100px){.repo-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -776,7 +777,7 @@ body{background:#fff!important;color:#111827!important}
 })();
 </script>
 
-<script src="/project-cards.js?v=20261013-projects"></script>
+<script src="/project-cards.js?v=20261013-thumbnails"></script>
 <script src="/cv-content.js"></script>
 <script src="/cv-attachments.js"></script>
 <script>

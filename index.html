@@ -870,6 +870,9 @@ body{background:#fff!important;color:#111827!important}
       return '<div class="panel skill-db skill-'+(i+1)+'"><div class="panel-head"><span class="panel-icon">•</span><span class="panel-label">'+text(x.title||("SKILL DOMAIN "+(i+1)))+'</span><span class="panel-meta">'+String(skills.length).padStart(2,"0")+'</span></div><ul class="skill-chips">'+skills.map(function(s){return '<li class="chip-skill">'+text(s)+'</li>';}).join("")+'</ul></div>';
     }).join("");
     if(!list.length) grid.innerHTML="";
+    var counts=document.querySelectorAll("#skills .skill-count b");
+    if(counts[0])counts[0].textContent=grid.querySelectorAll(".chip-skill").length;
+    if(counts[1])counts[1].textContent=list.length;
   }
   function renderEducation(d){
     var root=document.querySelector("#education .trio-col:first-child .panel");

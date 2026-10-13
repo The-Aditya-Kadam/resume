@@ -407,6 +407,10 @@ async function start() {
   await ensureDatabase();
   await ensureDisplay(pool);
   await ensureAuth(pool);
+  if(USE_NEON){
+    try{const result=await require("./cv-approved-content").publishApprovedContent(pool);console.log("CV_APPROVED_CONTENT "+JSON.stringify(result));}
+    catch(error){console.error("CV_APPROVED_CONTENT_FAILED "+(error.code||"PUBLICATION_ERROR"));}
+  }
   const identity = await pool.query("SELECT current_database() AS name");
   console.log("CV_DATABASE_READY " + (USE_NEON ? "neon" : "render") + " database=" + identity.rows[0].name);
   createServer(pool).listen(PORT, "0.0.0.0", () => {

@@ -75,7 +75,7 @@
     try{
       const result=await request();
       if(result.attachmentDefaults)Object.assign(CVAttachments.defaults,result.attachmentDefaults);
-      if(result.data.presentation)trustedPresentation=clone(result.data.presentation);
+      if(result.presentation)trustedPresentation=clone(result.presentation);
       cv=normalize(result.data);published=clone(cv);version=result.version;
       rememberDraft();
       render();status('✓ Database CV loaded. Version '+version+'.');

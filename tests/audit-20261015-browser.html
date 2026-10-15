@@ -62,6 +62,7 @@ async function exercise(frame,label){
     else if(a.chipIndex!==undefined)expected=savedValues.ui.orbitChips[+a.chipIndex];
     else if(a.bulletGroup!==undefined)expected=savedValues.experience[+a.bulletGroup].bullets[+a.bulletIndex];
     else if(a.repoTags!==undefined)expected=savedValues.repositories[+a.repoTags].tags.join(', ');
+    else if(a.projectPrivate!==undefined)expected=String(!!savedValues.projects[+a.projectPrivate].private);
     else if(a.projectTags!==undefined)expected=savedValues.projects[+a.projectTags].tags.join(', ');
     else if(a.attachment)expected=w.CVAttachments.normalize(savedValues.attachments)[a.attachment]?.url||'';
     else if(e.id==='themeId')expected=savedValues.ui.themeId;
@@ -75,7 +76,7 @@ async function exercise(frame,label){
   check(d.getElementById('name').value===published.data.name,label+': published name loaded');
   check(d.querySelectorAll('#repositories > .item').length===6,label+': six legacy Knowledge cards loaded');
   check([...d.querySelectorAll('#experience [data-k="proof"]')].every(e=>e.value.startsWith('https://github.com/')),label+': all six proof links loaded');
-  for(const [add,group] of [['addHeroMetric','heroMetrics'],['addEducation','education'],['addCertification','certifications'],['addAward','awards'],['addCompetency','competencies'],['addExperience','experience'],['addRepository','repositories'],['addCustomSection','customSections']]){
+  for(const [add,group] of [['addHeroMetric','heroMetrics'],['addEducation','education'],['addCertification','certifications'],['addAward','awards'],['addCompetency','competencies'],['addExperience','experience'],['addRepository','repositories'],['addCustomSection','customSections'],['addProjectCard','projects']]){
     let count=d.querySelectorAll('#'+group+' > .item').length;w[add]();w[add]();
     let items=d.querySelectorAll('#'+group+' > .item');items[items.length-1].querySelector('input').value='Browser QA marker';items[items.length-1].querySelector('[aria-label="Move Up"]').click();
     items=d.querySelectorAll('#'+group+' > .item');check(items[items.length-2].querySelector('input').value==='Browser QA marker',label+': '+group+' Move Up');items[items.length-2].querySelector('[aria-label="Move Down"]').click();

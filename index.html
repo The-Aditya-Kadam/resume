@@ -14,19 +14,19 @@ j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNo
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#f7faff">
-<meta name="description" content="Aditya Kadam, Assistant Technical Project Manager in Mumbai. Agile delivery, Jira, WordPress engineering, stakeholder communication, QA and analytics.">
+<meta name="description" content="Aditya Kadam’s résumé: Assistant Technical Project Manager in Mumbai with 10+ years in web engineering, Agile delivery, WordPress and team leadership.">
 <meta name="robots" content="index,follow">
-<title>Aditya Kadam | Assistant Technical Project Manager</title>
+<title>Aditya Kadam Resume | Assistant Technical Project Manager</title>
 <link rel="canonical" href="https://aditya-kadam-resume.onrender.com/">
 <meta name="author" content="Aditya Kadam">
 <meta property="og:type" content="profile">
 <meta property="og:url" content="https://aditya-kadam-resume.onrender.com/">
-<meta property="og:title" content="Aditya Kadam | Assistant Technical Project Manager">
-<meta property="og:description" content="Explore Aditya Kadam’s work in technical project management, WordPress development, team leadership, digital marketing and data science.">
+<meta property="og:title" content="Aditya Kadam Resume | Assistant Technical Project Manager">
+<meta property="og:description" content="Aditya Kadam’s résumé: Assistant Technical Project Manager in Mumbai with 10+ years in web engineering, Agile delivery, WordPress and team leadership.">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Aditya Kadam | Assistant Technical Project Manager">
-<meta name="twitter:description" content="Explore Aditya Kadam’s work in technical project management, WordPress development, team leadership, digital marketing and data science.">
-<script type="application/ld+json" id="profileSchema">{"@context": "https://schema.org", "@type": "ProfilePage", "url": "https://aditya-kadam-resume.onrender.com/", "mainEntity": {"@type": "Person", "@id": "https://aditya-kadam-resume.onrender.com/#person", "name": "Aditya Kadam", "jobTitle": "Assistant Technical Project Manager", "url": "https://aditya-kadam-resume.onrender.com/", "sameAs": ["https://github.com/The-Aditya-Kadam", "https://www.linkedin.com/in/aditya-k-142874111/"]}}</script>
+<meta name="twitter:title" content="Aditya Kadam Resume | Assistant Technical Project Manager">
+<meta name="twitter:description" content="Aditya Kadam’s résumé: Assistant Technical Project Manager in Mumbai with 10+ years in web engineering, Agile delivery, WordPress and team leadership.">
+<script type="application/ld+json" id="profileSchema">{"@context": "https://schema.org", "@type": "ProfilePage", "url": "https://aditya-kadam-resume.onrender.com/", "mainEntity": {"@type": "Person", "@id": "https://aditya-kadam-resume.onrender.com/#person", "name": "Aditya Kadam", "jobTitle": "Assistant Technical Project Manager", "url": "https://aditya-kadam-resume.onrender.com/", "sameAs": ["https://github.com/The-Aditya-Kadam", "https://www.linkedin.com/in/aditya-k-142874111/"], "description": "Aditya Kadam’s résumé: Assistant Technical Project Manager in Mumbai with 10+ years in web engineering, Agile delivery, WordPress and team leadership."}, "name": "Aditya Kadam Resume | Assistant Technical Project Manager", "description": "Aditya Kadam’s résumé: Assistant Technical Project Manager in Mumbai with 10+ years in web engineering, Agile delivery, WordPress and team leadership."}</script>
 <script src="/seo.js" defer></script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
@@ -448,7 +448,7 @@ body{background:#fff!important;color:#111827!important}
 <div class="wrap hero-grid">
 <div class="hero-copy">
 <div class="eyebrow">ASSISTANT TECHNICAL PROJECT MANAGER · TEAM LEADERSHIP · WEB DELIVERY</div>
-<h1><span>ADITYA</span><span class="accent-text">KADAM.</span></h1>
+<h1><span>ADITYA</span> <span class="accent-text">KADAM.</span></h1>
 <div class="lead">Assistant Technical Project Manager with 10+ years in web engineering and 7+ years in digital marketing. Agile delivery, sprint planning, stakeholder communication, Jira, quality assurance and data-informed project reporting.</div>
 <div class="now"><i class="pulse"></i><span>Now: <b>Assistant Technical Project Manager at Rath Infotech</b></span></div>
 <div class="hero-actions">
@@ -1049,7 +1049,7 @@ body{background:#fff!important;color:#111827!important}
     setText("#contact .h2",u.contactTitle);
     setText("#contact .avail",u.contactAvailability);
     var foot=document.querySelector("footer");if(foot){var fs=foot.querySelectorAll("span");if(fs[0]&&u.footerLeft!=null)fs[0].textContent=u.footerLeft;if(fs[1]&&u.footerRight!=null)fs[1].textContent=u.footerRight;}
-    var h1=document.querySelector(".hero h1");if(h1&&d.name!=null)h1.innerHTML=String(d.name).trim().split(/\s+/).map(function(w){return "<span>"+text(w)+"</span>";}).join("");
+    var h1=document.querySelector(".hero h1");if(h1&&d.name!=null)h1.innerHTML=String(d.name).trim().split(/\s+/).map(function(w){return "<span>"+text(w)+"</span>";}).join(" ");
     var lead=document.querySelector(".hero .lead");if(lead&&d.summary!=null)lead.innerHTML=CVSummaryReader.structured(d.summary);
     var role=document.querySelector(".hero .now b");if(role)role.textContent=d.role||"";
     var summary=document.querySelector("#summary .summary-text");if(summary&&d.summary!=null)summary.innerHTML=CVSummaryReader.render(d.summary);
@@ -1080,7 +1080,7 @@ body{background:#fff!important;color:#111827!important}
     CVProjectCards.place(document,projects,u.projectPosition);
     if(Array.isArray(u.sectionOrder))CVSectionOrder.apply(document,u.sectionOrder);
     document.documentElement.dataset.cvSource=previewToken?"preview":"published";
-    document.dispatchEvent(new CustomEvent("cv:ready"));
+    document.dispatchEvent(new CustomEvent("cv:ready",{detail:{data:d}}));
   }
   var loadingNote=document.createElement('div');loadingNote.id='cvLoadingNote';loadingNote.setAttribute('role','status');loadingNote.style.cssText='position:fixed;bottom:18px;left:18px;right:18px;z-index:90;max-width:480px;padding:14px 18px;border-radius:16px;background:#19152b;color:#fff;font:14px system-ui;box-shadow:0 8px 30px #0003';loadingNote.textContent='Loading the latest portfolio…';document.body.append(loadingNote);
   function load(){loadingNote.hidden=false;loadingNote.textContent='Loading the latest portfolio…';var controller=new AbortController(),timer=setTimeout(function(){controller.abort();},90000);

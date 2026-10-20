@@ -222,8 +222,14 @@ function readBody(req) {
 
 function createServer(pool,options={}) {
 const auth=options.requireAuth===false?null:createAuth(pool,options.auth);
+const visitAlerts=require('./visit-alerts').createVisitAlerts(pool,options.visitAlerts);
 return http.createServer(async (req, res) => {
   const pathname = new URL(req.url, "http://localhost").pathname;
+
+  if(pathname==='/api/visit-alert'){
+    await visitAlerts.handle(req,res);
+    return;
+  }
 
   if (req.method === "OPTIONS") {
     send(res, 204, {});

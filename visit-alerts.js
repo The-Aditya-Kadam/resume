@@ -1,5 +1,6 @@
 const {createHash,createHmac}=require('node:crypto');
 const ORIGIN='https://aditya-kadam-resume.onrender.com';
+const ALLOWED_ORIGINS=new Set([ORIGIN,'https://adityakadam.ct.ws']);
 
 function createVisitAlerts(pool,{env=process.env,fetchImpl=fetch,now=()=>new Date()}={}) {
   const scriptUrl=env.VISIT_ALERT_SCRIPT_URL||'';
@@ -42,10 +43,11 @@ function createVisitAlerts(pool,{env=process.env,fetchImpl=fetch,now=()=>new Dat
     finally{client.release();}
   }
   async function handle(req,res) {
-    const reply=(status)=>{res.writeHead(status,{'Access-Control-Allow-Origin':ORIGIN,'Cache-Control':'no-store'});res.end();};
-    if(req.headers.origin!==ORIGIN){reply(403);return;}
+    const origin=ALLOWED_ORIGINS.has(req.headers.origin)?req.headers.origin:ORIGIN;
+    const reply=(status)=>{res.writeHead(status,{'Access-Control-Allow-Origin':origin,'Cache-Control':'no-store','Vary':'Origin'});res.end();};
+    if(!ALLOWED_ORIGINS.has(req.headers.origin)){reply(403);return;}
     if(req.method==='OPTIONS'){
-      res.writeHead(204,{'Access-Control-Allow-Origin':ORIGIN,'Access-Control-Allow-Methods':'POST, OPTIONS','Access-Control-Allow-Headers':'Content-Type','Vary':'Origin'});res.end();return;
+      res.writeHead(204,{'Access-Control-Allow-Origin':origin,'Access-Control-Allow-Methods':'POST, OPTIONS','Access-Control-Allow-Headers':'Content-Type','Vary':'Origin'});res.end();return;
     }
     if(req.method!=='POST'){reply(405);return;}
     if(!enabled || /bot|crawler|spider|headless|preview/i.test(req.headers['user-agent']||'')){reply(204);return;}
